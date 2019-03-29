@@ -1,4 +1,4 @@
 module.exports = {
   path: '/',
-  components: 123,
+  component: 123,
 };

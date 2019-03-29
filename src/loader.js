@@ -3,13 +3,11 @@ const _ = require('lodash');
 const { name } = require('../package');
 const babel = require('@babel/core');
 
-const getComponentsTemplate = `
+const importComponent = `
 function () {
-  return new Promise(function(resolve) {
-    require.ensure([], function(require) {
-      resolve(require());
-    });
-  })
+  return import(__component__).then(function (m) {
+    return m.default || m;
+  });
 }
 `;
 
@@ -83,18 +81,8 @@ async function loader(source, inputSourceMap) {
   let namedRoutes = {};
 
   (function traverse(node, context) {
-    if (node.components) {
-      if (!_.isArray(node.components)) {
-        node.components = [node.components];
-      }
-
-      for (let c of node.components) {
-        if (!_.isString(c)) {
-          throw new Error(
-            `components must be string or string[]: ${node.components}`,
-          );
-        }
-      }
+    if (node.component && !_.isString(node.component)) {
+      throw new Error(`component must be string: ${node.component}`);
     }
 
     if (node.name && !_.isEmpty(node.children)) {
@@ -182,9 +170,9 @@ async function loader(source, inputSourceMap) {
       };
     }
 
-    // add getComponents as placeholder, prepare for hack
-    if (!_.isEmpty(node.components)) {
-      node.getComponents = node.components;
+    // add importComponent as placeholder, prepare for hack
+    if (node.component) {
+      node.importComponent = node.component;
     }
 
     // recursive traverse to children
@@ -207,21 +195,14 @@ async function loader(source, inputSourceMap) {
   // convert to source so we can hack it as string
   let routeSource = JSON.stringify(routeTree);
 
-  // hack getComponents to be a require.ensure promise
+  // hack importComponent to be a require.ensure promise
   routeSource = routeSource.replace(
-    /(["'])getComponents\1\s*?:\s*?(\[.*?\])/g,
+    /(["'])importComponent\1\s*?:\s*?((["']).*?\3)/g,
     function() {
-      let requireList = JSON.parse(arguments[2]);
-
-      requireList = `[${_.map(requireList, v => {
-        // stringify to escape special characters, e.g. "\"
-        v = JSON.stringify(v);
-        return `require(${v}).default || require(${v})`;
-      }).join(',')}]`;
-
-      let func = getComponentsTemplate.replace(/require\(\)/g, requireList);
-
-      return `"getComponents": ${func}`;
+      return `"importComponent": ${importComponent.replace(
+        /__component__/g,
+        arguments[2],
+      )}`;
     },
   );
 

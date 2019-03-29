@@ -1,10 +1,10 @@
 module.exports = {
   path: '/',
-  components: 'foo',
+  component: 'foo',
   name: 'foo',
   children: [
     {
-      components: 'foo',
+      component: 'foo',
     },
   ],
 };

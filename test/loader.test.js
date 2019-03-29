@@ -47,12 +47,12 @@ function compiler(fixture) {
   });
 }
 
-test('components must be string or string[]', async () => {
-  let stats = await compiler('number_components.js');
-  expect(stats.errors[0]).toMatch(/components must be string or string\[\]/);
+test('component must be string', async () => {
+  let stats = await compiler('number_component.js');
+  expect(stats.errors[0]).toMatch(/component must be string/);
 
-  stats = await compiler('object_components.js');
-  expect(stats.errors[0]).toMatch(/components must be string or string\[\]/);
+  stats = await compiler('object_component.js');
+  expect(stats.errors[0]).toMatch(/component must be string/);
 });
 
 test('named route is a leaf that can not has children', async () => {
@@ -70,31 +70,46 @@ test('throw param name conflict', async () => {
   expect(stats.errors[0]).toBe(undefined);
 });
 
-test('transpile components to require.ensure (code splitting)', async () => {
+test('transpile component to import("component") (code splitting)', async () => {
   let stats = await compiler('code_splitting.js');
   expect(stats.errors[0]).toBe(undefined);
+
+  const matches = [{
+    match: 'fixtures\/components\/A.jsx',
+    status: false,
+  },{
+    match: 'fixtures\/components\/B.jsx',
+    status: false,
+  },{
+    match: 'fixtures\/components\/C.jsx',
+    status: false,
+  }];
 
   for (let chunk of stats.chunks) {
     if (!chunk.modules || chunk.modules.length > 3) {
       continue;
     }
 
-    let files = [];
-    chunk.modules.forEach(({ name }) => files.push(name));
+    let files = chunk.modules.map(({ name }) => name);
 
-    switch (files.length) {
-      case 1:
-        expect(files[0]).toMatch(/fixtures\/components\/A.jsx/);
-        break;
-      case 2:
-        expect(files[0]).toMatch(/fixtures\/components\/B.jsx/);
-        expect(files[1]).toMatch(/fixtures\/components\/C.jsx/);
-        break;
-      case 3:
-        expect(files[0]).toMatch(/fixtures\/components\/A.jsx/);
-        expect(files[1]).toMatch(/fixtures\/components\/B.jsx/);
-        expect(files[2]).toMatch(/fixtures\/components\/C.jsx/);
-        break;
+    if (files.length === 1) {
+      for (let m of matches) {
+        const r = new RegExp(m.match)
+        if (r.test(files[0])) {
+          m.status = true;
+        }
+      }
     }
   }
+
+  expect(matches).toEqual([{
+    match: 'fixtures\/components\/A.jsx',
+    status: true,
+  },{
+    match: 'fixtures\/components\/B.jsx',
+    status: true,
+  },{
+    match: 'fixtures\/components\/C.jsx',
+    status: true,
+  }])
 });

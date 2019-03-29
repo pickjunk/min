@@ -9,13 +9,13 @@ export default {
   children: [
     {
       path: '(c?:c)',
-      components: fixture('A'),
+      component: fixture('A'),
       children: [
         {
-          components: [fixture('B'), fixture('C')],
+          component: fixture('B'),
           children: [
             {
-              components: [fixture('A'), fixture('B'), fixture('C')],
+              component: fixture('C'),
             },
           ],
         },

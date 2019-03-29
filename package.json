@@ -38,6 +38,7 @@
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/register": "^7.4.0",
+    "@types/lodash": "^4.14.123",
     "@types/qs": "^6.5.2",
     "@types/react": "^16.8.8",
     "babel-jest": "^24.5.0",
@@ -64,6 +65,7 @@
     "qs": "^6.7.0",
     "react": "^16.8.5",
     "react-dom": "^16.8.5",
+    "rxjs": "^6.4.0",
     "webpack": "^4.29.6",
     "webpack-bundle-analyzer": "^3.1.0",
     "webpack-cli": "^3.3.0",

@@ -1,16 +1,17 @@
+import { ComponentType } from 'react';
 import qs from 'qs';
 
-type getComponents = () => Promise<any>;
+type importComponent = () => Promise<ComponentType<any>>;
 
 type Route = {
   name?: string;
   path?: string;
   directory?: string;
-  components?: string | string[];
+  component?: string;
 
   _path?: string;
   _params: string[];
-  getComponents?: getComponents;
+  importComponent?: importComponent;
 
   children?: Route[];
 };
@@ -27,15 +28,16 @@ type Names = {
   };
 };
 
-type MatchedRoute = [getComponents[], Params, string?];
+type MatchedRoute = [
+  {
+    path: string;
+    importComponent: importComponent;
+  }[],
+  Params,
+  string?
+];
 
-type LoadedRoute = {
-  components: any[];
-  args: Params;
-  name?: string;
-};
-
-type Params = {
+export type Params = {
   [key: string]: string;
 };
 
@@ -43,7 +45,10 @@ function traverse(
   node: Route,
   context: {
     remain: string;
-    routeGetComponents: getComponents[];
+    routeGetComponents: {
+      path: string;
+      importComponent: importComponent;
+    }[];
     routeArguments: Params;
   },
 ): MatchedRoute | false {
@@ -58,8 +63,11 @@ function traverse(
   if (node._path) {
     let match = null;
     if ((match = regex.exec(remain))) {
-      if (node.getComponents) {
-        routeGetComponents.push(node.getComponents);
+      if (node.importComponent) {
+        routeGetComponents.push({
+          path: match[0],
+          importComponent: node.importComponent,
+        });
       }
 
       for (let i = 1; i < match.length; i++) {
@@ -83,8 +91,11 @@ function traverse(
             if (child._path === undefined) {
               defaultChild = child;
 
-              if (defaultChild.getComponents) {
-                routeGetComponents.push(defaultChild.getComponents);
+              if (defaultChild.importComponent) {
+                routeGetComponents.push({
+                  path: '__default__',
+                  importComponent: defaultChild.importComponent,
+                });
               }
 
               break;
@@ -105,8 +116,11 @@ function traverse(
     // a route without path (default route)
     // regarded as always matched
     // Note: This will perform as a deep-first tree search
-    if (node.getComponents) {
-      routeGetComponents.push(node.getComponents);
+    if (node.importComponent) {
+      routeGetComponents.push({
+        path: '__default__',
+        importComponent: node.importComponent,
+      });
     }
   }
 
@@ -128,15 +142,24 @@ function traverse(
   return false;
 }
 
-type Routes = {
+export interface LoadedRoute {
+  route: {
+    path: string;
+    component: ComponentType<any>;
+  }[];
+  args: Params;
+  name?: string;
+}
+
+export interface Routes {
   match(target: string): Promise<LoadedRoute | false>;
   check(target: string): boolean;
-  link(name: string, args: Params): string;
-};
+  link(name: string, args?: Params): string;
+}
 
 export default function routes(data: Route, names: Names): Routes {
   return {
-    async match(target: string): Promise<LoadedRoute | false> {
+    async match(target) {
       let _tmp = target.split('?');
       let path = _tmp.shift() || '';
       let queryStr = _tmp.shift() || '';
@@ -155,19 +178,26 @@ export default function routes(data: Route, names: Names): Routes {
 
       let [routeGetComponents, args, name] = result;
 
-      // actually load components
-      const components = await Promise.all(routeGetComponents.map(v => v()));
+      // actually import components
+      const components = await Promise.all(
+        routeGetComponents.map(({ importComponent }) => importComponent()),
+      );
+
+      const route = components.map((component, i) => ({
+        path: routeGetComponents[i].path,
+        component,
+      }));
 
       // parse query string & merge args
       args = { ...qs.parse(queryStr), ...args };
 
       return {
-        components,
+        route,
         args,
         name,
       };
     },
-    check(target: string): boolean {
+    check(target) {
       const path = target.split('?').shift() || '';
       const root = data;
 
@@ -179,7 +209,7 @@ export default function routes(data: Route, names: Names): Routes {
 
       return Boolean(result);
     },
-    link(name: string, args: Params): string {
+    link(name, args) {
       args = args || {};
 
       let pathname = '';
