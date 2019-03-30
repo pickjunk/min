@@ -1,7 +1,14 @@
-import React, { useState, useEffect, ReactElement, createContext, useContext } from 'react';
+import React, {
+  useState,
+  useEffect,
+  ReactElement,
+  createContext,
+  useContext,
+} from 'react';
 import { Subject } from 'rxjs';
 import { switchMap, filter } from 'rxjs/operators';
 import reduceRight from 'lodash/reduceRight';
+import PropTypes from 'prop-types';
 import { Routes, LoadedRoute, Params } from './routes';
 
 export interface Match extends LoadedRoute {
@@ -23,77 +30,86 @@ function fromWindow(): string {
 
 let _routes: Routes | null = null;
 
-export function Router(routes: Routes, notFound: () => void) {
-  _routes = routes;
+type Props = {
+  routes: Routes;
+  notFound: () => void;
+};
 
-  const match$ = location$
-    .pipe(
-      switchMap(async function(l): Promise<Match | false> {
-        let match = await routes.match(l);
-        if (match === false) {
-          notFound();
-          return false;
-        }
+export function Router({ routes, notFound }: Props): ReactElement {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [match, setMatch] = useState<Match>({
+    location: fromWindow(),
+    route: [],
+    args: {},
+  });
 
-        return {
-          location: l,
-          ...match,
-        };
-      }),
-    )
-    .pipe(filter(v => Boolean(v)));
+  useEffect(function() {
+    _routes = routes;
 
-  return function Router(): ReactElement {
-    const [loading, setLoading] = useState<boolean>(false);
-    const [match, setMatch] = useState<Match>({
-      location: fromWindow(),
-      route: [],
-      args: {},
+    const match$ = location$
+      .pipe(
+        switchMap(async function(l): Promise<Match | false> {
+          let match = await routes.match(l);
+          if (match === false) {
+            notFound();
+            return false;
+          }
+
+          return {
+            location: l,
+            ...match,
+          };
+        }),
+      )
+      .pipe(filter(v => Boolean(v)));
+
+    const l = location$.subscribe(function() {
+      setLoading(true);
+    });
+    const m = match$.subscribe(function(match) {
+      setLoading(false);
+      setMatch(match as Match);
     });
 
-    useEffect(function() {
-      const l = location$.subscribe(function() {
-        setLoading(true);
-      });
-      const m = match$.subscribe(function(match) {
-        setLoading(false);
-        setMatch(match as Match);
-      });
+    const originPopState = window.onpopstate;
+    window.onpopstate = function() {
+      location$.next(fromWindow());
+    };
+    location$.next(fromWindow());
 
-      const originPopState = window.onpopstate;
-      window.onpopstate = function() {
-        location$.next(fromWindow());
-      };
+    return function() {
+      l.unsubscribe();
+      m.unsubscribe();
 
-      return function() {
-        l.unsubscribe();
-        m.unsubscribe();
+      window.onpopstate = originPopState;
+    };
+  }, []);
 
-        window.onpopstate = originPopState;
-      };
-    }, []);
+  const routeElement = reduceRight(
+    match.route,
+    (child: ReactElement | null, { path, component }) => {
+      return React.createElement(component, { key: path }, child);
+    },
+    null,
+  );
 
-    const routeElement = reduceRight(
-      match.route,
-      (child: ReactElement | null, { path, component }) => {
-        return React.createElement(component, { key: path }, child);
-      },
-      null,
-    );
-
-    return (
-      <ctx.Provider
-        value={{
-          routes,
-          loading,
-          ...match,
-        }}
-      >
-        {routeElement}
-      </ctx.Provider>
-    );
-  };
+  return (
+    <ctx.Provider
+      value={{
+        routes,
+        loading,
+        ...match,
+      }}
+    >
+      {routeElement}
+    </ctx.Provider>
+  );
 }
+
+Router.propTypes = {
+  routes: PropTypes.object.isRequired,
+  notFound: PropTypes.func.isRequired,
+};
 
 export function useRouter() {
   return useContext(ctx);

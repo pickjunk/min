@@ -4,41 +4,48 @@ const merge = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 const path = require('path');
 const portfinder = require('portfinder');
-const WebpackDevServer = require('webpack-dev-server');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer');
+const fs = require('fs');
+const colors = require('colors/safe');
+const { version } = require('../package');
 
-const { name, version } = require('../package');
+program
+  .version(version, '-v, --version')
+  .option(
+    '-c, --config [path]',
+    'path of webpack.config.js',
+    './webpack.config.js',
+  );
+
+function copyFile(source, target) {
+  if (!fs.existsSync(target)) {
+    fs.mkdirSync(path.dirname(target), {
+      recursive: true
+    });
+
+    fs.copyFileSync(path.resolve(__dirname, source), target);
+    console.log(colors.green('[min]'), ` ${target} created`);
+  } else {
+    console.log(colors.cyan('[min]'), ` ${target} already exists`);
+  }
+}
+
+program.command('init').action(function() {
+  const files = [
+    ['../build/bootstrap.js', './bootstrap.js'],
+    ['../build/document.ejs', './document.ejs'],
+    ['../build/routes.js', './config/routes.js'],
+  ];
+
+  for (let [s, t] of files) {
+    copyFile(s, t);
+  }
+});
 
 function mergeConfig(envConfig, configPath) {
+  const minConfig = require('../build/webpack.config');
+
   // merge envConfig
-  let config = merge(
-    {
-      resolve: {
-        extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
-        alias: {
-          [name]: path.resolve(__dirname, '../lib'),
-        },
-      },
-      module: {
-        rules: [
-          {
-            test: /\/routes\.js$/,
-            exclude: /node_modules/,
-            use: [
-              path.resolve(__dirname, './loader'),
-              'babel-loader'
-            ],
-          },
-          {
-            test: /\.(ts|js)x?$/,
-            exclude: /node_modules/,
-            use: 'babel-loader',
-          },
-        ],
-      },
-    },
-    envConfig,
-  );
+  let config = merge(minConfig, envConfig);
 
   // merge projectConfig
   let projectConfig = {};
@@ -57,17 +64,11 @@ function mergeConfig(envConfig, configPath) {
 }
 
 program
-  .version(version, '-v, --version')
-  .option(
-    '-c, --config [path]',
-    'path of webpack.config.js',
-    './webpack.config.js',
-  );
-
-program
   .command('dev')
   .option('-p, --port [port]', 'specify server port, defaults to 8000', 8000)
   .action(async function({ config, port }) {
+    const WebpackDevServer = require('webpack-dev-server');
+
     port = await portfinder.getPortPromise({
       port,
     });
@@ -95,23 +96,51 @@ program
   .command('build')
   .option(
     '-i, --interactive',
-    'interactive environment, should be false in CI or testing, defaults to true',
+    'interactive environment, should be false in CI or testing',
+    true,
   )
-  .action(function(dir, cmd) {
-    console.log('remove ' + dir + (cmd.recursive ? ' recursively' : ''));
+  .action(function({ config, interactive }) {
+    const plugins = [];
+    if (!interactive) {
+      plugins.push(new WebpackBar());
+    }
+
+    const cfg = mergeConfig(
+      {
+        mode: 'production',
+        plugins,
+      },
+      config,
+    );
+
+    webpack(cfg).run((err, stats) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      console.log(
+        stats.toString({
+          color: interactive,
+        }),
+      );
+    });
   });
 
 program
   .command('start')
   .option('-p, --port [port]', 'specify server port, defaults to 8000', 8000)
-  .action(function(dir, cmd) {
-    console.log('remove ' + dir + (cmd.recursive ? ' recursively' : ''));
+  .action(function({ port }) {
+    const server = require('./server');
+    server(port);
   });
 
 program
   .command('analyze')
   .option('-p, --port [port]', 'specify server port, defaults to 8888', 8888)
-  .action(function({ config, port }) {
+  .action(async function({ config, port }) {
+    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer');
+
     port = await portfinder.getPortPromise({
       port,
     });
@@ -131,15 +160,17 @@ program
       config,
     );
 
-    webpack(cfg).run(function (err, stats) {
+    webpack(cfg).run(function(err, stats) {
       if (err) {
-        console.error(err)
-        return
+        console.error(err);
+        return;
       }
 
-      console.log(stats.toString({
-        colors: true,
-      }));
+      console.log(
+        stats.toString({
+          colors: true,
+        }),
+      );
     });
   });
 

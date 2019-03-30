@@ -253,3 +253,41 @@ test('fix the corner case in matching default children', async () => {
   r = routes.check('/no_default_child');
   expect(r).toEqual(false);
 });
+
+test('routes support array in top layer', async () => {
+  let stats = await compiler('array_routes.js');
+  expect(stats.errors[0]).toBe(undefined);
+
+  const routes = require('./dist/array_routes');
+  let r, route;
+
+  r = await routes.match('/a');
+  expect(r).not.toEqual(false);
+  ({ route } = r);
+  expect(func2name(route)).toEqual([{
+    path: '/a',
+    component: 'A'
+  }]);
+
+  r = await routes.match('/b');
+  expect(r).not.toEqual(false);
+  ({ route } = r);
+  expect(func2name(route)).toEqual([{
+    path: '/b',
+    component: 'B'
+  }, {
+    path: '__default__',
+    component: 'C'
+  }]);
+
+  r = await routes.match('/b/a');
+  expect(r).not.toEqual(false);
+  ({ route } = r);
+  expect(func2name(route)).toEqual([{
+    path: '/b',
+    component: 'B'
+  }, {
+    path: '/a',
+    component: 'A'
+  }]);
+});

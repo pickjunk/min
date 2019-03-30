@@ -77,6 +77,12 @@ async function loader(source, inputSourceMap) {
   let routeTree = nodeEval(source, filename);
   routeTree = routeTree.default || routeTree;
 
+  if (_.isArray(routeTree)) {
+    routeTree = {
+      children: routeTree
+    };
+  }
+
   // for named routes
   let namedRoutes = {};
 

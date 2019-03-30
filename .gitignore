@@ -3,3 +3,6 @@ dist/
 lib/
 /*.d.ts
 test.js
+/app.js
+/document.ejs
+/config
