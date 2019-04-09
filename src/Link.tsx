@@ -8,7 +8,7 @@ interface Props {
   children: ReactElement;
 }
 
-export function Link({ to, args, children, ...props }: Props) {
+export default function Link({ to, args, children, ...props }: Props) {
   function onClick() {
     router.push(to, args);
   }

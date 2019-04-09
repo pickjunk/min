@@ -1,16 +1,10 @@
-const fs = require('fs');
-const Koa = require('koa');
-const koaStatic = require('koa-static');
+module.exports = function(program) {
+  const log = require('./log');
 
-module.export = function(port) {
-  const server = new Koa();
-
-  server.use(koaStatic('./dist', { index: false }));
-
-  const index = fs.readFileSync('./dist/index.html');
-  server.use(async ctx => {
-    ctx.body = index;
-  });
-
-  server.listen(port);
+  program
+    .command('start')
+    .option('-p, --port [port]', 'specify server port, defaults to 8000', 8000)
+    .action(function({ port }) {
+      log.warn('TODO server');
+    });
 };

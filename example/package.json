@@ -1,0 +1,21 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "Min Project",
+  "main": "bootstrap.js",
+  "scripts": {
+    "dev": "min dev",
+    "build": "min build",
+    "start": "min start",
+    "analyze": "min analyze"
+  },
+  "keywords": [
+    "min",
+    "react"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@pickjunk/min": "1.1.0"
+  }
+}

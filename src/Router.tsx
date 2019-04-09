@@ -8,7 +8,6 @@ import React, {
 import { Subject } from 'rxjs';
 import { switchMap, filter } from 'rxjs/operators';
 import reduceRight from 'lodash/reduceRight';
-import PropTypes from 'prop-types';
 import { Routes, LoadedRoute, Params } from './routes';
 
 export interface Match extends LoadedRoute {
@@ -20,111 +19,101 @@ export interface RouterContext extends Match {
   loading: boolean;
 }
 
+let _routes: Routes | null = null;
 const ctx = createContext<RouterContext | null>(null);
-
 const location$ = new Subject<string>();
 
-function fromWindow(): string {
-  return window.location.pathname + window.location.search;
-}
+async function router(
+  routes: Routes,
+  location: string,
+  notFound: () => void,
+): Promise<React.FC<void>> {
+  _routes = routes;
 
-let _routes: Routes | null = null;
-
-type Props = {
-  routes: Routes;
-  notFound: () => void;
-};
-
-export function Router({ routes, notFound }: Props): ReactElement {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [match, setMatch] = useState<Match>({
-    location: fromWindow(),
-    route: [],
-    args: {},
-  });
-
-  useEffect(function() {
-    _routes = routes;
-
-    const match$ = location$
-      .pipe(
-        switchMap(async function(l): Promise<Match | false> {
-          let match = await routes.match(l);
-          if (match === false) {
-            notFound();
-            return false;
-          }
-
-          return {
-            location: l,
-            ...match,
-          };
-        }),
-      )
-      .pipe(filter(v => Boolean(v)));
-
-    const l = location$.subscribe(function() {
-      setLoading(true);
-    });
-    const m = match$.subscribe(function(match) {
-      setLoading(false);
-      setMatch(match as Match);
-    });
-
-    const originPopState = window.onpopstate;
-    window.onpopstate = function() {
-      location$.next(fromWindow());
-    };
-    location$.next(fromWindow());
-
-    return function() {
-      l.unsubscribe();
-      m.unsubscribe();
-
-      window.onpopstate = originPopState;
-    };
-  }, []);
-
-  const routeElement = reduceRight(
-    match.route,
-    (child: ReactElement | null, { path, component }) => {
-      return React.createElement(component, { key: path }, child);
-    },
-    null,
-  );
-
-  return (
-    <ctx.Provider
-      value={{
-        routes,
-        loading,
-        ...match,
-      }}
-    >
-      {routeElement}
-    </ctx.Provider>
-  );
-}
-
-Router.propTypes = {
-  routes: PropTypes.object.isRequired,
-  notFound: PropTypes.func.isRequired,
-};
-
-export function useRouter() {
-  return useContext(ctx);
-}
-
-function routesRequired() {
-  if (!_routes) {
-    throw new Error(
-      `Router is not created, ` +
-        `make sure to call Router(routes, notFound) in your bootstrap`,
-    );
+  if (!location) {
+    location = windowLocation()
   }
+
+  const route = await routes.match(location);
+  if (route === false) {
+    throw new Error('initial location must not be not found');
+  }
+
+  return function Router(): ReactElement {
+    const [loading, setLoading] = useState<boolean>(false);
+    const [match, setMatch] = useState<Match>({
+      location,
+      ...route,
+    });
+
+    useEffect(function() {
+      const match$ = location$
+        .pipe(
+          switchMap(async function(l): Promise<Match | false> {
+            let match = await routes.match(l);
+            if (match === false) {
+              notFound();
+              return false;
+            }
+
+            return {
+              location: l,
+              ...match,
+            };
+          }),
+        )
+        .pipe(filter(v => Boolean(v)));
+
+      const l = location$.subscribe(function() {
+        setLoading(true);
+      });
+      const m = match$.subscribe(function(match) {
+        setLoading(false);
+        setMatch(match as Match);
+      });
+
+      return function() {
+        l.unsubscribe();
+        m.unsubscribe();
+      };
+    }, []);
+
+    useEffect(function() {
+      if (typeof window !== 'undefined') {
+        const originPopState = window.onpopstate;
+        window.onpopstate = function() {
+          location$.next(windowLocation());
+        };
+
+        return function() {
+          window.onpopstate = originPopState;
+        };
+      }
+    }, []);
+
+    const routeElement = reduceRight(
+      match.route,
+      (child: ReactElement | null, { path, component }) => {
+        return React.createElement(component, { key: path }, child);
+      },
+      null,
+    );
+
+    return (
+      <ctx.Provider
+        value={{
+          routes,
+          loading,
+          ...match,
+        }}
+      >
+        {routeElement}
+      </ctx.Provider>
+    );
+  };
 }
 
-export default {
+const imperactive = {
   push(name: string, args?: Params): void {
     routesRequired();
 
@@ -155,3 +144,34 @@ export default {
     history.forward();
   },
 };
+
+export interface ImperativeRouter {
+  (routes: Routes, location: string, notFound: () => void): Promise<
+    React.FC<void>
+  >;
+  push(name: string, args?: Params): void;
+  replace(name: string, args?: Params): void;
+  go(delta?: number): void;
+  back(): void;
+  forward(): void;
+}
+
+const imperativeRouter: ImperativeRouter = Object.assign(router, imperactive);
+export default imperativeRouter;
+
+export function useRouter() {
+  return useContext(ctx);
+}
+
+function routesRequired() {
+  if (!_routes) {
+    throw new Error(
+      `Router is not created, ` +
+        `make sure to render <Router /> in your bootstrap`,
+    );
+  }
+}
+
+function windowLocation(): string {
+  return window.location.pathname + window.location.search;
+}

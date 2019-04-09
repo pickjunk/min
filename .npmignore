@@ -3,6 +3,5 @@ test/
 dist/
 jest.config.js
 tsconfig.js
-/app.js
-/document.ejs
+/bootstrap.js
 /config
