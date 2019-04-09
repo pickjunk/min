@@ -1,3 +1,7 @@
+#!/usr/bin/env node
+// comment above is necessary for windows compatibility
+// https://stackoverflow.com/questions/25333570/npm-package-json-bin-wont-work-on-windows
+
 const program = require('commander');
 const { version } = require('../package');
 
