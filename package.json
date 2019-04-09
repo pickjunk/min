@@ -1,6 +1,6 @@
 {
   "name": "@pickjunk/min",
-  "version": "1.2.0-alpha.1",
+  "version": "1.2.0-alpha.2",
   "description": "A Tiny React Framework",
   "main": "index.js",
   "scripts": {
