@@ -9,12 +9,13 @@ interface Props {
 }
 
 export default function Link({ to, args, children, ...props }: Props) {
-  function onClick() {
+  function onClick(e: React.MouseEvent) {
+    e.preventDefault();
     router.push(to, args);
   }
 
   if (typeof children === 'string') {
-    return <a {...props} onClick={onClick}>{children}</a>;
+    return <a {...props} href={router.link(to, args)} onClick={onClick}>{children}</a>;
   }
 
   children.props = {

@@ -1,3 +1,4 @@
+import React from 'react';
 import Link from '@pickjunk/min/Link';
 
 export default function Basic({ children }) {

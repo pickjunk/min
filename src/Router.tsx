@@ -143,6 +143,11 @@ const imperactive = {
 
     history.forward();
   },
+  link(name: string, args?: Params): string {
+    routesRequired();
+
+    return _routes!.link(name, args);
+  }
 };
 
 export interface ImperativeRouter {
@@ -154,6 +159,7 @@ export interface ImperativeRouter {
   go(delta?: number): void;
   back(): void;
   forward(): void;
+  link(name: string, args?: Params): string;
 }
 
 const imperativeRouter: ImperativeRouter = Object.assign(router, imperactive);
