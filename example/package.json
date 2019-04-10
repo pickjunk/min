@@ -1,5 +1,5 @@
 {
-  "name": "example",
+  "name": "project-name",
   "version": "1.0.0",
   "description": "Min Project",
   "main": "bootstrap.js",
@@ -16,6 +16,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@pickjunk/min": "1.1.0"
+    "@pickjunk/min": "min-version"
   }
 }

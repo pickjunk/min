@@ -5,3 +5,5 @@ jest.config.js
 tsconfig.js
 /bootstrap.js
 /config
+package-lock.json
+yarn.lock

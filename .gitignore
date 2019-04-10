@@ -5,3 +5,5 @@ lib/
 test.js
 /bootstrap.js
 /config
+package-lock.json
+yarn.lock
