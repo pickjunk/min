@@ -15,13 +15,11 @@ function renderRouter(path) {
 export default async function(req, res) {
   let Router = null;
   try {
-    Router = await renderRouter(req.path);
+    Router = await renderRouter(req.originalUrl);
   } catch (_) {
     res.status(404).end('Not Found');
     return;
   }
-
-  const routerHTML = ReactDOMServer.renderToString(<Router />);
 
   return ReactDOMServer.renderToStaticMarkup(
     <html lang="en">
@@ -32,7 +30,9 @@ export default async function(req, res) {
         <title>Document</title>
       </head>
       <body>
-        <div id="app" dangerouslySetInnerHTML={{ __html: routerHTML }} />
+        <div id="app">
+          <Router />
+        </div>
 
         <MinScript />
       </body>

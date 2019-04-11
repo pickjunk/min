@@ -32,7 +32,7 @@ module.exports = function(program) {
         }),
       );
       server.use(async (req, res) => {
-        log.info(`server side render: ${req.path}`);
+        log.info(`server side render: ${req.originalUrl}`);
 
         const fs = res.locals.fs;
         const filename = path.join(

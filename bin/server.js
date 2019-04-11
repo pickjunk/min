@@ -13,7 +13,7 @@ module.exports = function(program) {
 
       server.use(express.static(browserCfg.output.publicPath));
       server.use(async (req, res) => {
-        log.info(`server side render: ${req.path}`);
+        log.info(`server side render: ${req.originalUrl}`);
 
         let render = require(path.resolve(nodeCfg.output.path, nodeCfg.output.filename));
         render = render.default || render;
