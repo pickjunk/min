@@ -8,29 +8,49 @@ module.exports = function(program) {
 
   program
     .command('dev')
-    .option('-p, --port [port]', 'specify server port, defaults to 8000', 8000)
+    .option('-p, --port [port]', 'specify server port', 8000)
     .action(async function({ config, port }) {
-      const cfg = webpackConfig(
-        {
-          mode: 'development',
-          plugins: [new WebpackBar()],
-        },
-        config,
-      );
-      const compiler = webpack(cfg);
+      const cfg = webpackConfig(function(c) {
+        c.mode = 'development';
+        process.env.NODE_ENV = 'development';
 
-      // https://github.com/webpack/webpack-dev-middleware#server-side-rendering
-      const middleware = require('webpack-dev-middleware');
+        c.resolve.alias = {
+          ...c.resolve.alias,
+          'react-dom': '@hot-loader/react-dom',
+        };
+        c.module.rules[1].use = [
+          'react-hot-loader/webpack',
+          ...c.module.rules[1].use,
+        ];
+
+        c.plugins.push(new webpack.HotModuleReplacementPlugin());
+        c.plugins.push(new WebpackBar());
+
+        return c;
+      }, config);
+
+      const [nodeCfg, browserCfg] = cfg;
+      nodeCfg.entry = [
+        'webpack-hot-middleware/client?reload=true&name=node',
+        nodeCfg.entry,
+      ];
+      browserCfg.entry = [
+        'webpack-hot-middleware/client?reload=true&name=browser',
+        browserCfg.entry,
+      ];
+
+      const compiler = webpack(cfg);
       const express = require('express');
       const server = express();
 
-      const [nodeCfg, browserCfg] = cfg;
+      // https://github.com/webpack/webpack-dev-middleware#server-side-rendering
       server.use(
-        middleware(compiler, {
+        require('webpack-dev-middleware')(compiler, {
           publicPath: browserCfg.output.publicPath,
           serverSideRender: true,
         }),
       );
+      server.use(require('webpack-hot-middleware')(compiler));
       server.use(async (req, res) => {
         log.info(`server side render: ${req.originalUrl}`);
 

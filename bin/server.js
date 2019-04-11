@@ -5,17 +5,25 @@ module.exports = function(program) {
 
   program
     .command('start')
-    .option('-p, --port [port]', 'specify server port, defaults to 8000', 8000)
-    .action(function({ port }) {
-      const [nodeCfg, browserCfg] = webpackConfig();
+    .option('-p, --port [port]', 'specify server port', 8000)
+    .action(function({ config, port }) {
       const express = require('express');
       const server = express();
 
-      server.use(express.static(browserCfg.output.publicPath));
+      const [nodeCfg, browserCfg] = webpackConfig(c => c, config);
+      server.use(
+        browserCfg.output.publicPath,
+        express.static(browserCfg.output.publicPath),
+      );
+
+      // https://github.com/webpack/webpack-dev-middleware#server-side-rendering
       server.use(async (req, res) => {
         log.info(`server side render: ${req.originalUrl}`);
 
-        let render = require(path.resolve(nodeCfg.output.path, nodeCfg.output.filename));
+        let render = require(path.resolve(
+          nodeCfg.output.path,
+          nodeCfg.output.filename,
+        ));
         render = render.default || render;
 
         const html = await render(req, res);

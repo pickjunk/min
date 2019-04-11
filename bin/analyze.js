@@ -6,7 +6,7 @@ module.exports = function(program) {
 
   program
     .command('analyze')
-    .option('-p, --port [port]', 'specify server port, defaults to 8888', 8888)
+    .option('-p, --port [port]', 'specify server port', 8888)
     .action(async function({ config, port }) {
       const BundleAnalyzerPlugin = require('webpack-bundle-analyzer');
 
@@ -14,20 +14,19 @@ module.exports = function(program) {
         port,
       });
 
-      const cfg = webpackConfig(
-        {
-          mode: 'production',
-          plugins: [
-            new WebpackBar({
-              profile: true,
-            }),
-            new BundleAnalyzerPlugin({
-              analyzerPort: port,
-            }),
-          ],
-        },
-        config,
-      );
+      const cfg = webpackConfig(function(c) {
+        c.mode = 'production';
+        process.env.NODE_ENV = 'production';
+
+        c.plugins.push(
+          new WebpackBar(),
+          new BundleAnalyzerPlugin({
+            analyzerPort: port,
+          }),
+        );
+
+        return c;
+      }, config);
 
       webpack(cfg[1]).run(function(err, stats) {
         if (err) {

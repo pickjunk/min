@@ -8,21 +8,29 @@ module.exports = function(program) {
     .option(
       '-i, --interactive',
       'interactive environment, should be false in CI or testing',
-      true,
+      false,
     )
-    .action(function({ config, interactive }) {
-      const plugins = [];
-      if (!interactive) {
-        plugins.push(new WebpackBar());
-      }
+    .option(
+      '-p, --production',
+      'production mode, enable minifying',
+      false,
+    )
+    .action(function({ config, interactive, production }) {
+      const cfg = webpackConfig(function(c) {
+        if (production) {
+          c.mode = 'production';
+          process.env.NODE_ENV = 'production';
+        } else {
+          c.mode = 'development';
+          process.env.NODE_ENV = 'development';
+        }
 
-      const cfg = webpackConfig(
-        {
-          mode: 'development',
-          plugins,
-        },
-        config,
-      );
+        if (interactive) {
+          c.plugins.push(new WebpackBar());
+        }
+
+        return c;
+      }, config);
 
       webpack(cfg).run((err, stats) => {
         if (err) {

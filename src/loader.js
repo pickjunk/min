@@ -5,7 +5,7 @@ const babel = require('@babel/core');
 
 const importComponent = `
 function () {
-  return import(__component__).then(function (m) {
+  return import('__component__').then(function (m) {
     return m.default || m;
   });
 }
@@ -79,7 +79,7 @@ async function loader(source, inputSourceMap) {
 
   if (_.isArray(routeTree)) {
     routeTree = {
-      children: routeTree
+      children: routeTree,
     };
   }
 
@@ -203,11 +203,12 @@ async function loader(source, inputSourceMap) {
 
   // hack importComponent to be a require.ensure promise
   routeSource = routeSource.replace(
-    /(["'])importComponent\1\s*?:\s*?((["']).*?\3)/g,
+    /(["'])importComponent\1\s*?:\s*?(["'])(.*?)\2/g,
     function() {
       return `"importComponent": ${importComponent.replace(
         /__component__/g,
-        arguments[2],
+        (process.env.NODE_ENV === 'development' ? `${name}/hot-loader!` : '') +
+          arguments[3],
       )}`;
     },
   );

@@ -3,35 +3,38 @@ const webpack = require('webpack');
 const merge = require('webpack-merge');
 const { name } = require('../package');
 
-const minConfig = {
-  entry: path.resolve('./bootstrap.js'),
-  resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
-    alias: {
-      [name]: path.resolve(__dirname, '../lib'),
+module.exports = function(env, configPath) {
+  let config = env({
+    entry: path.resolve('./bootstrap.js'),
+    resolveLoader: {
+      alias: {
+        [name]: path.resolve(__dirname, '../lib'),
+      },
     },
-  },
-  module: {
-    rules: [
-      {
-        test: /[\\/]routes\.js$/,
-        exclude: /node_modules|lib/,
-        use: path.resolve(__dirname, '../lib/loader'),
+    resolve: {
+      extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+      alias: {
+        [name]: path.resolve(__dirname, '../lib'),
       },
-      {
-        test: /\.(ts|js)x?$/,
-        exclude: /node_modules/,
-        use: 'babel-loader',
-      },
-    ],
-  },
-};
+    },
+    module: {
+      rules: [
+        {
+          test: /[\\/]routes\.js$/,
+          exclude: /node_modules|min[\\/]lib/,
+          use: `${name}/loader`,
+        },
+        {
+          test: /\.(ts|js)x?$/,
+          exclude: /node_modules/,
+          use: ['babel-loader'],
+        },
+      ],
+    },
+    plugins: [],
+  });
 
-function mergeConfig(envConfig, configPath) {
-  // merge envConfig
-  let config = merge(minConfig, envConfig);
-
-  // merge projectConfig
+  // merge project config
   let projectConfig = {};
   try {
     projectConfig = require(path.resolve(process.cwd(), configPath));
@@ -44,14 +47,10 @@ function mergeConfig(envConfig, configPath) {
     throw new Error('invalid webpack.config.js, forgot to export your config?');
   }
 
-  return config;
-}
-
-module.exports = function(envConfig, configPath) {
-  const config = mergeConfig(envConfig, configPath);
-
+  // for SSR
   const nodeConfig = {
     ...config,
+    name: 'node',
     target: 'node',
     output: {
       filename: 'ssr.js',
@@ -68,8 +67,10 @@ module.exports = function(envConfig, configPath) {
     ],
   };
 
+  // for browser
   const browserConfig = {
     ...config,
+    name: 'browser',
     output: {
       filename: 'bootstrap.js',
       publicPath: '/__min-static__/',
@@ -78,8 +79,9 @@ module.exports = function(envConfig, configPath) {
   };
 
   // inject __MIN_SCRIPT__
-  const __MIN_SCRIPT__ =
-    JSON.stringify(browserConfig.output.publicPath + browserConfig.output.filename);
+  const __MIN_SCRIPT__ = JSON.stringify(
+    browserConfig.output.publicPath + browserConfig.output.filename,
+  );
   nodeConfig.plugins.push(
     new webpack.DefinePlugin({
       __MIN_SCRIPT__,
