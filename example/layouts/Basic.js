@@ -17,7 +17,7 @@ export default function Basic({ children }) {
       }}
     >
       <div>
-        <div>
+        <div style={{ textAlign: 'center' }}>
           <h1>Min Framework</h1>
         </div>
         <div style={{ textAlign: 'center' }}>{children}</div>

@@ -77,5 +77,19 @@ module.exports = function(envConfig, configPath) {
     },
   };
 
+  // inject __MIN_SCRIPT__
+  const __MIN_SCRIPT__ =
+    browserConfig.output.publicPath + browserConfig.output.filename;
+  nodeConfig.plugins.push(
+    new webpack.DefinePlugin({
+      __MIN_SCRIPT__,
+    }),
+  );
+  browserConfig.plugins.push(
+    new webpack.DefinePlugin({
+      __MIN_SCRIPT__,
+    }),
+  );
+
   return [nodeConfig, browserConfig];
 };

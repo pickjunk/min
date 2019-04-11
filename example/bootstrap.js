@@ -5,23 +5,12 @@ import router from '@pickjunk/min/Router';
 import MinScript from '@pickjunk/min/Script';
 import routes from './config/routes';
 
-function renderRouter(path) {
-  return router(routes, path, () => {
+async function render(path) {
+  const Router = await router(routes, path, () => {
     alert('404 should be redirect');
   });
-}
 
-/* Server render */
-export default async function(req, res) {
-  let Router = null;
-  try {
-    Router = await renderRouter(req.originalUrl);
-  } catch (_) {
-    res.status(404).end('Not Found');
-    return;
-  }
-
-  return ReactDOMServer.renderToStaticMarkup(
+  return (
     <html lang="en">
       <head>
         <meta charSet="UTF-8" />
@@ -36,13 +25,23 @@ export default async function(req, res) {
 
         <MinScript />
       </body>
-    </html>,
+    </html>
   );
+}
+
+/* Server render */
+export default async function(req, res) {
+  try {
+    const page = await render(req.originalUrl);
+    return ReactDOMServer.renderToString(page);
+  } catch (_) {
+    res.status(404).end('Not Found');
+  }
 }
 
 /* Client render */
 if (typeof document !== 'undefined') {
-  renderRouter().then(function(Router) {
-    ReactDOM.hydrate(<Router />, document.getElementById('app'));
+  render().then(function(page) {
+    ReactDOM.hydrate(page, document);
   });
 }

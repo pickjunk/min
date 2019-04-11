@@ -1,5 +1,6 @@
 import React from 'react';
 
 export default function Script() {
-  return <script>__MIN_SCRIPT__</script>;
+  // @ts-ignore
+  return <script src={__MIN_SCRIPT__}></script>;
 }

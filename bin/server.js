@@ -18,14 +18,8 @@ module.exports = function(program) {
         let render = require(path.resolve(nodeCfg.output.path, nodeCfg.output.filename));
         render = render.default || render;
 
-        let html = await render(req, res);
+        const html = await render(req, res);
         if (html) {
-          const script = browserCfg.output.publicPath + browserCfg.output.filename;
-
-          html = html.replace(
-            '<script>__MIN_SCRIPT__</script>',
-            `<script src="${script}"></script>`,
-          );
           res.end(html);
         }
       });
