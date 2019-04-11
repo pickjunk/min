@@ -8,10 +8,10 @@ A Tiny React Framework
 
 ### Quick Start
 
-* Install
-
 ```bash
-$ npm i -D @pickjunk/min
-$ ./node_modules/.bin/min init
-$ ./node_modules/.bin/min dev
+$ npm i -g @pickjunk/min
+$ min create [project name]
+$ cd [project name]
+$ npm i
+$ npm run dev
 ```

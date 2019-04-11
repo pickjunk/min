@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Container({ children }) {
+export default function Color({ children }) {
   return (
     <div
       style={{

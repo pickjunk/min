@@ -23,33 +23,32 @@ module.exports = function(program) {
       const middleware = require('webpack-dev-middleware');
       const express = require('express');
       const server = express();
+
+      const [nodeCfg, browserCfg] = cfg;
       server.use(
         middleware(compiler, {
-          publicPath: cfg[1].output.publicPath,
+          publicPath: browserCfg.output.publicPath,
           serverSideRender: true,
         }),
       );
       server.use(async (req, res) => {
         log.info(`server side render: ${req.path}`);
 
-        const stats = res.locals.webpackStats.toJson();
-        const [nodeStats, browserStats] = stats.children;
         const fs = res.locals.fs;
-
-        const nodeEval = require('node-eval');
-        const outputPath = nodeStats.outputPath;
         const filename = path.join(
-          outputPath,
-          nodeStats.assetsByChunkName.main,
+          nodeCfg.output.path,
+          nodeCfg.output.filename,
         );
         const source = fs.readFileSync(filename).toString('utf8');
+
+        const nodeEval = require('node-eval');
         let render = nodeEval(source, filename);
         render = render.default || render;
 
         let html = await render(req, res);
         if (html) {
           const script =
-            browserStats.publicPath + browserStats.assetsByChunkName.main;
+            browserCfg.output.publicPath + browserCfg.output.filename;
 
           html = html.replace(
             '<script>__MIN_SCRIPT__</script>',

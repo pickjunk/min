@@ -31,7 +31,7 @@ async function router(
   _routes = routes;
 
   if (!location) {
-    location = windowLocation()
+    location = windowLocation();
   }
 
   const route = await routes.match(location);
@@ -94,7 +94,11 @@ async function router(
     const routeElement = reduceRight(
       match.route,
       (child: ReactElement | null, { path, component }) => {
-        return React.createElement(component, { key: path }, child);
+        return React.createElement(
+          component,
+          { ...component._props, key: path },
+          child,
+        );
       },
       null,
     );
@@ -147,7 +151,7 @@ const imperactive = {
     routesRequired();
 
     return _routes!.link(name, args);
-  }
+  },
 };
 
 export interface ImperativeRouter {

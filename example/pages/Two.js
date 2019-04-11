@@ -1,5 +1,5 @@
 import React from 'react';
 
 export default function Two() {
-  return <h6>This is two</h6>;
+  return <h4>This is two</h4>;
 }

@@ -14,8 +14,8 @@ export default {
       component: '../pages/Two',
     },
     {
-      path: '/container',
-      component: '../layouts/Container',
+      path: '/color',
+      component: '../layouts/Color',
       children: [
         {
           path: '/two',

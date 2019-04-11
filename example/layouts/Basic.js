@@ -20,7 +20,7 @@ export default function Basic({ children }) {
         <div>
           <h1>Min Framework</h1>
         </div>
-        <div>{children}</div>
+        <div style={{ textAlign: 'center' }}>{children}</div>
         <ul>
           <li>
             <Link to="/">home</Link>
@@ -32,7 +32,7 @@ export default function Basic({ children }) {
             <Link to="/two">/two</Link>
           </li>
           <li>
-            <Link to="/container/two">/container/two</Link>
+            <Link to="/color/two">/color/two</Link>
           </li>
         </ul>
       </div>

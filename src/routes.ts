@@ -1,7 +1,16 @@
 import { ComponentType } from 'react';
 import qs from 'qs';
 
-type importComponent = () => Promise<ComponentType<any>>;
+type Component<T> = ComponentType<T> & {
+  initialProps?: (match: {
+    path: string;
+    args?: Params;
+    name?: string;
+  }) => Promise<object>;
+  _props: object;
+};
+
+type importComponent = () => Promise<Component<any>>;
 
 type Route = {
   name?: string;
@@ -145,7 +154,7 @@ function traverse(
 export interface LoadedRoute {
   route: {
     path: string;
-    component: ComponentType<any>;
+    component: Component<any>;
   }[];
   args: Params;
   name?: string;
@@ -190,6 +199,25 @@ export default function routes(data: Route, names: Names): Routes {
 
       // parse query string & merge args
       args = { ...qs.parse(queryStr), ...args };
+
+      // support initialProps
+      await Promise.all(
+        components.map(component => {
+          if (component.initialProps) {
+            return component
+              .initialProps({
+                path,
+                args,
+                name,
+              })
+              .then(props => {
+                component._props = props || {};
+              });
+          }
+
+          component._props = {};
+        }),
+      );
 
       return {
         route,

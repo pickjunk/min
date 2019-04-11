@@ -1,5 +1,5 @@
 import React from 'react';
 
 export default function One() {
-  return <h6>This is one</h6>;
+  return <h4>This is one</h4>;
 }
