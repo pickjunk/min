@@ -6,10 +6,12 @@ export default {
       component: '../pages/Home',
     },
     {
+      name: 'one',
       path: '/one',
       component: '../pages/One',
     },
     {
+      name: 'two',
       path: '/two',
       component: '../pages/Two',
     },
