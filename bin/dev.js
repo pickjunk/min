@@ -61,7 +61,6 @@ module.exports = function(program) {
         server.use(require('http-proxy-middleware')(...proxy));
       }
 
-      server.use();
       server.use(async (req, res) => {
         log.info(`server side render: ${req.originalUrl}`);
 
