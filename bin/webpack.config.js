@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
+const log = require('./log');
 const { name } = require('../package');
 
 module.exports = function(env, configPath) {
@@ -38,6 +39,7 @@ module.exports = function(env, configPath) {
   let projectConfig = {};
   try {
     projectConfig = require(path.resolve(process.cwd(), configPath));
+    log.info(`found project config: ${projectConfig}`);
   } catch (_) {}
   if (typeof projectConfig === 'function') {
     config = projectConfig(config);

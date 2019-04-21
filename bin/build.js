@@ -6,6 +6,11 @@ module.exports = function(program) {
   program
     .command('build')
     .option(
+      '-c, --config [path]',
+      'path of webpack.config.js',
+      './webpack.config.js',
+    )
+    .option(
       '-i, --interactive',
       'interactive environment, should be false in CI or testing',
       false,

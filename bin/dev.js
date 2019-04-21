@@ -4,13 +4,20 @@ module.exports = function(program) {
   const path = require('path');
   const portfinder = require('portfinder');
   const _ = require('lodash');
+  const prettyjson = require('prettyjson');
   const log = require('./log');
   const webpackConfig = require('./webpack.config');
 
   program
     .command('dev')
+    .option(
+      '-c, --config [path]',
+      'path of webpack.config.js',
+      './webpack.config.js',
+    )
+    .option('-v, --verbose', 'show more details', false)
     .option('-p, --port [port]', 'specify server port', 8000)
-    .action(async function({ config, port }) {
+    .action(async function({ config, port, verbose }) {
       const cfg = webpackConfig(function(c) {
         c.mode = 'development';
         process.env.NODE_ENV = 'development';
@@ -40,6 +47,10 @@ module.exports = function(program) {
         browserCfg.entry,
       ];
 
+      if (verbose) {
+        log.info('webpack config:', prettyjson.render(cfg));
+      }
+
       const compiler = webpack(cfg);
       const express = require('express');
       const server = express();
@@ -59,6 +70,7 @@ module.exports = function(program) {
           proxy = [proxy];
         }
         server.use(require('http-proxy-middleware')(...proxy));
+        log.info('proxy enabled');
       }
 
       server.use(async (req, res) => {

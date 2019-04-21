@@ -6,6 +6,11 @@ module.exports = function(program) {
 
   program
     .command('analyze')
+    .option(
+      '-c, --config [path]',
+      'path of webpack.config.js',
+      './webpack.config.js',
+    )
     .option('-p, --port [port]', 'specify server port', 8888)
     .action(async function({ config, port }) {
       const BundleAnalyzerPlugin = require('webpack-bundle-analyzer');
