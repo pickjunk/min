@@ -13,8 +13,8 @@
     "debug": "npm run build:js && node --inspect-brk -r @babel/register ./test/webpack.js",
     "test": "npm run build:js && jest",
     "clean": "rimraf ./*.d.ts lib dist bootstrap.js document.ejs config/",
-    "prepublishOnly": "npm run build",
-    "postpublish": "npm run clean"
+    "prepublishOnly": "npm run clean && npm run build",
+    "postpublish": "npm run clean && npm run build:js"
   },
   "bin": {
     "min": "./bin/cli.js"
@@ -65,6 +65,7 @@
     "estraverse": "4.2.0",
     "express": "4.16.4",
     "fs-extra": "7.0.1",
+    "http-proxy-middleware": "^0.19.1",
     "lodash": "4.17.11",
     "node-eval": "2.0.0",
     "open": "6.1.0",

@@ -3,6 +3,7 @@ module.exports = function(program) {
   const WebpackBar = require('webpackbar');
   const path = require('path');
   const portfinder = require('portfinder');
+  const _ = require('lodash');
   const log = require('./log');
   const webpackConfig = require('./webpack.config');
 
@@ -51,6 +52,16 @@ module.exports = function(program) {
         }),
       );
       server.use(require('webpack-hot-middleware')(compiler));
+
+      if (nodeCfg.devServer && nodeCfg.devServer.proxy) {
+        let proxy = nodeCfg.devServer.proxy;
+        if (!_.isArray(proxy)) {
+          proxy = [proxy];
+        }
+        server.use(require('http-proxy-middleware')(...proxy));
+      }
+
+      server.use();
       server.use(async (req, res) => {
         log.info(`server side render: ${req.originalUrl}`);
 
