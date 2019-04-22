@@ -240,17 +240,14 @@ export default function routes(data: Route, names: Names): Routes {
     link(name, args) {
       args = args || {};
 
-      let pathname = '';
+      let pathname = '/';
       let queryObj: Params = {};
 
-      if (name[0] !== '/') {
+      let named = names[name];
+      if (named) {
         // named route
-        let named = names[name];
-        if (named === undefined) {
-          throw new Error(`unknown named route: ${name}`);
-        }
-
         pathname = named.pathTemplate;
+
         for (let key in named.paramsOptional) {
           const value = args[key];
 

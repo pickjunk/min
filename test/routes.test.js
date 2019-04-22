@@ -3,6 +3,7 @@ import webpack from 'webpack';
 import _ from 'lodash';
 import { name } from '../package';
 
+jest.setTimeout(30000);
 const routesLoader = path.resolve(__dirname, `../lib/loader`);
 
 function compiler(fixture) {
@@ -227,10 +228,6 @@ test('routes.link', async () => {
 
   r = routes.link('/foo', { foo: 'abc', 'banana&': '123=321', abc: 'gr&=eat' });
   expect(r).toEqual('/foo?foo=abc&banana%26=123%3D321&abc=gr%26%3Deat');
-
-  expect(() => {
-    routes.link('name')
-  }).toThrow(/unknown named route.*/);
 
   expect(() => {
     routes.link('foo')
