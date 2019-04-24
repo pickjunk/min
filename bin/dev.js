@@ -70,7 +70,6 @@ module.exports = function(program) {
           proxy = [proxy];
         }
         server.use(require('http-proxy-middleware')(...proxy));
-        log.info('proxy enabled');
       }
 
       server.use(async (req, res) => {
