@@ -5,7 +5,7 @@ import router from './Router';
 interface Props {
   to: string;
   args?: Params;
-  children: ReactElement;
+  children: ReactElement | string;
 }
 
 export default function Link({ to, args, children, ...props }: Props) {
