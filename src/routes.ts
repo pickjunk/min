@@ -272,6 +272,8 @@ export default function routes(data: Route, names: Names): Routes {
               encodeURIComponent(String(value)),
             );
           }
+
+          delete args[key];
         }
 
         // get query args (the args exclude route args)
