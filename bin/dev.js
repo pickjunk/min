@@ -4,7 +4,7 @@ module.exports = function(program) {
   const path = require('path');
   const portfinder = require('portfinder');
   const _ = require('lodash');
-  const prettyjson = require('prettyjson');
+  const pretty = require('js-object-pretty-print').pretty;
   const log = require('./log');
   const webpackConfig = require('./webpack.config');
 
@@ -49,7 +49,7 @@ module.exports = function(program) {
       ];
 
       if (verbose) {
-        log.info('webpack config:', prettyjson.render(cfg));
+        log.info('webpack config:', pretty(cfg));
       }
 
       const compiler = webpack(cfg);

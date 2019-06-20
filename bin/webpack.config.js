@@ -38,8 +38,9 @@ module.exports = function(env, configPath) {
   // merge project config
   let projectConfig = {};
   try {
-    projectConfig = require(path.resolve(process.cwd(), configPath));
-    log.info(`found project config: ${projectConfig}`);
+    const p = path.resolve(process.cwd(), configPath);
+    projectConfig = require(p);
+    log.info(`found project config: ${p}`);
   } catch (_) {}
   if (typeof projectConfig === 'function') {
     config = projectConfig(config);
