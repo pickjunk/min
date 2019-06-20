@@ -34,7 +34,6 @@ module.exports = function(program) {
 
       server.listen(port, '127.0.0.1', () => {
         log.info(`Starting server on http://localhost:${port}`);
-        require('open')(`http://localhost:${port}`);
       });
     });
 };
