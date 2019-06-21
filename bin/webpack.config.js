@@ -36,18 +36,25 @@ module.exports = function(env, configPath) {
   });
 
   // merge project config
-  let projectConfig = {};
-  try {
-    const p = path.resolve(process.cwd(), configPath);
-    projectConfig = require(p);
-    log.info(`found project config: ${p}`);
-  } catch (_) {}
-  if (typeof projectConfig === 'function') {
-    config = projectConfig(config);
-  } else if (typeof projectConfig === 'object') {
-    config = merge(config, projectConfig);
-  } else {
-    throw new Error('invalid webpack.config.js, forgot to export your config?');
+  const p = path.resolve(process.cwd(), configPath);
+  if (fs.existsSync(p)) {
+    let projectConfig;
+    try {
+      projectConfig = require(p);
+      log.info(`found project config: ${p}`);
+    } catch (e) {
+      log.error(e);
+    }
+
+    if (typeof projectConfig === 'function') {
+      config = projectConfig(config);
+    } else if (typeof projectConfig === 'object') {
+      config = merge(config, projectConfig);
+    } else {
+      throw new Error(
+        'invalid webpack.config.js, forgot to export your config?',
+      );
+    }
   }
 
   // for SSR
