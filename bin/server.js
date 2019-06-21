@@ -13,7 +13,7 @@ module.exports = function(program) {
       const [nodeCfg, browserCfg] = webpackConfig(c => c, config);
       server.use(
         browserCfg.output.publicPath,
-        express.static(browserCfg.output.publicPath),
+        express.static(browserCfg.output.path),
       );
 
       // https://github.com/webpack/webpack-dev-middleware#server-side-rendering
