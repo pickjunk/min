@@ -83,7 +83,8 @@ module.exports = function(env, configPath) {
     ...config,
     name: 'browser',
     output: {
-      filename: 'bootstrap.js',
+      filename: '[hash].index.js',
+      chunkFilename: '[hash].[chunkhash].chunk.js',
       publicPath: '/__min-static__/',
       path: path.resolve('./dist/__min-static__'),
     },
