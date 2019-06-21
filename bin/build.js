@@ -25,6 +25,9 @@ module.exports = function(program) {
         if (production) {
           c.mode = 'production';
           process.env.NODE_ENV = 'production';
+
+          const CompressionPlugin = require('compression-webpack-plugin');
+          c.plugins.push(new CompressionPlugin());
         } else {
           c.mode = 'development';
           process.env.NODE_ENV = 'development';
