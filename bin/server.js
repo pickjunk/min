@@ -5,6 +5,11 @@ module.exports = function(program) {
 
   program
     .command('start')
+    .option(
+      '-c, --config [path]',
+      'path of webpack.config.js',
+      './webpack.config.js',
+    )
     .option('-p, --port [port]', 'specify server port', 8000)
     .action(function({ config, port }) {
       const express = require('express');
