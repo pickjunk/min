@@ -28,6 +28,10 @@ module.exports = function(program) {
 
           const CompressionPlugin = require('compression-webpack-plugin');
           c.plugins.push(new CompressionPlugin());
+
+          // for __webpack_hash__
+          // https://github.com/webpack/docs/wiki/list-of-plugins#extendedapiplugin
+          c.plugins.push(new webpack.ExtendedAPIPlugin());
         } else {
           c.mode = 'development';
           process.env.NODE_ENV = 'development';

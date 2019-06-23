@@ -91,9 +91,11 @@ module.exports = function(env, configPath) {
   };
 
   // inject __MIN_SCRIPT__
-  const __MIN_SCRIPT__ = JSON.stringify(
-    browserConfig.output.publicPath + browserConfig.output.filename,
-  );
+  const __MIN_SCRIPT__ = `"${
+    browserConfig.output.publicPath
+  }${
+    browserConfig.output.filename.replace('[hash]', '${__webpack_hash__}')
+  }"`;
   nodeConfig.plugins.push(
     new webpack.DefinePlugin({
       __MIN_SCRIPT__,
