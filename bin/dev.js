@@ -76,10 +76,15 @@ module.exports = function(program) {
       server.use(async (req, res) => {
         log.info(`server side render: ${req.originalUrl}`);
 
-        let render = require(path.resolve(
+        const fs = res.locals.fs;
+        const filename = path.join(
           nodeCfg.output.path,
           nodeCfg.output.filename,
-        ));
+        );
+        const source = fs.readFileSync(filename).toString('utf8');
+
+        const nodeEval = require('node-eval');
+        let render = nodeEval(source, filename);
         render = render.default || render;
 
         const html = await render(req, res);
