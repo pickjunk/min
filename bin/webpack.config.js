@@ -83,26 +83,23 @@ module.exports = function(env, configPath) {
     ...config,
     name: 'browser',
     output: {
-      filename: '[hash].index.js',
-      chunkFilename: '[hash].[chunkhash].chunk.js',
+      filename: 'index.js',
+      chunkFilename: '[hash:5].[chunkhash:5].chunk.js',
       publicPath: '/__min-static__/',
       path: path.resolve('./dist/__min-static__'),
     },
   };
 
   // inject __MIN_SCRIPT__
-  const __MIN_SCRIPT__ = `\`${
+  const __MIN_SCRIPT__ = `"${
     browserConfig.output.publicPath
   }${
-    browserConfig.output.filename.replace('[hash]', '${__webpack_hash__}')
-  }\``;
+    browserConfig.output.filename
+  }"`;
   nodeConfig.plugins.push(
     new webpack.DefinePlugin({
       __MIN_SCRIPT__,
     }),
-    // for __webpack_hash__
-    // https://github.com/webpack/docs/wiki/list-of-plugins#extendedapiplugin
-    new webpack.ExtendedAPIPlugin()
   );
   browserConfig.plugins.push(
     new webpack.DefinePlugin({

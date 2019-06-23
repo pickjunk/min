@@ -69,7 +69,6 @@
     "http-proxy-middleware": "0.19.1",
     "js-object-pretty-print": "0.3.0",
     "lodash": "4.17.11",
-    "node-eval": "2.0.0",
     "open": "6.1.0",
     "portfinder": "1.0.20",
     "prettyjson": "1.2.1",
