@@ -100,6 +100,9 @@ module.exports = function(env, configPath) {
     new webpack.DefinePlugin({
       __MIN_SCRIPT__,
     }),
+    // for __webpack_hash__
+    // https://github.com/webpack/docs/wiki/list-of-plugins#extendedapiplugin
+    new webpack.ExtendedAPIPlugin()
   );
   browserConfig.plugins.push(
     new webpack.DefinePlugin({
