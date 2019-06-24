@@ -79,7 +79,7 @@
     "react-hot-loader": "4.8.4",
     "rxjs": "6.4.0",
     "typescript": "3.3.4000",
-    "webpack": "4.29.6",
+    "webpack": "4.35.0",
     "webpack-bundle-analyzer": "3.3.2",
     "webpack-cli": "3.3.0",
     "webpack-dev-middleware": "3.6.2",
