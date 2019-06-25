@@ -15,11 +15,7 @@ module.exports = function(program) {
       'interactive environment, should be false in CI or testing',
       false,
     )
-    .option(
-      '-p, --production',
-      'production mode, enable minifying',
-      false,
-    )
+    .option('-p, --production', 'production mode, enable minifying', false)
     .action(function({ config, interactive, production }) {
       const cfg = webpackConfig(function(c) {
         if (production) {

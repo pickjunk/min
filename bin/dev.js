@@ -21,7 +21,7 @@ module.exports = function(program) {
       const cfg = webpackConfig(function(c) {
         c.mode = 'development';
         process.env.NODE_ENV = 'development';
-        c.devtool = 'cheap-module-eval-source-map';
+        c.devtool = 'cheap-eval-source-map';
 
         c.resolve.alias = {
           ...c.resolve.alias,
