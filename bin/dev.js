@@ -96,9 +96,9 @@ module.exports = function(program) {
       port = await portfinder.getPortPromise({
         port,
       });
-      server.listen(port, () => {
-        log.info(`Starting server on http://0.0.0.0:${port}`);
-        require('open')(`http://0.0.0.0:${port}`);
+      server.listen(port, '127.0.0.1', () => {
+        log.info(`Starting server on http://localhost:${port}`);
+        require('open')(`http://localhost:${port}`);
       });
     });
 };
