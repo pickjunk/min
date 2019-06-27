@@ -37,8 +37,8 @@ module.exports = function(program) {
         }
       });
 
-      server.listen(port, '127.0.0.1', () => {
-        log.info(`Starting server on http://localhost:${port}`);
+      server.listen(port, () => {
+        log.info(`Starting server on http://0.0.0.0:${port}`);
       });
     });
 };
