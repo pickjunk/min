@@ -14,15 +14,9 @@ export default function Link({ to, args, children, ...props }: Props) {
     router.push(to, args);
   }
 
-  if (typeof children === 'string') {
-    return <a {...props} href={router.link(to, args)} onClick={onClick}>{children}</a>;
-  }
-
-  children.props = {
-    ...props,
-    ...children.props,
-    onClick,
-  };
-
-  return children;
+  return (
+    <a {...props} href={router.link(to, args)} onClick={onClick}>
+      {children}
+    </a>
+  );
 }
