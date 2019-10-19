@@ -17,7 +17,7 @@ module.exports = function(program) {
     )
     .option('-p, --production', 'production mode, enable minifying', false)
     .action(function({ config, interactive, production }) {
-      const cfg = webpackConfig(function(c) {
+      const [nodeCfg, browserCfg] = webpackConfig(function(c) {
         if (production) {
           c.mode = 'production';
           process.env.NODE_ENV = 'production';
@@ -36,7 +36,7 @@ module.exports = function(program) {
         return c;
       }, config);
 
-      webpack(cfg).run((err, stats) => {
+      webpack([nodeCfg, browserCfg]).run((err, stats) => {
         if (err) {
           console.error(err);
           return;

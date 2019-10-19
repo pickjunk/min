@@ -38,7 +38,7 @@ module.exports = function(program) {
         return c;
       }, config);
 
-      const [nodeCfg, browserCfg] = cfg;
+      const [nodeCfg, browserCfg, logCfg] = cfg;
       nodeCfg.entry = [
         'webpack-hot-middleware/client?reload=true&name=node',
         nodeCfg.entry,
@@ -52,7 +52,7 @@ module.exports = function(program) {
         log.info('webpack config:', pretty(cfg));
       }
 
-      const compiler = webpack(cfg);
+      const compiler = webpack([nodeCfg, browserCfg]);
       const express = require('express');
       const server = express();
 
@@ -71,6 +71,33 @@ module.exports = function(program) {
           proxy = [proxy];
         }
         server.use(require('http-proxy-middleware')(...proxy));
+      }
+
+      if (logCfg) {
+        const pino = require('pino')
+        const log = pino({
+          base: null,
+          prettyPrint: {
+            translateTime: 'yyyy-mm-dd HH:MM:ss'
+          },
+          level: 'debug'
+        });
+
+        server.get(logCfg.endpoint, (req, res) => {
+          res.setHeader('Surrogate-Control', 'no-store');
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+          res.setHeader('Pragma', 'no-cache');
+          res.setHeader('Expires', '0');
+
+          try {
+            const { level, ...data } = req.query;
+            log[level](data);
+            res.send('ok');
+          } catch (e) {
+            log.error(e);
+            res.send('fail');
+          }
+        });
       }
 
       server.use(async (req, res) => {

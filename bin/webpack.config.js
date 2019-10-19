@@ -58,6 +58,10 @@ module.exports = function(env, configPath) {
     }
   }
 
+  // extract log config
+  const logConfig = config.log;
+  delete config.log;
+
   // for SSR
   const nodeConfig = {
     ...config,
@@ -107,5 +111,5 @@ module.exports = function(env, configPath) {
     }),
   );
 
-  return [nodeConfig, browserConfig];
+  return [nodeConfig, browserConfig, logConfig];
 };

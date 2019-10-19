@@ -15,11 +15,34 @@ module.exports = function(program) {
       const express = require('express');
       const server = express();
 
-      const [nodeCfg, browserCfg] = webpackConfig(c => c, config);
+      const [nodeCfg, browserCfg, logCfg] = webpackConfig(c => c, config);
       server.use(
         browserCfg.output.publicPath,
         express.static(browserCfg.output.path),
       );
+
+      if (logCfg) {
+        const pino = require('pino')
+        const log = pino({
+          base: null,
+        }, logCfg.file);
+
+        server.get(logCfg.endpoint, (req, res) => {
+          res.setHeader('Surrogate-Control', 'no-store');
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+          res.setHeader('Pragma', 'no-cache');
+          res.setHeader('Expires', '0');
+
+          try {
+            const { level, ...data } = req.query;
+            log[level](data);
+            res.end('ok');
+          } catch (e) {
+            log.error(e);
+            res.end('fail');
+          }
+        });
+      }
 
       // https://github.com/webpack/webpack-dev-middleware#server-side-rendering
       server.use(async (req, res) => {

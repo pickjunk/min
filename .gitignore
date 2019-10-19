@@ -4,3 +4,4 @@ dist/
 /config
 package-lock.json
 yarn.lock
+app.log

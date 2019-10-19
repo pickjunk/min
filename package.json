@@ -71,6 +71,8 @@
     "lodash": "4.17.15",
     "node-eval": "2.0.0",
     "open": "6.1.0",
+    "pino": "5.13.5",
+    "pino-pretty": "3.2.2",
     "portfinder": "1.0.20",
     "prettyjson": "1.2.1",
     "qs": "6.7.0",
