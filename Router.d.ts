@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, LoadedRoute, Params } from './routes';
+import { Routes, LoadedRoute, Params, InitialProps, Component } from './routes';
 export interface Match extends LoadedRoute {
     location: string;
 }
@@ -19,3 +19,4 @@ export interface ImperativeRouter {
 declare const imperativeRouter: ImperativeRouter;
 export default imperativeRouter;
 export declare function useRouter(): RouterContext | null;
+export declare function initialProps(init: InitialProps): (component: Component<any>) => Component<any>;

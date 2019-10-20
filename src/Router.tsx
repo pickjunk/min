@@ -8,7 +8,7 @@ import React, {
 import { Subject } from 'rxjs';
 import { switchMap, filter } from 'rxjs/operators';
 import reduceRight from 'lodash/reduceRight';
-import { Routes, LoadedRoute, Params } from './routes';
+import { Routes, LoadedRoute, Params, InitialProps, Component } from './routes';
 
 export interface Match extends LoadedRoute {
   location: string;
@@ -184,4 +184,11 @@ function routesRequired() {
 
 function windowLocation(): string {
   return window.location.pathname + window.location.search;
+}
+
+export function initialProps(init: InitialProps) {
+  return function (component: Component<any>) {
+    component.initialProps = init;
+    return component;
+  }
 }

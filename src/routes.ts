@@ -1,12 +1,14 @@
 import { ComponentType } from 'react';
 import qs from 'qs';
 
-type Component<T> = ComponentType<T> & {
-  initialProps?: (match: {
-    path: string;
-    args?: Params;
-    name?: string;
-  }) => Promise<object>;
+export type InitialProps = (match: {
+  path: string;
+  args?: Params;
+  name?: string;
+}) => Promise<object>;
+
+export type Component<T> = ComponentType<T> & {
+  initialProps?: InitialProps;
   _props: object;
 };
 

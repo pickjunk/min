@@ -1,10 +1,11 @@
 import { ComponentType } from 'react';
-declare type Component<T> = ComponentType<T> & {
-    initialProps?: (match: {
-        path: string;
-        args?: Params;
-        name?: string;
-    }) => Promise<object>;
+export declare type InitialProps = (match: {
+    path: string;
+    args?: Params;
+    name?: string;
+}) => Promise<object>;
+export declare type Component<T> = ComponentType<T> & {
+    initialProps?: InitialProps;
     _props: object;
 };
 declare type importComponent = () => Promise<Component<any>>;
