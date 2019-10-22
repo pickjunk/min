@@ -3,7 +3,7 @@ const ReactDOMServer = require('react-dom/server');
 const traverse = require('react-traverse').default;
 const log = require('../lib/logger').default;
 
-module.exports = async function(req, res, render, bootstrap) {
+module.exports = async function(req, res, render, afterSSR, bootstrap) {
   try {
     let jsx = await render(req.originalUrl);
 
@@ -27,7 +27,9 @@ module.exports = async function(req, res, render, bootstrap) {
       },
     });
 
-    const html = ReactDOMServer.renderToString(jsx);
+    let html = ReactDOMServer.renderToString(jsx);
+    html = afterSSR(html);
+
     log.info({ path: req.path, status: '200' });
     res.end(html);
   } catch (e) {

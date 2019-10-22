@@ -18,12 +18,14 @@ type Render = (router: FunctionComponent<void>) => ReactElement;
 export default function app({
   routes,
   render,
-  afterRender,
+  afterSSR = (html) => html,
+  afterHydrate,
   notFound,
 }: {
   routes: Routes;
   render: Render;
-  afterRender?: () => void;
+  afterSSR: (html: string) => string;
+  afterHydrate?: () => void;
   notFound: () => void;
 }) {
   // wrap render
@@ -36,12 +38,12 @@ export default function app({
   if (typeof document !== 'undefined') {
     wrapRender().then(function(page) {
       // @ts-ignore
-      ReactDOM.hydrate(page, document, afterRender);
+      ReactDOM.hydrate(page, document, afterHydrate);
     });
   }
 
   // return for ssr
-  return wrapRender;
+  return [wrapRender, afterSSR];
 }
 
 const router = {
