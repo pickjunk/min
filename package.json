@@ -13,8 +13,7 @@
     "debug": "npm run build:js && node --inspect-brk -r @babel/register ./test/webpack.js",
     "test": "npm run build:js && jest",
     "clean": "rimraf ./*.d.ts lib dist bootstrap.js document.ejs config/",
-    "prepublishOnly": "npm run clean && npm run build",
-    "postpublish": "npm run clean && npm run build:types && npm run build:js"
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "bin": {
     "min": "./bin/cli.js"
