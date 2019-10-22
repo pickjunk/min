@@ -7,6 +7,7 @@ module.exports = function(program) {
   const pretty = require('js-object-pretty-print').pretty;
   const log = require('./log');
   const webpackConfig = require('./webpack.config');
+  const nodeEval = require('node-eval');
 
   program
     .command('dev')
@@ -21,7 +22,7 @@ module.exports = function(program) {
       const cfg = webpackConfig(function(c) {
         c.mode = 'development';
         process.env.NODE_ENV = 'development';
-        c.devtool = 'cheap-eval-source-map';
+        //c.devtool = 'cheap-eval-source-map';
 
         c.resolve.alias = {
           ...c.resolve.alias,
@@ -38,7 +39,7 @@ module.exports = function(program) {
         return c;
       }, config);
 
-      const [nodeCfg, browserCfg, logCfg] = cfg;
+      const [nodeCfg, browserCfg] = cfg;
       nodeCfg.entry = [
         'webpack-hot-middleware/client?reload=true&name=node',
         nodeCfg.entry,
@@ -73,19 +74,15 @@ module.exports = function(program) {
         server.use(require('http-proxy-middleware')(...proxy));
       }
 
-      if (logCfg) {
-        const pino = require('pino')
-        const log = pino({
-          base: null,
-          prettyPrint: {
-            translateTime: 'yyyy-mm-dd HH:MM:ss'
-          },
-          level: 'debug'
-        });
+      if (__LOG__) {
+        const log = require('../lib/logger').default;
 
-        server.get(logCfg.endpoint, (req, res) => {
+        server.get(__LOG_ENDPOINT__, (req, res) => {
           res.setHeader('Surrogate-Control', 'no-store');
-          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+          res.setHeader(
+            'Cache-Control',
+            'no-store, no-cache, must-revalidate, proxy-revalidate',
+          );
           res.setHeader('Pragma', 'no-cache');
           res.setHeader('Expires', '0');
 
@@ -100,9 +97,9 @@ module.exports = function(program) {
         });
       }
 
+      // https://github.com/webpack/webpack-dev-middleware#server-side-rendering
+      const ssr = require('./ssr');
       server.use(async (req, res) => {
-        log.info(`server side render: ${req.originalUrl}`);
-
         const fs = res.locals.fs;
         const filename = path.join(
           nodeCfg.output.path,
@@ -110,14 +107,15 @@ module.exports = function(program) {
         );
         const source = fs.readFileSync(filename).toString('utf8');
 
-        const nodeEval = require('node-eval');
         let render = nodeEval(source, filename);
         render = render.default || render;
 
-        const html = await render(req, res);
-        if (html) {
-          res.end(html);
-        }
+        await ssr(
+          req,
+          res,
+          render,
+          browserCfg.output.publicPath + browserCfg.output.filename,
+        );
       });
 
       port = await portfinder.getPortPromise({

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { Params } from './routes';
-import router from './Router';
+import { push, link } from './Router';
 
 interface Props {
   to: string;
@@ -10,12 +10,16 @@ interface Props {
 
 export default function Link({ to, args, children, ...props }: Props) {
   function onClick(e: React.MouseEvent) {
-    e.preventDefault();
-    router.push(to, args);
+    try {
+      e.preventDefault();
+      push(to, args);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return (
-    <a {...props} href={router.link(to, args)} onClick={onClick}>
+    <a {...props} href={link(to, args)} onClick={onClick}>
       {children}
     </a>
   );

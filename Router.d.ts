@@ -7,16 +7,13 @@ export interface RouterContext extends Match {
     routes: Routes;
     loading: boolean;
 }
-export interface ImperativeRouter {
-    (routes: Routes, location: string, notFound: () => void): Promise<React.FC<void>>;
-    push(name: string, args?: Params): void;
-    replace(name: string, args?: Params): void;
-    go(delta?: number): void;
-    back(): void;
-    forward(): void;
-    link(name: string, args?: Params): string;
-}
-declare const imperativeRouter: ImperativeRouter;
-export default imperativeRouter;
+declare function router(routes: Routes, location: string | undefined, notFound: () => void): Promise<React.FC<void>>;
+export default router;
+export declare function push(name: string, args?: Params): void;
+export declare function replace(name: string, args?: Params): void;
+export declare function go(delta?: number): void;
+export declare function back(): void;
+export declare function forward(): void;
+export declare function link(name: string, args?: Params): string;
 export declare function useRouter(): RouterContext | null;
 export declare function initialProps(init: InitialProps): (component: Component<any>) => Component<any>;

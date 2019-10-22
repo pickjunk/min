@@ -1,8 +1,5 @@
 let config = {
-  log: {
-    endpoint: '/__log__',
-    file: 'app.log'
-  }
+  log: true
 };
 
 module.exports = config;

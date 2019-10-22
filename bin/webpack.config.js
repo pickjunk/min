@@ -7,7 +7,7 @@ const { name } = require('../package');
 
 module.exports = function(env, configPath) {
   let config = env({
-    entry: path.resolve('./bootstrap.js'),
+    entry: path.resolve('./app.js'),
     resolveLoader: {
       alias: {
         [name]: path.resolve(__dirname, '../lib'),
@@ -59,57 +59,73 @@ module.exports = function(env, configPath) {
   }
 
   // extract log config
-  const logConfig = config.log;
+  let logConfig = config.log;
   delete config.log;
 
+  // generate log constant
+  global.__LOG__ = false;
+  global.__LOG_ENDPOINT__ = null;
+  global.__LOG_FILE__ = null;
+  if (logConfig !== false) {
+    if (typeof logConfig != 'object') {
+      logConfig = {};
+    }
+    global.__LOG__ = true;
+    global.__LOG_ENDPOINT__ = logConfig.endpoint || '/__log__';
+    global.__LOG_FILE__ = logConfig.file;
+  }
+
+  // hack __LOG_STUB__ for server
+  require('register-module')({
+    name: '__LOG_STUB__',
+    path: path.resolve(__dirname, '../lib/log'),
+    main: 'server.js',
+  });
+
   // for SSR
-  const nodeConfig = {
-    ...config,
+  const nodeConfig = merge(config, {
     name: 'node',
     target: 'node',
+    externals: {
+      'react': 'react',
+      'react-dom': 'react-dom',
+      '__LOG_STUB__': '__LOG_STUB__',
+    },
     output: {
       filename: 'ssr.js',
       path: path.resolve('./dist'),
       libraryTarget: 'umd',
     },
     plugins: [
-      ...config.plugins,
       // disable code splitting
       // https://medium.com/@glennreyes/how-to-disable-code-splitting-in-webpack-1c0b1754a3c5
       new webpack.optimize.LimitChunkCountPlugin({
         maxChunks: 1,
       }),
     ],
-  };
+  });
 
   // for browser
-  const browserConfig = {
-    ...config,
+  const browserConfig = merge(config, {
     name: 'browser',
+    resolve: {
+      alias: {
+        __LOG_STUB__: path.resolve(__dirname, '../lib/log/browser'),
+      },
+    },
     output: {
       filename: 'index.js',
       chunkFilename: '[hash:5].[chunkhash:5].chunk.js',
       publicPath: '/__min-static__/',
       path: path.resolve('./dist/__min-static__'),
     },
-  };
+    plugins: [
+      new webpack.DefinePlugin({
+        __LOG__,
+        __LOG_ENDPOINT__: `"${__LOG_ENDPOINT__}"`,
+      }),
+    ],
+  });
 
-  // inject __MIN_SCRIPT__
-  const __MIN_SCRIPT__ = `"${
-    browserConfig.output.publicPath
-  }${
-    browserConfig.output.filename
-  }"`;
-  nodeConfig.plugins.push(
-    new webpack.DefinePlugin({
-      __MIN_SCRIPT__,
-    }),
-  );
-  browserConfig.plugins.push(
-    new webpack.DefinePlugin({
-      __MIN_SCRIPT__,
-    }),
-  );
-
-  return [nodeConfig, browserConfig, logConfig];
+  return [nodeConfig, browserConfig];
 };

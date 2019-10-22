@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 import { switchMap, filter } from 'rxjs/operators';
 import reduceRight from 'lodash/reduceRight';
 import { Routes, LoadedRoute, Params, InitialProps, Component } from './routes';
+import log from './logger';
 
 export interface Match extends LoadedRoute {
   location: string;
@@ -25,14 +26,10 @@ const location$ = new Subject<string>();
 
 async function router(
   routes: Routes,
-  location: string,
+  location: string = windowLocation(),
   notFound: () => void,
 ): Promise<React.FC<void>> {
   _routes = routes;
-
-  if (!location) {
-    location = windowLocation();
-  }
 
   const route = await routes.match(location);
   if (route === false) {
@@ -52,9 +49,11 @@ async function router(
           switchMap(async function(l): Promise<Match | false> {
             let match = await routes.match(l);
             if (match === false) {
+              log.warn({ path: l, status: '404' });
               notFound();
               return false;
             }
+            log.info({ path: l, status: '200' });
 
             return {
               location: l,
@@ -117,57 +116,43 @@ async function router(
   };
 }
 
-const imperactive = {
-  push(name: string, args?: Params): void {
-    routesRequired();
+export default router;
 
-    const target = _routes!.link(name, args);
-    history.pushState(null, '', target);
-    location$.next(target);
-  },
-  replace(name: string, args?: Params): void {
-    routesRequired();
+export function push(name: string, args?: Params): void {
+  routesRequired();
 
-    const target = _routes!.link(name, args);
-    history.replaceState(null, '', target);
-    location$.next(target);
-  },
-  go(delta?: number): void {
-    routesRequired();
-
-    history.go(delta);
-  },
-  back(): void {
-    routesRequired();
-
-    history.back();
-  },
-  forward(): void {
-    routesRequired();
-
-    history.forward();
-  },
-  link(name: string, args?: Params): string {
-    routesRequired();
-
-    return _routes!.link(name, args);
-  },
-};
-
-export interface ImperativeRouter {
-  (routes: Routes, location: string, notFound: () => void): Promise<
-    React.FC<void>
-  >;
-  push(name: string, args?: Params): void;
-  replace(name: string, args?: Params): void;
-  go(delta?: number): void;
-  back(): void;
-  forward(): void;
-  link(name: string, args?: Params): string;
+  const target = _routes!.link(name, args);
+  history.pushState(null, '', target);
+  location$.next(target);
 }
 
-const imperativeRouter: ImperativeRouter = Object.assign(router, imperactive);
-export default imperativeRouter;
+export function replace(name: string, args?: Params): void {
+  routesRequired();
+
+  const target = _routes!.link(name, args);
+  history.replaceState(null, '', target);
+  location$.next(target);
+}
+export function go(delta?: number): void {
+  routesRequired();
+
+  history.go(delta);
+}
+export function back(): void {
+  routesRequired();
+
+  history.back();
+}
+export function forward(): void {
+  routesRequired();
+
+  history.forward();
+}
+export function link(name: string, args?: Params): string {
+  routesRequired();
+
+  return _routes!.link(name, args);
+}
 
 export function useRouter() {
   return useContext(ctx);
@@ -187,8 +172,8 @@ function windowLocation(): string {
 }
 
 export function initialProps(init: InitialProps) {
-  return function (component: Component<any>) {
+  return function(component: Component<any>) {
     component.initialProps = init;
     return component;
-  }
+  };
 }
