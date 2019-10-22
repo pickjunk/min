@@ -7,3 +7,5 @@ tsconfig.js
 /config
 package-lock.json
 yarn.lock
+/example/app.log
+/example/dist/

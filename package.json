@@ -1,6 +1,6 @@
 {
   "name": "@pickjunk/min",
-  "version": "1.3.0",
+  "version": "1.4.1",
   "description": "A Tiny React Framework",
   "main": "lib/index.js",
   "scripts": {
@@ -13,8 +13,7 @@
     "debug": "npm run build:js && node --inspect-brk -r @babel/register ./test/webpack.js",
     "test": "npm run build:js && jest",
     "clean": "rimraf ./*.d.ts lib dist bootstrap.js document.ejs config/",
-    "prepublishOnly": "npm run clean && npm run build",
-    "postpublish": "npm run clean && npm run build:js"
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "bin": {
     "min": "./bin/cli.js"

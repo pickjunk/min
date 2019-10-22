@@ -10,7 +10,7 @@ export default function log(level: string, fields: Fields) {
         qs.stringify(
           {
             level,
-            type: 'browser',
+            source: 'browser',
             ...fields,
           },
           { addQueryPrefix: true },

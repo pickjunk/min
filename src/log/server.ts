@@ -22,7 +22,7 @@ export default function log(level: string, fields: Fields) {
   // @ts-ignore
   if (__LOG__) {
     logger[level]({
-      type: 'server',
+      source: 'server',
       ...fields,
     });
   }

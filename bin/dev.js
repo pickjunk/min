@@ -107,13 +107,12 @@ module.exports = function(program) {
         );
         const source = fs.readFileSync(filename).toString('utf8');
 
-        let render = nodeEval(source, filename);
-        render = render.default || render;
-
+        const [render, afterSSR] = nodeEval(source, filename).default;
         await ssr(
           req,
           res,
           render,
+          afterSSR,
           browserCfg.output.publicPath + browserCfg.output.filename,
         );
       });

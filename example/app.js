@@ -1,6 +1,7 @@
 import React from 'react';
 import app from '@pickjunk/min';
 import routes from './config/routes';
+import log from '@pickjunk/min/logger';
 
 export default app({
   routes,
@@ -15,6 +16,9 @@ export default app({
           />
           <meta httpEquiv="X-UA-Compatible" content="ie=edge" />
           <title>Min Example</title>
+          <style id="css-server-side" suppressHydrationWarning={true}>
+            __css-server-side__
+          </style>
         </head>
         <body>
           <div id="app">
@@ -23,6 +27,17 @@ export default app({
         </body>
       </html>
     );
+  },
+  afterSSR(html) {
+    html = html.replace('__css-server-side__', '#app {color: red;}');
+    return html;
+  },
+  afterHydrate() {
+    // Remove the server-side injected CSS.
+    const cssStyles = document.querySelector('#css-server-side');
+    if (cssStyles && cssStyles.parentNode) {
+      cssStyles.parentNode.removeChild(cssStyles);
+    }
   },
   notFound() {
     alert('not found should be redirect');
