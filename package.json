@@ -14,7 +14,7 @@
     "test": "npm run build:js && jest",
     "clean": "rimraf ./*.d.ts lib dist bootstrap.js document.ejs config/",
     "prepublishOnly": "npm run clean && npm run build",
-    "postpublish": "npm run clean && npm run build:js"
+    "postpublish": "npm run clean && npm run build:types && npm run build:js"
   },
   "bin": {
     "min": "./bin/cli.js"
