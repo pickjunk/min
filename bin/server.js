@@ -5,6 +5,11 @@ module.exports = function(program) {
 
   program
     .command('start')
+    .option(
+      '-c, --config [path]',
+      'path of webpack.config.js',
+      './webpack.config.js',
+    )
     .option('-p, --port [port]', 'specify server port', 8000)
     .action(function({ config, port }) {
       const express = require('express');
@@ -13,28 +18,51 @@ module.exports = function(program) {
       const [nodeCfg, browserCfg] = webpackConfig(c => c, config);
       server.use(
         browserCfg.output.publicPath,
-        express.static(browserCfg.output.publicPath),
+        express.static(browserCfg.output.path),
       );
 
-      // https://github.com/webpack/webpack-dev-middleware#server-side-rendering
-      server.use(async (req, res) => {
-        log.info(`server side render: ${req.originalUrl}`);
+      if (__LOG__) {
+        const log = require('../lib/logger').default;
 
+        server.get(__LOG_ENDPOINT__, (req, res) => {
+          res.setHeader('Surrogate-Control', 'no-store');
+          res.setHeader(
+            'Cache-Control',
+            'no-store, no-cache, must-revalidate, proxy-revalidate',
+          );
+          res.setHeader('Pragma', 'no-cache');
+          res.setHeader('Expires', '0');
+
+          try {
+            const { level, ...data } = req.query;
+            log[level](data);
+            res.send('ok');
+          } catch (e) {
+            log.error(e);
+            res.send('fail');
+          }
+        });
+      }
+
+      // https://github.com/webpack/webpack-dev-middleware#server-side-rendering
+      const ssr = require('./ssr');
+      server.use(async (req, res) => {
         let render = require(path.resolve(
           nodeCfg.output.path,
           nodeCfg.output.filename,
         ));
         render = render.default || render;
 
-        const html = await render(req, res);
-        if (html) {
-          res.end(html);
-        }
+        await ssr(
+          req,
+          res,
+          render,
+          browserCfg.output.publicPath + browserCfg.output.filename,
+        );
       });
 
-      server.listen(port, '127.0.0.1', () => {
-        log.info(`Starting server on http://localhost:${port}`);
-        require('open')(`http://localhost:${port}`);
+      server.listen(port, () => {
+        log.info(`Starting server on http://0.0.0.0:${port}`);
       });
     });
 };

@@ -6,20 +6,24 @@ module.exports = function(program) {
   program
     .command('build')
     .option(
+      '-c, --config [path]',
+      'path of webpack.config.js',
+      './webpack.config.js',
+    )
+    .option(
       '-i, --interactive',
       'interactive environment, should be false in CI or testing',
       false,
     )
-    .option(
-      '-p, --production',
-      'production mode, enable minifying',
-      false,
-    )
+    .option('-p, --production', 'production mode, enable minifying', false)
     .action(function({ config, interactive, production }) {
-      const cfg = webpackConfig(function(c) {
+      const [nodeCfg, browserCfg] = webpackConfig(function(c) {
         if (production) {
           c.mode = 'production';
           process.env.NODE_ENV = 'production';
+
+          const CompressionPlugin = require('compression-webpack-plugin');
+          c.plugins.push(new CompressionPlugin());
         } else {
           c.mode = 'development';
           process.env.NODE_ENV = 'development';
@@ -32,7 +36,7 @@ module.exports = function(program) {
         return c;
       }, config);
 
-      webpack(cfg).run((err, stats) => {
+      webpack([nodeCfg, browserCfg]).run((err, stats) => {
         if (err) {
           console.error(err);
           return;

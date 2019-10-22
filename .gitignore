@@ -1,8 +1,7 @@
 node_modules/
 dist/
-/*.d.ts
-test.js
 /bootstrap.js
 /config
 package-lock.json
 yarn.lock
+app.log

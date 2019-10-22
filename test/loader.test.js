@@ -3,6 +3,7 @@ import webpack from 'webpack';
 import memoryfs from 'memory-fs';
 import { name } from '../package';
 
+jest.setTimeout(30000);
 const routesLoader = path.resolve(__dirname, `../lib/loader`);
 
 function compiler(fixture) {

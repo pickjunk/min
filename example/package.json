@@ -1,11 +1,12 @@
 {
-  "name": "project-name",
+  "name": "min-example",
   "version": "1.0.0",
-  "description": "Min Project",
-  "main": "bootstrap.js",
+  "description": "Min Example",
+  "main": "app.js",
   "scripts": {
     "dev": "min dev",
-    "build": "min build",
+    "build": "rimraf dist && min build -p",
+    "build-dev": "rimraf dist && min build -i",
     "start": "min start",
     "analyze": "min analyze"
   },
@@ -16,6 +17,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@pickjunk/min": "min-version"
+    "@pickjunk/min": "github:pickjunk/min#develop"
   }
 }

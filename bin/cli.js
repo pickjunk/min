@@ -5,13 +5,7 @@
 const program = require('commander');
 const { version } = require('../package');
 
-program
-  .version(version, '-v, --version')
-  .option(
-    '-c, --config [path]',
-    'path of webpack.config.js',
-    './webpack.config.js',
-  );
+program.version(version, '-v, --version');
 
 require('./create')(program);
 require('./dev')(program);

@@ -3,16 +3,26 @@ module.exports = function(program) {
   const WebpackBar = require('webpackbar');
   const path = require('path');
   const portfinder = require('portfinder');
+  const _ = require('lodash');
+  const pretty = require('js-object-pretty-print').pretty;
   const log = require('./log');
   const webpackConfig = require('./webpack.config');
+  const nodeEval = require('node-eval');
 
   program
     .command('dev')
+    .option(
+      '-c, --config [path]',
+      'path of webpack.config.js',
+      './webpack.config.js',
+    )
+    .option('-v, --verbose', 'show more details', false)
     .option('-p, --port [port]', 'specify server port', 8000)
-    .action(async function({ config, port }) {
+    .action(async function({ config, port, verbose }) {
       const cfg = webpackConfig(function(c) {
         c.mode = 'development';
         process.env.NODE_ENV = 'development';
+        //c.devtool = 'cheap-eval-source-map';
 
         c.resolve.alias = {
           ...c.resolve.alias,
@@ -39,7 +49,11 @@ module.exports = function(program) {
         browserCfg.entry,
       ];
 
-      const compiler = webpack(cfg);
+      if (verbose) {
+        log.info('webpack config:', pretty(cfg));
+      }
+
+      const compiler = webpack([nodeCfg, browserCfg]);
       const express = require('express');
       const server = express();
 
@@ -51,9 +65,41 @@ module.exports = function(program) {
         }),
       );
       server.use(require('webpack-hot-middleware')(compiler));
-      server.use(async (req, res) => {
-        log.info(`server side render: ${req.originalUrl}`);
 
+      if (nodeCfg.devServer && nodeCfg.devServer.proxy) {
+        let proxy = nodeCfg.devServer.proxy;
+        if (!_.isArray(proxy)) {
+          proxy = [proxy];
+        }
+        server.use(require('http-proxy-middleware')(...proxy));
+      }
+
+      if (__LOG__) {
+        const log = require('../lib/logger').default;
+
+        server.get(__LOG_ENDPOINT__, (req, res) => {
+          res.setHeader('Surrogate-Control', 'no-store');
+          res.setHeader(
+            'Cache-Control',
+            'no-store, no-cache, must-revalidate, proxy-revalidate',
+          );
+          res.setHeader('Pragma', 'no-cache');
+          res.setHeader('Expires', '0');
+
+          try {
+            const { level, ...data } = req.query;
+            log[level](data);
+            res.send('ok');
+          } catch (e) {
+            log.error(e);
+            res.send('fail');
+          }
+        });
+      }
+
+      // https://github.com/webpack/webpack-dev-middleware#server-side-rendering
+      const ssr = require('./ssr');
+      server.use(async (req, res) => {
         const fs = res.locals.fs;
         const filename = path.join(
           nodeCfg.output.path,
@@ -61,14 +107,15 @@ module.exports = function(program) {
         );
         const source = fs.readFileSync(filename).toString('utf8');
 
-        const nodeEval = require('node-eval');
         let render = nodeEval(source, filename);
         render = render.default || render;
 
-        const html = await render(req, res);
-        if (html) {
-          res.end(html);
-        }
+        await ssr(
+          req,
+          res,
+          render,
+          browserCfg.output.publicPath + browserCfg.output.filename,
+        );
       });
 
       port = await portfinder.getPortPromise({
