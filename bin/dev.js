@@ -16,9 +16,14 @@ module.exports = function(program) {
       'path of webpack.config.js',
       './webpack.config.js',
     )
+    .option(
+      '-m, --min [path]',
+      'path of min.config.js',
+      './min.config.js',
+    )
     .option('-v, --verbose', 'show more details', false)
     .option('-p, --port [port]', 'specify server port', 8000)
-    .action(async function({ config, port, verbose }) {
+    .action(async function({ config, min, port, verbose }) {
       const cfg = webpackConfig(function(c) {
         c.mode = 'development';
         process.env.NODE_ENV = 'development';
@@ -37,7 +42,7 @@ module.exports = function(program) {
         c.plugins.push(new WebpackBar());
 
         return c;
-      }, config);
+      }, config, min);
 
       const [nodeCfg, browserCfg] = cfg;
       nodeCfg.entry = [

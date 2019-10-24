@@ -1,11 +1,10 @@
 const path = require('path');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
-const fs = require('fs');
 const log = require('./log');
 const { name } = require('../package');
 
-module.exports = function(env, configPath) {
+module.exports = function(env, configPath, minPath) {
   let config = env({
     entry: path.resolve('./app.js'),
     resolveLoader: {
@@ -37,32 +36,37 @@ module.exports = function(env, configPath) {
   });
 
   // merge project config
-  const p = path.resolve(process.cwd(), configPath);
-  if (fs.existsSync(p)) {
-    let projectConfig;
-    try {
-      projectConfig = require(p);
-      log.info(`found project config: ${p}`);
-    } catch (e) {
-      log.error(e);
-    }
-
-    if (typeof projectConfig === 'function') {
-      config = projectConfig(config);
-    } else if (typeof projectConfig === 'object') {
-      config = merge(config, projectConfig);
-    } else {
-      throw new Error(
-        'invalid webpack.config.js, forgot to export your config?',
-      );
-    }
+  let projectConfig;
+  try {
+    const p = path.resolve(process.cwd(), configPath);
+    projectConfig = require(p);
+    log.info(`found webpack config: ${p}`);
+  } catch (e) {
+    log.error(e);
+  }
+  if (typeof projectConfig === 'function') {
+    config = projectConfig(config);
+  } else if (typeof projectConfig === 'object') {
+    config = merge(config, projectConfig);
+  } else {
+    throw new Error('invalid webpack.config.js, forget to export your config?');
   }
 
-  // extract log config
-  let logConfig = config.log;
-  delete config.log;
+  // load min config
+  let minConfig = {};
+  try {
+    const p = path.resolve(process.cwd(), minPath);
+    minConfig = require(p);
+    log.info(`found min config: ${p}`);
+  } catch (e) {
+    log.error(e);
+  }
+  if (typeof minConfig !== 'object') {
+    throw new Error('invalid min.config.js, forget to export your config?');
+  }
 
-  // generate log constant
+  // log config, generate log constants
+  let logConfig = minConfig.log;
   global.__LOG__ = false;
   global.__LOG_ENDPOINT__ = null;
   global.__LOG_FILE__ = null;
@@ -73,6 +77,12 @@ module.exports = function(env, configPath) {
     global.__LOG__ = true;
     global.__LOG_ENDPOINT__ = logConfig.endpoint || '/__log__';
     global.__LOG_FILE__ = logConfig.file;
+
+    const endpoint = global.__LOG_ENDPOINT__;
+    const file = global.__LOG_FILE__;
+    log.info(
+      `log enabled: endpoint=${endpoint}, ${file ? 'file=' + file : 'console'}`,
+    );
   }
 
   // hack __LOG_STUB__ for server
@@ -87,9 +97,9 @@ module.exports = function(env, configPath) {
     name: 'node',
     target: 'node',
     externals: {
-      'react': 'react',
+      react: 'react',
       'react-dom': 'react-dom',
-      '__LOG_STUB__': '__LOG_STUB__',
+      __LOG_STUB__: '__LOG_STUB__',
     },
     output: {
       filename: 'ssr.js',

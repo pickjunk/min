@@ -10,12 +10,17 @@ module.exports = function(program) {
       'path of webpack.config.js',
       './webpack.config.js',
     )
+    .option(
+      '-m, --min [path]',
+      'path of min.config.js',
+      './min.config.js',
+    )
     .option('-p, --port [port]', 'specify server port', 8000)
-    .action(function({ config, port }) {
+    .action(function({ config, min, port }) {
       const express = require('express');
       const server = express();
 
-      const [nodeCfg, browserCfg] = webpackConfig(c => c, config);
+      const [nodeCfg, browserCfg] = webpackConfig(c => c, config, min);
       server.use(
         browserCfg.output.publicPath,
         express.static(browserCfg.output.path),

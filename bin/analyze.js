@@ -11,8 +11,13 @@ module.exports = function(program) {
       'path of webpack.config.js',
       './webpack.config.js',
     )
+    .option(
+      '-m, --min [path]',
+      'path of min.config.js',
+      './min.config.js',
+    )
     .option('-p, --port [port]', 'specify server port', 8888)
-    .action(async function({ config, port }) {
+    .action(async function({ config, min, port }) {
       const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
       port = await portfinder.getPortPromise({
@@ -31,7 +36,7 @@ module.exports = function(program) {
         );
 
         return c;
-      }, config);
+      }, config, min);
 
       webpack(cfg[1]).run(function(err, stats) {
         if (err) {

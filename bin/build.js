@@ -11,12 +11,17 @@ module.exports = function(program) {
       './webpack.config.js',
     )
     .option(
+      '-m, --min [path]',
+      'path of min.config.js',
+      './min.config.js',
+    )
+    .option(
       '-i, --interactive',
       'interactive environment, should be false in CI or testing',
       false,
     )
     .option('-p, --production', 'production mode, enable minifying', false)
-    .action(function({ config, interactive, production }) {
+    .action(function({ config, min, interactive, production }) {
       const [nodeCfg, browserCfg] = webpackConfig(function(c) {
         if (production) {
           c.mode = 'production';
@@ -34,7 +39,7 @@ module.exports = function(program) {
         }
 
         return c;
-      }, config);
+      }, config, min);
 
       webpack([nodeCfg, browserCfg]).run((err, stats) => {
         if (err) {

@@ -1,5 +1,3 @@
-let config = {
-  log: true
-};
+let config = {};
 
 module.exports = config;
