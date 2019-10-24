@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
+const fs = require('fs');
 const log = require('./log');
 const { name } = require('../package');
 
@@ -36,33 +37,29 @@ module.exports = function(env, configPath, minPath) {
   });
 
   // merge project config
-  let projectConfig;
-  try {
-    const p = path.resolve(process.cwd(), configPath);
-    projectConfig = require(p);
+  let projectConfig = {};
+  const p = path.resolve(process.cwd(), configPath);
+  if (fs.existsSync(p)) {
     log.info(`found webpack config: ${p}`);
-  } catch (e) {
-    log.error(e);
-  }
-  if (typeof projectConfig === 'function') {
-    config = projectConfig(config);
-  } else if (typeof projectConfig === 'object') {
-    config = merge(config, projectConfig);
-  } else {
-    throw new Error('invalid webpack.config.js, forget to export your config?');
+    projectConfig = require(p);
+    if (typeof projectConfig === 'function') {
+      config = projectConfig(config);
+    } else if (typeof projectConfig === 'object') {
+      config = merge(config, projectConfig);
+    } else {
+      throw new Error('invalid webpack.config.js, forget to export your config?');
+    }
   }
 
   // load min config
   let minConfig = {};
-  try {
-    const p = path.resolve(process.cwd(), minPath);
-    minConfig = require(p);
-    log.info(`found min config: ${p}`);
-  } catch (e) {
-    log.error(e);
-  }
-  if (typeof minConfig !== 'object') {
-    throw new Error('invalid min.config.js, forget to export your config?');
+  const m = path.resolve(process.cwd(), minPath);
+  if (fs.existsSync(m)) {
+    log.info(`found min config: ${m}`);
+    minConfig = require(m);
+    if (typeof minConfig !== 'object') {
+      throw new Error('invalid min.config.js, forget to export your config?');
+    }
   }
 
   // log config, generate log constants
