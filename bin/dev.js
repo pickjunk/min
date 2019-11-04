@@ -1,4 +1,4 @@
-module.exports = function(program) {
+module.exports = function (program) {
   const webpack = require('webpack');
   const WebpackBar = require('webpackbar');
   const path = require('path');
@@ -23,8 +23,8 @@ module.exports = function(program) {
     )
     .option('-v, --verbose', 'show more details', false)
     .option('-p, --port [port]', 'specify server port', 8000)
-    .action(async function({ config, min, port, verbose }) {
-      const cfg = webpackConfig(function(c) {
+    .action(async function ({ config, min, port, verbose }) {
+      const cfg = webpackConfig(function (c) {
         c.mode = 'development';
         process.env.NODE_ENV = 'development';
         //c.devtool = 'cheap-eval-source-map';
@@ -125,9 +125,9 @@ module.exports = function(program) {
       port = await portfinder.getPortPromise({
         port,
       });
-      server.listen(port, '127.0.0.1', () => {
-        log.info(`Starting server on http://localhost:${port}`);
-        require('open')(`http://localhost:${port}`);
+      server.listen(port, () => {
+        log.info(`Starting server on http://0.0.0.0:${port}`);
+        require('open')(`http://0.0.0.0:${port}`);
       });
     });
 };
