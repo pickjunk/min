@@ -1,6 +1,7 @@
 module.exports = function(program) {
   const webpack = require('webpack');
   const WebpackBar = require('webpackbar');
+  const minConfig = require('./min.config');
   const webpackConfig = require('./webpack.config');
 
   program
@@ -10,11 +11,7 @@ module.exports = function(program) {
       'path of webpack.config.js',
       './webpack.config.js',
     )
-    .option(
-      '-m, --min [path]',
-      'path of min.config.js',
-      './min.config.js',
-    )
+    .option('-m, --min [path]', 'path of min.config.js', './min.config.js')
     .option(
       '-i, --interactive',
       'interactive environment, should be false in CI or testing',
@@ -22,6 +19,9 @@ module.exports = function(program) {
     )
     .option('-p, --production', 'production mode, enable minifying', false)
     .action(function({ config, min, interactive, production }) {
+      // must before webpackConfig
+      minConfig(min);
+
       const [nodeCfg, browserCfg] = webpackConfig(function(c) {
         if (production) {
           c.mode = 'production';
@@ -39,7 +39,7 @@ module.exports = function(program) {
         }
 
         return c;
-      }, config, min);
+      }, config);
 
       webpack([nodeCfg, browserCfg]).run((err, stats) => {
         if (err) {
