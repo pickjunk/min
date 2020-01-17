@@ -5,7 +5,7 @@ const fs = require('fs');
 const log = require('./log');
 const { name } = require('../package');
 
-module.exports = function(env, configPath, minPath) {
+module.exports = function(env, configPath) {
   let config = env({
     entry: path.resolve('./app.js'),
     resolveLoader: {
@@ -36,58 +36,24 @@ module.exports = function(env, configPath, minPath) {
     plugins: [],
   });
 
+  // export useful global variable for project webpack.config.js
+  global.__MIN_PUBLIC_PATH__ = '/__min-static__/';
+  global.__MIN_OUTPUT_PATH__ = path.resolve('./dist/__min-static__');
+
   // merge project config
   let projectConfig = {};
   const p = path.resolve(process.cwd(), configPath);
   if (fs.existsSync(p)) {
     log.info(`found webpack config: ${p}`);
     projectConfig = require(p);
-    if (typeof projectConfig === 'function') {
-      config = projectConfig(config);
-    } else if (typeof projectConfig === 'object') {
+    if (typeof projectConfig === 'object') {
       config = merge(config, projectConfig);
     } else {
-      throw new Error('invalid webpack.config.js, forget to export your config?');
+      throw new Error(
+        'invalid webpack.config.js, forget to export your config?',
+      );
     }
   }
-
-  // load min config
-  let minConfig = {};
-  const m = path.resolve(process.cwd(), minPath);
-  if (fs.existsSync(m)) {
-    log.info(`found min config: ${m}`);
-    minConfig = require(m);
-    if (typeof minConfig !== 'object') {
-      throw new Error('invalid min.config.js, forget to export your config?');
-    }
-  }
-
-  // log config, generate log constants
-  let logConfig = minConfig.log;
-  global.__LOG__ = false;
-  global.__LOG_ENDPOINT__ = null;
-  global.__LOG_FILE__ = null;
-  if (logConfig !== false) {
-    if (typeof logConfig != 'object') {
-      logConfig = {};
-    }
-    global.__LOG__ = true;
-    global.__LOG_ENDPOINT__ = logConfig.endpoint || '/__log__';
-    global.__LOG_FILE__ = logConfig.file;
-
-    const endpoint = global.__LOG_ENDPOINT__;
-    const file = global.__LOG_FILE__;
-    log.info(
-      `log enabled: endpoint=${endpoint}, ${file ? 'file=' + file : 'console'}`,
-    );
-  }
-
-  // hack __LOG_STUB__ for server
-  require('register-module')({
-    name: '__LOG_STUB__',
-    path: path.resolve(__dirname, '../lib/log'),
-    main: 'server.js',
-  });
 
   // for SSR
   const nodeConfig = merge(config, {
@@ -123,8 +89,8 @@ module.exports = function(env, configPath, minPath) {
     output: {
       filename: 'index.js',
       chunkFilename: '[hash:5].[chunkhash:5].chunk.js',
-      publicPath: '/__min-static__/',
-      path: path.resolve('./dist/__min-static__'),
+      publicPath: __MIN_PUBLIC_PATH__,
+      path: __MIN_OUTPUT_PATH__,
     },
     plugins: [
       new webpack.DefinePlugin({

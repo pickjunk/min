@@ -1,4 +1,4 @@
-module.exports = function (program) {
+module.exports = function(program) {
   const webpack = require('webpack');
   const WebpackBar = require('webpackbar');
   const path = require('path');
@@ -6,6 +6,7 @@ module.exports = function (program) {
   const _ = require('lodash');
   const pretty = require('js-object-pretty-print').pretty;
   const log = require('./log');
+  const minConfig = require('./min.config');
   const webpackConfig = require('./webpack.config');
   const nodeEval = require('node-eval');
 
@@ -16,15 +17,14 @@ module.exports = function (program) {
       'path of webpack.config.js',
       './webpack.config.js',
     )
-    .option(
-      '-m, --min [path]',
-      'path of min.config.js',
-      './min.config.js',
-    )
+    .option('-m, --min [path]', 'path of min.config.js', './min.config.js')
     .option('-v, --verbose', 'show more details', false)
     .option('-p, --port [port]', 'specify server port', 8000)
-    .action(async function ({ config, min, port, verbose }) {
-      const cfg = webpackConfig(function (c) {
+    .action(async function({ config, min, port, verbose }) {
+      // must before webpackConfig
+      minConfig(min);
+
+      const cfg = webpackConfig(function(c) {
         c.mode = 'development';
         process.env.NODE_ENV = 'development';
         //c.devtool = 'cheap-eval-source-map';
@@ -42,7 +42,7 @@ module.exports = function (program) {
         c.plugins.push(new WebpackBar());
 
         return c;
-      }, config, min);
+      }, config);
 
       const [nodeCfg, browserCfg] = cfg;
       nodeCfg.entry = [

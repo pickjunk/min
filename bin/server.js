@@ -1,6 +1,7 @@
 module.exports = function(program) {
   const path = require('path');
   const log = require('./log');
+  const minConfig = require('./min.config');
   const webpackConfig = require('./webpack.config');
 
   program
@@ -10,17 +11,17 @@ module.exports = function(program) {
       'path of webpack.config.js',
       './webpack.config.js',
     )
-    .option(
-      '-m, --min [path]',
-      'path of min.config.js',
-      './min.config.js',
-    )
+    .option('-m, --min [path]', 'path of min.config.js', './min.config.js')
     .option('-p, --port [port]', 'specify server port', 8000)
     .action(function({ config, min, port }) {
       const express = require('express');
       const server = express();
 
-      const [nodeCfg, browserCfg] = webpackConfig(c => c, config, min);
+      // must before webpackConfig
+      minConfig(min);
+
+      const [nodeCfg, browserCfg] = webpackConfig(c => c, config);
+
       server.use(
         browserCfg.output.publicPath,
         express.static(browserCfg.output.path),
