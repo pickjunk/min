@@ -26,7 +26,9 @@ $ vim package.json # see below
 ```javascript
 // .babelrc
 // This file is not required but peferred.
-// All dependencies showed in this example is not necessary to be added to your project's package.json. MIN has included them already, as a popular recommandation.
+// All dependencies showed in this example is not necessary
+// to be added to your project's package.json. MIN has
+// included them already, as a popular recommandation.
 {
   "presets": [
     "@babel/preset-env",
@@ -383,9 +385,9 @@ let config = {
 module.exports = config;
 ```
 
-### Advanced (Under the Hook)
+### Advanced (Under the Hood)
 
-The content from here on is not necessary to read. But if you are curious about how MIN works under the hook, topics below may be a good guide for you.
+The content from here on is not necessary to read. But if you are curious about how MIN works under the hood, topics below may be a good guide for you.
 
 ### Code Splitting
 
