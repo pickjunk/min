@@ -69,84 +69,104 @@ test('routes.match', async () => {
   r = await routes.match('/');
   expect(r).not.toEqual(false);
   ({ route, args, name } = r);
-  expect(func2name(route)).toEqual([{
-    path: '/',
-    component: 'A'
-  }, {
-    path: '__default__',
-    component: 'B'
-  }, {
-    path: '__default__',
-    component: 'B'
-  }]);
+  expect(func2name(route)).toEqual([
+    {
+      path: '/',
+      component: 'A',
+    },
+    {
+      path: '__default__',
+      component: 'B',
+    },
+    {
+      path: '__default__',
+      component: 'B',
+    },
+  ]);
   expect(args).toEqual({});
   expect(name).toEqual('default');
 
   r = await routes.match('/default_child_one');
   expect(r).not.toEqual(false);
   ({ route, args, name } = r);
-  expect(func2name(route)).toEqual([{
-    path: '/',
-    component: 'A'
-  }, {
-    path: '__default__',
-    component: 'B'
-  }, {
-    path: 'default_child_one',
-    component: 'A'
-  }]);
+  expect(func2name(route)).toEqual([
+    {
+      path: '/',
+      component: 'A',
+    },
+    {
+      path: '__default__',
+      component: 'B',
+    },
+    {
+      path: 'default_child_one',
+      component: 'A',
+    },
+  ]);
   expect(args).toEqual({});
   expect(name).toEqual('default1');
 
   r = await routes.match('/default_child_two');
   expect(r).not.toEqual(false);
   ({ route, args, name } = r);
-  expect(func2name(route)).toEqual([{
-    path: '/',
-    component: 'A'
-  }, {
-    path: '__default__',
-    component: 'B'
-  }, {
-    path: 'default_child_two',
-    component: 'C'
-  }]);
+  expect(func2name(route)).toEqual([
+    {
+      path: '/',
+      component: 'A',
+    },
+    {
+      path: '__default__',
+      component: 'B',
+    },
+    {
+      path: 'default_child_two',
+      component: 'C',
+    },
+  ]);
   expect(args).toEqual({});
   expect(name).toEqual('default2');
 
   r = await routes.match('/foo');
   expect(r).not.toEqual(false);
   ({ route, args, name } = r);
-  expect(func2name(route)).toEqual([{
-    path: '/',
-    component: 'A'
-  }]);
+  expect(func2name(route)).toEqual([
+    {
+      path: '/',
+      component: 'A',
+    },
+  ]);
   expect(args).toEqual({});
   expect(name).toEqual(undefined);
 
   r = await routes.match('/foo123abc_bar');
   expect(r).not.toEqual(false);
   ({ route, args, name } = r);
-  expect(func2name(route)).toEqual([{
-    path: '/',
-    component: 'A'
-  }, {
-    path: 'abc_bar',
-    component: 'B'
-  }]);
+  expect(func2name(route)).toEqual([
+    {
+      path: '/',
+      component: 'A',
+    },
+    {
+      path: 'abc_bar',
+      component: 'B',
+    },
+  ]);
   expect(args).toEqual({ bar: '123', foo: 'abc_' });
   expect(name).toEqual(undefined);
 
   r = await routes.match('/foo123bar?banana%26=123%3D321');
   expect(r).not.toEqual(false);
   ({ route, args, name } = r);
-  expect(func2name(route)).toEqual([{
-    path: '/',
-    component: 'A'
-  }, {
-    path: 'bar',
-    component: 'B'
-  }]);
+  expect(func2name(route)).toEqual([
+    {
+      path: '/',
+      component: 'A',
+    },
+    {
+      path: 'bar',
+      component: 'B',
+    },
+  ]);
   expect(args).toEqual({ bar: '123', 'banana&': '123=321' });
   expect(name).toEqual(undefined);
 
@@ -161,12 +181,12 @@ test('routes.match', async () => {
   expect(args).toEqual({ foo: 'foo123', bar: 'abc_bar' });
 
   r = await routes.match('/short_args/foo123abc_bar/');
-  expect(r).toEqual(false);
-
-  r = await routes.match('/short_args/foo123/abc_bar/');
   expect(r).not.toEqual(false);
   ({ args } = r);
-  expect(args).toEqual({ foo: 'foo123', bar: '/abc_bar' });
+  expect(args).toEqual({ foo: 'foo123abc_ba', bar: 'r' });
+
+  r = await routes.match('/short_args/foo123/abc_bar/');
+  expect(r).toEqual(false);
 
   r = await routes.match('/foobar');
   expect(r).toEqual(false);
@@ -204,10 +224,10 @@ test('routes.check', async () => {
   expect(r).toEqual(true);
 
   r = routes.check('/short_args/foo123abc_bar/');
-  expect(r).toEqual(false);
+  expect(r).toEqual(true);
 
   r = routes.check('/short_args/foo123/abc_bar/');
-  expect(r).toEqual(true);
+  expect(r).toEqual(false);
 
   r = routes.check('/foobar');
   expect(r).toEqual(false);
@@ -230,11 +250,11 @@ test('routes.link', async () => {
   expect(r).toEqual('/foo?foo=abc&banana%26=123%3D321&abc=gr%26%3Deat');
 
   expect(() => {
-    routes.link('foo')
+    routes.link('foo');
   }).toThrow(/argument.*required/);
 
   expect(() => {
-    routes.link('foo', { foo: 233 })
+    routes.link('foo', { foo: 233 });
   }).toThrow(/argument.*invalid/);
 });
 
@@ -261,30 +281,38 @@ test('routes support array in top layer', async () => {
   r = await routes.match('/a');
   expect(r).not.toEqual(false);
   ({ route } = r);
-  expect(func2name(route)).toEqual([{
-    path: '/a',
-    component: 'A'
-  }]);
+  expect(func2name(route)).toEqual([
+    {
+      path: '/a',
+      component: 'A',
+    },
+  ]);
 
   r = await routes.match('/b');
   expect(r).not.toEqual(false);
   ({ route } = r);
-  expect(func2name(route)).toEqual([{
-    path: '/b',
-    component: 'B'
-  }, {
-    path: '__default__',
-    component: 'C'
-  }]);
+  expect(func2name(route)).toEqual([
+    {
+      path: '/b',
+      component: 'B',
+    },
+    {
+      path: '__default__',
+      component: 'C',
+    },
+  ]);
 
   r = await routes.match('/b/a');
   expect(r).not.toEqual(false);
   ({ route } = r);
-  expect(func2name(route)).toEqual([{
-    path: '/b',
-    component: 'B'
-  }, {
-    path: '/a',
-    component: 'A'
-  }]);
+  expect(func2name(route)).toEqual([
+    {
+      path: '/b',
+      component: 'B',
+    },
+    {
+      path: '/a',
+      component: 'A',
+    },
+  ]);
 });

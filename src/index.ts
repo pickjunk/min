@@ -12,13 +12,14 @@ import createRouter, {
 } from './Router';
 import Link from './Link';
 import { Routes } from './routes';
+import log from './logger';
 
 type Render = (router: FunctionComponent<void>) => ReactElement;
 
 export default function app({
   routes,
   render,
-  afterSSR = (html) => html,
+  afterSSR = html => html,
   afterHydrate,
   notFound,
 }: {
@@ -55,4 +56,4 @@ const router = {
   link,
 };
 
-export { createRouter, router, useRouter, initialProps, Link };
+export { createRouter, router, useRouter, initialProps, Link, log };

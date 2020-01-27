@@ -15,9 +15,10 @@ module.exports = function(source, inputSourceMap) {
   // Make the loader async
   // fork from babel-loader@8
   const callback = this.async();
-  loader
-    .call(this, source, inputSourceMap)
-    .then(args => callback(null, ...args), err => callback(err));
+  loader.call(this, source, inputSourceMap).then(
+    args => callback(null, ...args),
+    err => callback(err),
+  );
 };
 
 // support es6 with babel-loader
@@ -125,7 +126,7 @@ async function loader(source, inputSourceMap) {
         // :name implicitly ends with '/' or the end of string
         if (!name) {
           name = match[3];
-          regex = '.+?(?=/|$)';
+          regex = '[^/]+';
         }
 
         if (paramsRegex[name]) {
