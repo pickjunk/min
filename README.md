@@ -265,7 +265,7 @@ module.exports = {
         loader: 'file-loader',
         options: {
           publicPath: path.join(__MIN_PUBLIC_PATH__, 'images'),
-          outputPath: path.join(__MIN_OUTPUT_PATH__, 'images'),
+          outputPath: 'images',
         },
       },
     ],
@@ -286,7 +286,7 @@ module.exports = {
 };
 ```
 
-> Noticed that `__MIN_PUBLIC_PATH__` and `__MIN_OUTPUT_PATH__` are two special global variables provided by MIN. They are necessary when you want to release static resources. Without them, the SSR server will not find the static resources.
+> Noticed that `__MIN_PUBLIC_PATH__` is a special global variable provided by MIN. It's necessary when you want to release static resources. Without it, the SSR server will not find the static resources.
 
 ### Production
 
