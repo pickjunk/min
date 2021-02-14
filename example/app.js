@@ -1,7 +1,6 @@
 import React from 'react';
 import app from '@pickjunk/min';
 import routes from './config/routes';
-import log from '@pickjunk/min/logger';
 
 export default app({
   routes,
