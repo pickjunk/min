@@ -5,7 +5,6 @@ module.exports = function (program) {
   const portfinder = require('portfinder');
   const _ = require('lodash');
   const pretty = require('js-object-pretty-print').pretty;
-  const fs = require('fs');
   const log = require('./log');
   const minConfig = require('./min.config');
   const webpackConfig = require('./webpack.config');
@@ -106,7 +105,9 @@ module.exports = function (program) {
       // https://github.com/webpack/webpack-dev-middleware#server-side-rendering
       const ssr = require('./ssr');
       server.use(async (req, res) => {
-        const fs = res.locals.fs;
+        const { devMiddleware } = res.locals.webpack;
+        const fs = devMiddleware.outputFileSystem;
+
         const filename = path.join(
           nodeCfg.output.path,
           nodeCfg.output.filename,
