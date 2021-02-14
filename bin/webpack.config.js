@@ -1,11 +1,11 @@
 const path = require('path');
 const webpack = require('webpack');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const fs = require('fs');
 const log = require('./log');
 const { name } = require('../package');
 
-module.exports = function(env, configPath) {
+module.exports = function (env, configPath) {
   let config = env({
     entry: path.resolve('./app.js'),
     resolveLoader: {

@@ -17,6 +17,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@pickjunk/min": "github:pickjunk/min#develop"
+    "@pickjunk/min": "github:pickjunk/min#master"
   }
 }
