@@ -1,5 +1,6 @@
 module.exports = function (program) {
   const path = require('path');
+  const log = require('./log');
   const minConfig = require('./min.config');
   const webpackConfig = require('./webpack.config');
 
