@@ -16,7 +16,7 @@
     "prepublishOnly": "npm run clean && npm run build"
   },
   "bin": {
-    "min": "./bin/cli.js --trace-deprecation"
+    "min": "./bin/cli.js"
   },
   "repository": {
     "type": "git",
