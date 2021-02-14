@@ -3,7 +3,7 @@ const ReactDOMServer = require('react-dom/server');
 const traverse = require('react-traverse').default;
 const log = require('../lib/logger').default;
 
-module.exports = async function(req, res, render, afterSSR, bootstrap) {
+module.exports = async function (req, res, render, afterSSR, bootstrap) {
   try {
     let jsx = await render(req.originalUrl);
 

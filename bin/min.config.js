@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const log = require('./log');
 
-module.exports = function(minPath) {
+module.exports = function (minPath) {
   // load min config
   let minConfig = {};
   const m = path.resolve(process.cwd(), minPath);

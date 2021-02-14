@@ -1,10 +1,10 @@
-module.exports = function(program) {
+module.exports = function (program) {
   const path = require('path');
   const fs = require('fs-extra');
   const log = require('./log');
   const { version } = require('../package');
 
-  program.command('create <name>').action(function(name) {
+  program.command('create <name>').action(function (name) {
     fs.copySync(path.resolve(__dirname, '../example'), path.resolve(name));
 
     let packageJSON = fs.readFileSync(

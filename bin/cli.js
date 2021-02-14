@@ -2,6 +2,8 @@
 // comment above is necessary for windows compatibility
 // https://stackoverflow.com/questions/25333570/npm-package-json-bin-wont-work-on-windows
 
+process.traceDeprecation = true;
+
 const program = require('commander');
 const { version } = require('../package');
 

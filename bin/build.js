@@ -1,4 +1,4 @@
-module.exports = function(program) {
+module.exports = function (program) {
   const webpack = require('webpack');
   const WebpackBar = require('webpackbar');
   const minConfig = require('./min.config');
@@ -18,11 +18,11 @@ module.exports = function(program) {
       false,
     )
     .option('-p, --production', 'production mode, enable minifying', false)
-    .action(function({ config, min, interactive, production }) {
+    .action(function ({ config, min, interactive, production }) {
       // must before webpackConfig
       minConfig(min);
 
-      const [nodeCfg, browserCfg] = webpackConfig(function(c) {
+      const [nodeCfg, browserCfg] = webpackConfig(function (c) {
         if (production) {
           c.mode = 'production';
           process.env.NODE_ENV = 'production';

@@ -1,11 +1,10 @@
-module.exports = function(program) {
+module.exports = function (program) {
   const webpack = require('webpack');
   const WebpackBar = require('webpackbar');
   const path = require('path');
   const portfinder = require('portfinder');
   const _ = require('lodash');
   const pretty = require('js-object-pretty-print').pretty;
-  const log = require('./log');
   const minConfig = require('./min.config');
   const webpackConfig = require('./webpack.config');
   const nodeEval = require('node-eval');
@@ -20,11 +19,11 @@ module.exports = function(program) {
     .option('-m, --min [path]', 'path of min.config.js', './min.config.js')
     .option('-v, --verbose', 'show more details', false)
     .option('-p, --port [port]', 'specify server port', 8000)
-    .action(async function({ config, min, port, verbose }) {
+    .action(async function ({ config, min, port, verbose }) {
       // must before webpackConfig
       minConfig(min);
 
-      const cfg = webpackConfig(function(c) {
+      const cfg = webpackConfig(function (c) {
         c.mode = 'development';
         process.env.NODE_ENV = 'development';
         //c.devtool = 'cheap-eval-source-map';

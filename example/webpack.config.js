@@ -11,19 +11,25 @@ let config = {
       },
     ],
   },
-  devtool: 'cheap-eval-source-map',
-  devServer: {
-    proxy: [
-      '/api/',
-      {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        pathRewrite: {
-          '^/api/': '/',
-        },
-      },
-    ],
-  },
 };
+
+if (process.env.NODE_ENV !== 'production') {
+  config = {
+    ...config,
+    devtool: 'eval',
+    devServer: {
+      proxy: [
+        '/api/',
+        {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          pathRewrite: {
+            '^/api/': '/',
+          },
+        },
+      ],
+    },
+  }
+}
 
 module.exports = config;
