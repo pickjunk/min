@@ -50,22 +50,22 @@ function compiler(fixture) {
 
 test('component must be string', async () => {
   let stats = await compiler('number_component.js');
-  expect(stats.errors[0]).toMatch(/component must be string/);
+  expect(stats.errors[0].message).toMatch(/component must be string/);
 
   stats = await compiler('object_component.js');
-  expect(stats.errors[0]).toMatch(/component must be string/);
+  expect(stats.errors[0].message).toMatch(/component must be string/);
 });
 
 test('named route is a leaf that can not has children', async () => {
   const stats = await compiler('named_route_children.js');
-  expect(stats.errors[0]).toMatch(
+  expect(stats.errors[0].message).toMatch(
     /named route is a leaf that can not has children/,
   );
 });
 
 test('throw param name conflict', async () => {
   let stats = await compiler('param_route_conflict.js');
-  expect(stats.errors[0]).toMatch(/param name conflict/);
+  expect(stats.errors[0].message).toMatch(/param name conflict/);
 
   stats = await compiler('param_route.js');
   expect(stats.errors[0]).toBe(undefined);
@@ -78,10 +78,10 @@ test('transpile component to import("component") (code splitting)', async () => 
   const matches = [{
     match: 'fixtures\/components\/A.jsx',
     status: false,
-  },{
+  }, {
     match: 'fixtures\/components\/B.jsx',
     status: false,
-  },{
+  }, {
     match: 'fixtures\/components\/C.jsx',
     status: false,
   }];
@@ -106,10 +106,10 @@ test('transpile component to import("component") (code splitting)', async () => 
   expect(matches).toEqual([{
     match: 'fixtures\/components\/A.jsx',
     status: true,
-  },{
+  }, {
     match: 'fixtures\/components\/B.jsx',
     status: true,
-  },{
+  }, {
     match: 'fixtures\/components\/C.jsx',
     status: true,
   }])

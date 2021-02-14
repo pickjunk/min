@@ -45,7 +45,7 @@ type MatchedRoute = [
     importComponent: importComponent;
   }[],
   Params,
-  string?
+  string?,
 ];
 
 export type Params = {
@@ -168,6 +168,18 @@ export interface Routes {
   link(name: string, args?: Params): string;
 }
 
+function simpleQuery(query: string) {
+  const r: Params = {};
+  query
+    .split('&')
+    .filter((o) => o)
+    .forEach((o) => {
+      const [k, v] = o.split('=');
+      r[decodeURIComponent(k)] = decodeURIComponent(v);
+    });
+  return r;
+}
+
 export default function routes(data: Route, names: Names): Routes {
   return {
     async match(target) {
@@ -200,11 +212,11 @@ export default function routes(data: Route, names: Names): Routes {
       }));
 
       // parse query string & merge args
-      args = { ...qs.parse(queryStr), ...args };
+      args = { ...simpleQuery(queryStr), ...args };
 
       // support initialProps
       await Promise.all(
-        components.map(component => {
+        components.map((component) => {
           if (component.initialProps) {
             return component
               .initialProps({
@@ -212,7 +224,7 @@ export default function routes(data: Route, names: Names): Routes {
                 args,
                 name,
               })
-              .then(props => {
+              .then((props) => {
                 component._props = props || {};
               });
           }
@@ -260,9 +272,7 @@ export default function routes(data: Route, names: Names): Routes {
           let regex = new RegExp('^' + named.paramsRegex[key] + '$');
           if (value && regex.test(String(value)) === false) {
             throw new Error(
-              `argument [${key}] is invalid, must match regexp [${
-                named.paramsRegex[key]
-              }]`,
+              `argument [${key}] is invalid, must match regexp [${named.paramsRegex[key]}]`,
             );
           }
 

@@ -10,7 +10,7 @@ export default function app({ routes, render, afterSSR, afterHydrate, notFound, 
     afterSSR: (html: string) => string;
     afterHydrate?: () => void;
     notFound: () => void;
-}): (((html: string) => string) | ((path?: string | undefined) => Promise<ReactElement<any, string | ((props: any) => ReactElement<any, string | any | (new (props: any) => import("react").Component<any, any, any>)> | null) | (new (props: any) => import("react").Component<any, any, any>)>>))[];
+}): (((html: string) => string) | ((path?: string | undefined) => Promise<ReactElement<any, string | ((props: any) => ReactElement<any, any> | null) | (new (props: any) => import("react").Component<any, any, any>)>>))[];
 declare const router: {
     replace: typeof replace;
     push: typeof push;
