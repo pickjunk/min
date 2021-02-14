@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@pickjunk/min": "github:pickjunk/min#master"
+    "@pickjunk/min": "github:pickjunk/min#master",
+    "rimraf": "^3.0.2"
   }
 }

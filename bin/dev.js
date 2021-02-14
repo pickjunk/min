@@ -5,6 +5,7 @@ module.exports = function (program) {
   const portfinder = require('portfinder');
   const _ = require('lodash');
   const pretty = require('js-object-pretty-print').pretty;
+  const fs = require('fs');
   const log = require('./log');
   const minConfig = require('./min.config');
   const webpackConfig = require('./webpack.config');
