@@ -9,3 +9,4 @@ package-lock.json
 yarn.lock
 /example/app.log
 /example/dist/
+/example/node_modules/
