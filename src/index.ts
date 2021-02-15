@@ -11,15 +11,15 @@ import createRouter, {
   initialProps,
 } from './Router';
 import Link from './Link';
-import { Routes } from './routes';
+import { Routes, createRoutes as routes } from './routes';
 import log from './logger';
 
-type Render = (router: FunctionComponent<void>) => ReactElement;
+type Render = (router: FunctionComponent<{}>) => ReactElement;
 
 export default function app({
   routes,
   render,
-  afterSSR = html => html,
+  afterSSR = (html) => html,
   afterHydrate,
   notFound,
 }: {
@@ -37,7 +37,7 @@ export default function app({
 
   // browser bootstap
   if (typeof document !== 'undefined') {
-    wrapRender().then(function(page) {
+    wrapRender().then(function (page) {
       // @ts-ignore
       ReactDOM.hydrate(page, document, afterHydrate);
     });
@@ -56,4 +56,4 @@ const router = {
   link,
 };
 
-export { createRouter, router, useRouter, initialProps, Link, log };
+export { createRouter, router, useRouter, routes, initialProps, Link, log };

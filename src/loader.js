@@ -11,7 +11,7 @@ function () {
 }
 `;
 
-module.exports = function(source, inputSourceMap) {
+module.exports = function (source, inputSourceMap) {
   // Make the loader async
   // fork from babel-loader@8
   const callback = this.async();
@@ -77,6 +77,10 @@ async function loader(source, inputSourceMap) {
   // eval routes.js so we can traverse routeTree
   let routeTree = nodeEval(source, filename);
   routeTree = routeTree.default || routeTree;
+
+  if (routeTree.data && routeTree.match && routeTree.check && routeTree.link) {
+    routeTree = routeTree.data;
+  }
 
   if (_.isArray(routeTree)) {
     routeTree = {
@@ -184,7 +188,7 @@ async function loader(source, inputSourceMap) {
 
     // recursive traverse to children
     if (!_.isEmpty(node.children)) {
-      _.forEach(node.children, function(n) {
+      _.forEach(node.children, function (n) {
         traverse(n, {
           pathTemplate,
           paramsRegex,
@@ -205,11 +209,11 @@ async function loader(source, inputSourceMap) {
   // hack importComponent to be a require.ensure promise
   routeSource = routeSource.replace(
     /(["'])importComponent\1\s*?:\s*?(["'])(.*?)\2/g,
-    function() {
+    function () {
       return `"importComponent": ${importComponent.replace(
         /__component__/g,
         (process.env.NODE_ENV === 'development' ? `${name}/hot-loader!` : '') +
-          arguments[3],
+        arguments[3],
       )}`;
     },
   );

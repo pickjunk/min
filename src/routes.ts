@@ -9,19 +9,19 @@ export type InitialProps = (match: {
 
 export type Component<T> = ComponentType<T> & {
   initialProps?: InitialProps;
-  _props: object;
+  _props?: object;
 };
 
-type importComponent = () => Promise<Component<any>>;
+export type importComponent = () => Promise<Component<any>>;
 
-type Route = {
+export type Route = {
   name?: string;
   path?: string;
   directory?: string;
   component?: string;
 
   _path?: string;
-  _params: string[];
+  _params?: string[];
   importComponent?: importComponent;
 
   children?: Route[];
@@ -85,7 +85,7 @@ function traverse(
         // optional arguments will be matched as undefined
         // filter them
         if (match[i] !== undefined) {
-          routeArguments[node._params[i - 1]] = match[i];
+          routeArguments[node._params![i - 1]] = match[i];
         }
       }
 
@@ -163,6 +163,7 @@ export interface LoadedRoute {
 }
 
 export interface Routes {
+  data: Route;
   match(target: string): Promise<LoadedRoute | false>;
   check(target: string): boolean;
   link(name: string, args?: Params): string;
@@ -182,6 +183,7 @@ function simpleQuery(query: string) {
 
 export default function routes(data: Route, names: Names): Routes {
   return {
+    data,
     async match(target) {
       let _tmp = target.split('?');
       let path = _tmp.shift() || '';
@@ -299,6 +301,22 @@ export default function routes(data: Route, names: Names): Routes {
       }
 
       return `${pathname}${qs.stringify(queryObj, { addQueryPrefix: true })}`;
+    },
+  };
+}
+
+// 用于支持 typescript 提示的 mock 方法
+export function createRoutes(data: Route): Routes {
+  return {
+    data,
+    async match(_) {
+      return false;
+    },
+    check(_) {
+      return false;
+    },
+    link(_, __) {
+      return '';
     },
   };
 }

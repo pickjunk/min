@@ -1,4 +1,6 @@
-export default {
+import { routes } from '@pickjunk/min';
+
+export default routes({
   component: '../layouts/Basic',
   children: [
     {
@@ -26,4 +28,4 @@ export default {
       ],
     },
   ],
-};
+});

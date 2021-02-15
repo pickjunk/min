@@ -28,7 +28,7 @@ async function router(
   routes: Routes,
   location: string = windowLocation(),
   notFound: () => void,
-): Promise<React.FC<void>> {
+): Promise<React.FC<{}>> {
   _routes = routes;
 
   const route = await routes.match(location);
@@ -43,10 +43,10 @@ async function router(
       ...route,
     });
 
-    useEffect(function() {
+    useEffect(function () {
       const match$ = location$
         .pipe(
-          switchMap(async function(l): Promise<Match | false> {
+          switchMap(async function (l): Promise<Match | false> {
             let match = await routes.match(l);
             if (match === false) {
               log.warn({ path: l, status: '404' });
@@ -61,30 +61,30 @@ async function router(
             };
           }),
         )
-        .pipe(filter(v => Boolean(v)));
+        .pipe(filter((v) => Boolean(v)));
 
-      const l = location$.subscribe(function() {
+      const l = location$.subscribe(function () {
         setLoading(true);
       });
-      const m = match$.subscribe(function(match) {
+      const m = match$.subscribe(function (match) {
         setLoading(false);
         setMatch(match as Match);
       });
 
-      return function() {
+      return function () {
         l.unsubscribe();
         m.unsubscribe();
       };
     }, []);
 
-    useEffect(function() {
+    useEffect(function () {
       if (typeof window !== 'undefined') {
         const originPopState = window.onpopstate;
-        window.onpopstate = function() {
+        window.onpopstate = function () {
           location$.next(windowLocation());
         };
 
-        return function() {
+        return function () {
           window.onpopstate = originPopState;
         };
       }
@@ -172,7 +172,7 @@ function windowLocation(): string {
 }
 
 export function initialProps(init: InitialProps) {
-  return function(component: Component<any>) {
+  return function (component: Component<any>) {
     component.initialProps = init;
     return component;
   };

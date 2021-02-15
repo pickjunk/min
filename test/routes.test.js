@@ -316,3 +316,31 @@ test('routes support array in top layer', async () => {
     },
   ]);
 });
+
+test('routes.ts', async () => {
+  let stats = await compiler('typescript.ts');
+  expect(stats.errors[0]).toBe(undefined);
+
+  const routes = require('./dist/typescript');
+  let r, route, args, name;
+
+  r = await routes.match('/');
+  expect(r).not.toEqual(false);
+  ({ route, args, name } = r);
+  expect(func2name(route)).toEqual([
+    {
+      path: '/',
+      component: 'A',
+    },
+    {
+      path: '__default__',
+      component: 'B',
+    },
+    {
+      path: '__default__',
+      component: 'B',
+    },
+  ]);
+  expect(args).toEqual({});
+  expect(name).toEqual('default');
+});

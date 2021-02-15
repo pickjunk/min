@@ -1,7 +1,7 @@
 import React from 'react';
 import log from '@pickjunk/min/logger';
 
-export default function Color({ children }) {
+export default function Color({ children }: { children: React.ReactElement }) {
   return (
     <div
       style={{
@@ -10,7 +10,7 @@ export default function Color({ children }) {
       onClick={function () {
         log.info({
           event: 'click',
-          name: 'colored'
+          name: 'colored',
         });
       }}
     >
