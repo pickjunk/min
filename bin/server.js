@@ -53,7 +53,7 @@ module.exports = function (program) {
       // https://github.com/webpack/webpack-dev-middleware#server-side-rendering
       const ssr = require('./ssr');
       server.use(async (req, res) => {
-        const [render, afterSSR] = require(path.resolve(
+        const render = require(path.resolve(
           nodeCfg.output.path,
           nodeCfg.output.filename,
         )).default;
@@ -62,7 +62,6 @@ module.exports = function (program) {
           req,
           res,
           render,
-          afterSSR,
           browserCfg.output.publicPath + browserCfg.output.filename,
         );
       });

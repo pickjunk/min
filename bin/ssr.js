@@ -3,9 +3,9 @@ const ReactDOMServer = require('react-dom/server');
 const traverse = require('react-traverse').default;
 const log = require('../lib/logger').default;
 
-module.exports = async function (req, res, render, afterSSR, bootstrap) {
+module.exports = async function (req, res, render, bootstrap) {
   try {
-    let jsx = await render(req.originalUrl);
+    let { jsx, afterSSR } = await render(req.originalUrl);
 
     jsx = traverse(jsx, {
       DOMElement(path) {
@@ -28,7 +28,9 @@ module.exports = async function (req, res, render, afterSSR, bootstrap) {
     });
 
     let html = ReactDOMServer.renderToString(jsx);
-    html = afterSSR(html);
+    if (afterSSR) {
+      html = afterSSR(html);
+    }
 
     log.info({ path: req.path, status: '200' });
     res.end(html);

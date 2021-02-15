@@ -1,29 +1,29 @@
 import { routes } from '@pickjunk/min';
 
 export default routes({
-  component: '../layouts/Basic',
+  component: './layouts/basic',
   children: [
     {
       path: '/',
-      component: '../pages/Home',
+      component: './pages/home',
     },
     {
       name: 'one',
       path: '/one',
-      component: '../pages/One',
+      component: './pages/one',
     },
     {
       name: 'two',
       path: '/two',
-      component: '../pages/Two',
+      component: './pages/two',
     },
     {
       path: '/color',
-      component: '../layouts/Color',
+      component: './layouts/color',
       children: [
         {
           path: '/two',
-          component: '../pages/Two',
+          component: './pages/two',
         },
       ],
     },

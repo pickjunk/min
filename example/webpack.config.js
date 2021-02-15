@@ -1,14 +1,25 @@
 let config = {
+  entry: './src/app.tsx',
   module: {
     rules: [
       {
         test: /\.(png|jpg|gif|svg)$/,
         loader: 'file-loader',
         options: {
-          publicPath: __MIN_PUBLIC_PATH__ + '/images',
+          publicPath: __MIN_PUBLIC_PATH__ + 'images',
           outputPath: 'images',
         },
       },
+      {
+        test: /\.less$/,
+        use: [{
+          loader: 'isomorphic-style-loader',
+        }, {
+          loader: 'css-loader',
+        }, {
+          loader: 'less-loader',
+        }],
+      }
     ],
   },
 };

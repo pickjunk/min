@@ -114,12 +114,11 @@ module.exports = function (program) {
         );
         const source = fs.readFileSync(filename).toString('utf8');
 
-        const [render, afterSSR] = nodeEval(source, filename).default;
+        const render = nodeEval(source, filename).default;
         await ssr(
           req,
           res,
           render,
-          afterSSR,
           browserCfg.output.publicPath + browserCfg.output.filename,
         );
       });

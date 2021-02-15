@@ -14,19 +14,21 @@ import Link from './Link';
 import { Routes, createRoutes as routes } from './routes';
 import log from './logger';
 
-type Render = (router: FunctionComponent<{}>) => ReactElement;
+type Render = (
+  router: FunctionComponent<{}>,
+) => {
+  jsx: ReactElement;
+  afterSSR?: (html: string) => string;
+  afterHydrate?: () => void;
+};
 
 export default function app({
   routes,
   render,
-  afterSSR = (html) => html,
-  afterHydrate,
   notFound,
 }: {
   routes: Routes;
   render: Render;
-  afterSSR: (html: string) => string;
-  afterHydrate?: () => void;
   notFound: () => void;
 }) {
   // wrap render
@@ -37,14 +39,14 @@ export default function app({
 
   // browser bootstap
   if (typeof document !== 'undefined') {
-    wrapRender().then(function (page) {
+    wrapRender().then(function ({ jsx, afterHydrate }) {
       // @ts-ignore
-      ReactDOM.hydrate(page, document, afterHydrate);
+      ReactDOM.hydrate(jsx, document, afterHydrate);
     });
   }
 
   // return for ssr
-  return [wrapRender, afterSSR];
+  return wrapRender;
 }
 
 const router = {

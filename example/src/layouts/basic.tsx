@@ -1,5 +1,7 @@
 import React from 'react';
 import Link from '@pickjunk/min/Link';
+// @ts-ignore
+import './basic.less';
 
 export default function Basic({ children }: { children: React.ReactElement }) {
   return (
