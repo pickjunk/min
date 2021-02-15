@@ -3,14 +3,20 @@ import createRouter, { replace, push, go, back, forward, link, useRouter, initia
 import Link from './Link';
 import { Routes, createRoutes as routes } from './routes';
 import log from './logger';
-declare type Render = (router: FunctionComponent<{}>) => ReactElement;
-export default function app({ routes, render, afterSSR, afterHydrate, notFound, }: {
+declare type Render = (router: FunctionComponent<{}>) => {
+    jsx: ReactElement;
+    afterSSR?: (html: string) => string;
+    afterHydrate?: () => void;
+};
+export default function app({ routes, render, notFound, }: {
     routes: Routes;
     render: Render;
-    afterSSR: (html: string) => string;
-    afterHydrate?: () => void;
     notFound: () => void;
-}): (((html: string) => string) | ((path?: string | undefined) => Promise<ReactElement<any, string | ((props: any) => ReactElement<any, any> | null) | (new (props: any) => import("react").Component<any, any, any>)>>))[];
+}): (path?: string | undefined) => Promise<{
+    jsx: ReactElement<any, string | ((props: any) => ReactElement<any, any> | null) | (new (props: any) => import("react").Component<any, any, any>)>;
+    afterSSR?: ((html: string) => string) | undefined;
+    afterHydrate?: (() => void) | undefined;
+}>;
 declare const router: {
     replace: typeof replace;
     push: typeof push;
