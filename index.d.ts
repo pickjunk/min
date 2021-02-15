@@ -1,9 +1,9 @@
 import { FunctionComponent, ReactElement } from 'react';
 import createRouter, { replace, push, go, back, forward, link, useRouter, initialProps } from './Router';
 import Link from './Link';
-import { Routes } from './routes';
+import { Routes, createRoutes as routes } from './routes';
 import log from './logger';
-declare type Render = (router: FunctionComponent<void>) => ReactElement;
+declare type Render = (router: FunctionComponent<{}>) => ReactElement;
 export default function app({ routes, render, afterSSR, afterHydrate, notFound, }: {
     routes: Routes;
     render: Render;
@@ -19,4 +19,4 @@ declare const router: {
     forward: typeof forward;
     link: typeof link;
 };
-export { createRouter, router, useRouter, initialProps, Link, log };
+export { createRouter, router, useRouter, routes, initialProps, Link, log };

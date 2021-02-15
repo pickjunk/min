@@ -6,16 +6,16 @@ export declare type InitialProps = (match: {
 }) => Promise<object>;
 export declare type Component<T> = ComponentType<T> & {
     initialProps?: InitialProps;
-    _props: object;
+    _props?: object;
 };
-declare type importComponent = () => Promise<Component<any>>;
-declare type Route = {
+export declare type importComponent = () => Promise<Component<any>>;
+export declare type Route = {
     name?: string;
     path?: string;
     directory?: string;
     component?: string;
     _path?: string;
-    _params: string[];
+    _params?: string[];
     importComponent?: importComponent;
     children?: Route[];
 };
@@ -42,9 +42,11 @@ export interface LoadedRoute {
     name?: string;
 }
 export interface Routes {
+    data: Route;
     match(target: string): Promise<LoadedRoute | false>;
     check(target: string): boolean;
     link(name: string, args?: Params): string;
 }
 export default function routes(data: Route, names: Names): Routes;
+export declare function createRoutes(data: Route): Routes;
 export {};

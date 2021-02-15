@@ -7,7 +7,7 @@ export interface RouterContext extends Match {
     routes: Routes;
     loading: boolean;
 }
-declare function router(routes: Routes, location: string | undefined, notFound: () => void): Promise<React.FC<void>>;
+declare function router(routes: Routes, location: string | undefined, notFound: () => void): Promise<React.FC<{}>>;
 export default router;
 export declare function push(name: string, args?: Params): void;
 export declare function replace(name: string, args?: Params): void;
