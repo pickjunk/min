@@ -14,6 +14,7 @@ export declare type Route = {
     path?: string;
     directory?: string;
     component?: string;
+    ssr?: boolean;
     _path?: string;
     _params?: string[];
     importComponent?: importComponent;

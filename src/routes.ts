@@ -1,5 +1,6 @@
 import { ComponentType } from 'react';
 import qs from 'qs';
+import { isBrowser } from './utils';
 
 export type InitialProps = (match: {
   path: string;
@@ -19,6 +20,7 @@ export type Route = {
   path?: string;
   directory?: string;
   component?: string;
+  ssr?: boolean;
 
   _path?: string;
   _params?: string[];
@@ -74,7 +76,7 @@ function traverse(
   if (node._path) {
     let match = null;
     if ((match = regex.exec(remain))) {
-      if (node.importComponent) {
+      if (node.importComponent && (isBrowser() || node.ssr)) {
         routeGetComponents.push({
           path: match[0],
           importComponent: node.importComponent,

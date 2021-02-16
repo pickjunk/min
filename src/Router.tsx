@@ -10,6 +10,7 @@ import { switchMap, filter } from 'rxjs/operators';
 import reduceRight from 'lodash/reduceRight';
 import { Routes, LoadedRoute, Params, InitialProps, Component } from './routes';
 import log from './logger';
+import { isBrowser } from './utils';
 
 export interface Match extends LoadedRoute {
   location: string;
@@ -24,7 +25,7 @@ let _routes: Routes | null = null;
 const ctx = createContext<RouterContext | null>(null);
 const location$ = new Subject<string>();
 
-async function router(
+async function createRouter(
   routes: Routes,
   location: string = windowLocation(),
   notFound: () => void,
@@ -78,7 +79,7 @@ async function router(
     }, []);
 
     useEffect(function () {
-      if (typeof window !== 'undefined') {
+      if (isBrowser()) {
         const originPopState = window.onpopstate;
         window.onpopstate = function () {
           location$.next(windowLocation());
@@ -116,7 +117,7 @@ async function router(
   };
 }
 
-export default router;
+export default createRouter;
 
 export function push(name: string, args?: Params): void {
   routesRequired();

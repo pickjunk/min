@@ -7,8 +7,8 @@ export interface RouterContext extends Match {
     routes: Routes;
     loading: boolean;
 }
-declare function router(routes: Routes, location: string | undefined, notFound: () => void): Promise<React.FC<{}>>;
-export default router;
+declare function createRouter(routes: Routes, location: string | undefined, notFound: () => void): Promise<React.FC<{}>>;
+export default createRouter;
 export declare function push(name: string, args?: Params): void;
 export declare function replace(name: string, args?: Params): void;
 export declare function go(delta?: number): void;

@@ -13,6 +13,7 @@ import createRouter, {
 import Link from './Link';
 import { Routes, createRoutes as routes } from './routes';
 import log from './logger';
+import { isBrowser } from './utils';
 
 type Render = (
   router: FunctionComponent<{}>,
@@ -38,7 +39,7 @@ export default function app({
   }
 
   // browser bootstap
-  if (typeof document !== 'undefined') {
+  if (isBrowser()) {
     wrapRender().then(function ({ jsx, afterHydrate }) {
       // @ts-ignore
       ReactDOM.hydrate(jsx, document, afterHydrate);

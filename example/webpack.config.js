@@ -13,7 +13,7 @@ let config = {
       {
         test: /\.less$/,
         use: [{
-          loader: 'isomorphic-style-loader',
+          loader: 'style-loader',
         }, {
           loader: 'css-loader',
         }, {
