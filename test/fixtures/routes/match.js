@@ -1,24 +1,29 @@
 export default {
   path: '/',
   component: '../components/A',
+  ssr: true,
   children: [
     {
       component: '../components/B',
+      ssr: true,
       children: [
         {
           path: 'default_child_one',
           component: '../components/A',
+          ssr: true,
           name: 'default1',
         },
         {
           children: [
             {
               component: '../components/B',
+              ssr: true,
               name: 'default',
             },
             {
               path: 'default_child_two',
               component: '../components/C',
+              ssr: true,
               name: 'default2',
             },
           ],
@@ -34,6 +39,7 @@ export default {
         {
           path: '(foo?:\\w+_)bar',
           component: '../components/B',
+          ssr: true,
         },
         {
           path: 'no_default_child',

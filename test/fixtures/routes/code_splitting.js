@@ -10,12 +10,15 @@ export default {
     {
       path: '(c?:c)',
       component: fixture('A'),
+      ssr: true,
       children: [
         {
           component: fixture('B'),
+          ssr: true,
           children: [
             {
               component: fixture('C'),
+              ssr: true,
             },
           ],
         },

@@ -13,7 +13,7 @@ export type Component<T> = ComponentType<T> & {
   _props?: object;
 };
 
-export type importComponent = () => Promise<Component<any>>;
+export type ImportComponent = () => Promise<Component<any>>;
 
 export type Route = {
   name?: string;
@@ -24,7 +24,7 @@ export type Route = {
 
   _path?: string;
   _params?: string[];
-  importComponent?: importComponent;
+  importComponent?: ImportComponent;
 
   children?: Route[];
 };
@@ -44,7 +44,7 @@ type Names = {
 type MatchedRoute = [
   {
     path: string;
-    importComponent: importComponent;
+    importComponent: ImportComponent;
   }[],
   Params,
   string?,
@@ -54,13 +54,29 @@ export type Params = {
   [key: string]: string;
 };
 
+function getComponent(
+  result: {
+    path: string;
+    importComponent: ImportComponent;
+  }[],
+  path: string,
+  node: Route,
+) {
+  if (node.importComponent && (node.ssr || isBrowser())) {
+    result.push({
+      path,
+      importComponent: node.importComponent,
+    });
+  }
+}
+
 function traverse(
   node: Route,
   context: {
     remain: string;
     routeGetComponents: {
       path: string;
-      importComponent: importComponent;
+      importComponent: ImportComponent;
     }[];
     routeArguments: Params;
   },
@@ -76,12 +92,7 @@ function traverse(
   if (node._path) {
     let match = null;
     if ((match = regex.exec(remain))) {
-      if (node.importComponent && (isBrowser() || node.ssr)) {
-        routeGetComponents.push({
-          path: match[0],
-          importComponent: node.importComponent,
-        });
-      }
+      getComponent(routeGetComponents, match[0], node);
 
       for (let i = 1; i < match.length; i++) {
         // optional arguments will be matched as undefined
@@ -129,12 +140,7 @@ function traverse(
     // a route without path (default route)
     // regarded as always matched
     // Note: This will perform as a deep-first tree search
-    if (node.importComponent) {
-      routeGetComponents.push({
-        path: '__default__',
-        importComponent: node.importComponent,
-      });
-    }
+    getComponent(routeGetComponents, '__default__', node);
   }
 
   if (node.children) {
