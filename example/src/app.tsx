@@ -17,7 +17,7 @@ export default app({
               content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
             />
             <meta httpEquiv="X-UA-Compatible" content="ie=edge" />
-            <title>Min Example</title>
+            <title>MIN Example</title>
             <link rel="shortcut icon" href={logo} />
           </head>
           <body>

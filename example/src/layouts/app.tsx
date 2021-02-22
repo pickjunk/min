@@ -15,7 +15,9 @@ export default function Loading({
   useEffect(() => {
     const login = localStorage.getItem('login');
     if (!login && name != 'gate') {
-      router.replace('gate');
+      router.replace({
+        name: 'gate',
+      });
     }
     setLoading(false);
   }, []);

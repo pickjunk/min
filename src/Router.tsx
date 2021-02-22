@@ -11,7 +11,6 @@ import reduceRight from 'lodash/reduceRight';
 import {
   Routes,
   LoadedRoute,
-  Params,
   Location,
   InitialProps,
   Component,

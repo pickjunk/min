@@ -34,13 +34,11 @@ declare type Names = {
 export declare type Params = {
     [key: string]: string;
 };
-export interface LoadedRoute {
+export interface LoadedRoute extends Location {
     route: {
         path: string;
         component: Component<any>;
     }[];
-    args: Params;
-    name?: string;
 }
 export interface Location {
     name?: string;
