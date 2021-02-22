@@ -14,6 +14,7 @@ import Link from './Link';
 import {
   Routes,
   createRoutes as routes,
+  Location as RouteLocation,
   Params as RouteParams,
 } from './routes';
 import log from './logger';
@@ -71,5 +72,6 @@ export {
   initialProps,
   Link,
   log,
+  RouteLocation,
   RouteParams,
 };
