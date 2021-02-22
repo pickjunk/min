@@ -17,12 +17,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ant-design/icons": "^4.5.0",
     "@pickjunk/min": "github:pickjunk/min#master",
+    "antd": "^4.12.3",
     "css-loader": "^5.0.2",
     "file-loader": "^6.2.0",
     "less": "^4.1.1",
     "less-loader": "^8.0.0",
-    "react-no-ssr": "^1.1.0",
+    "normalize.css": "^8.0.1",
     "rimraf": "^3.0.2",
     "style-loader": "^2.0.0"
   }

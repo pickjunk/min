@@ -18,6 +18,16 @@ let config = {
           loader: 'css-loader',
         }, {
           loader: 'less-loader',
+          options: {
+            lessOptions: {
+              modifyVars: {
+                'primary-color': '#1DA57A',
+                'link-color': '#1DA57A',
+                'border-radius-base': '2px',
+              },
+              javascriptEnabled: true,
+            },
+          },
         }],
       }
     ],
@@ -27,7 +37,7 @@ let config = {
 if (process.env.NODE_ENV !== 'production') {
   config = {
     ...config,
-    devtool: 'eval',
+    devtool: 'eval-cheap-source-map',
     devServer: {
       proxy: [
         '/api/',

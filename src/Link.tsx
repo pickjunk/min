@@ -1,25 +1,27 @@
 import React, { ReactElement } from 'react';
-import { Params } from './routes';
+import { Location } from './routes';
 import { push, link } from './Router';
 
-interface Props {
-  to: string;
-  args?: Params;
+interface Props extends Location {
   children: ReactElement | string;
 }
 
-export default function Link({ to, args, children, ...props }: Props) {
-  function onClick(e: React.MouseEvent) {
-    try {
-      e.preventDefault();
-      push(to, args);
-    } catch (err) {
-      console.log(err);
-    }
-  }
+export default function Link({ name, path, args, children, ...props }: Props) {
+  const location = {
+    name,
+    path,
+    args,
+  };
 
   return (
-    <a {...props} href={link(to, args)} onClick={onClick}>
+    <a
+      {...props}
+      href={link(location)}
+      onClick={function onClick(e: React.MouseEvent) {
+        e.preventDefault();
+        push(location);
+      }}
+    >
       {children}
     </a>
   );

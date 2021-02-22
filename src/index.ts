@@ -11,7 +11,11 @@ import createRouter, {
   initialProps,
 } from './Router';
 import Link from './Link';
-import { Routes, createRoutes as routes } from './routes';
+import {
+  Routes,
+  createRoutes as routes,
+  Params as RouteParams,
+} from './routes';
 import log from './logger';
 import { isBrowser } from './utils';
 
@@ -59,4 +63,13 @@ const router = {
   link,
 };
 
-export { createRouter, router, useRouter, routes, initialProps, Link, log };
+export {
+  createRouter,
+  router,
+  useRouter,
+  routes,
+  initialProps,
+  Link,
+  log,
+  RouteParams,
+};

@@ -8,7 +8,7 @@ export declare type Component<T> = ComponentType<T> & {
     initialProps?: InitialProps;
     _props?: object;
 };
-export declare type importComponent = () => Promise<Component<any>>;
+export declare type ImportComponent = () => Promise<Component<any>>;
 export declare type Route = {
     name?: string;
     path?: string;
@@ -17,7 +17,7 @@ export declare type Route = {
     ssr?: boolean;
     _path?: string;
     _params?: string[];
-    importComponent?: importComponent;
+    importComponent?: ImportComponent;
     children?: Route[];
 };
 declare type Names = {
@@ -42,11 +42,16 @@ export interface LoadedRoute {
     args: Params;
     name?: string;
 }
+export interface Location {
+    name?: string;
+    path?: string;
+    args?: Params;
+}
 export interface Routes {
     data: Route;
     match(target: string): Promise<LoadedRoute | false>;
     check(target: string): boolean;
-    link(name: string, args?: Params): string;
+    link(location: Location): string;
 }
 export default function routes(data: Route, names: Names): Routes;
 export declare function createRoutes(data: Route): Routes;

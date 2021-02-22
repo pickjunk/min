@@ -8,7 +8,14 @@ import React, {
 import { Subject } from 'rxjs';
 import { switchMap, filter } from 'rxjs/operators';
 import reduceRight from 'lodash/reduceRight';
-import { Routes, LoadedRoute, Params, InitialProps, Component } from './routes';
+import {
+  Routes,
+  LoadedRoute,
+  Params,
+  Location,
+  InitialProps,
+  Component,
+} from './routes';
 import log from './logger';
 import { isBrowser } from './utils';
 
@@ -119,18 +126,18 @@ async function createRouter(
 
 export default createRouter;
 
-export function push(name: string, args?: Params): void {
+export function push(location: Location): void {
   routesRequired();
 
-  const target = _routes!.link(name, args);
+  const target = _routes!.link(location);
   history.pushState(null, '', target);
   location$.next(target);
 }
 
-export function replace(name: string, args?: Params): void {
+export function replace(location: Location): void {
   routesRequired();
 
-  const target = _routes!.link(name, args);
+  const target = _routes!.link(location);
   history.replaceState(null, '', target);
   location$.next(target);
 }
@@ -149,10 +156,10 @@ export function forward(): void {
 
   history.forward();
 }
-export function link(name: string, args?: Params): string {
+export function link(location: Location): string {
   routesRequired();
 
-  return _routes!.link(name, args);
+  return _routes!.link(location);
 }
 
 export function useRouter() {

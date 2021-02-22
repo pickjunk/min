@@ -1,7 +1,7 @@
 import { routes } from '@pickjunk/min';
 
 export default routes({
-  component: './layouts/basic',
+  component: './layouts/app',
   children: [
     {
       path: '/',

@@ -170,11 +170,17 @@ export interface LoadedRoute {
   name?: string;
 }
 
+export interface Location {
+  name?: string;
+  path?: string;
+  args?: Params;
+}
+
 export interface Routes {
   data: Route;
   match(target: string): Promise<LoadedRoute | false>;
   check(target: string): boolean;
-  link(name: string, args?: Params): string;
+  link(location: Location): string;
 }
 
 function simpleQuery(query: string) {
@@ -261,17 +267,21 @@ export default function routes(data: Route, names: Names): Routes {
 
       return Boolean(result);
     },
-    link(name, args) {
+    link({ name, path, args }) {
       args = args || {};
 
       let pathname = '/';
       let queryObj: Params = {};
 
-      let named = names[name];
-      if (named) {
-        // named route
-        pathname = named.pathTemplate;
+      // named route
+      if (name) {
+        if (!names[name]) {
+          throw new Error(`unknown named route [${name}]`);
+        }
 
+        const named = names[name];
+
+        pathname = named.pathTemplate;
         for (let key in named.paramsOptional) {
           const value = args[key];
 
@@ -302,9 +312,11 @@ export default function routes(data: Route, names: Names): Routes {
             queryObj[key] = args[key];
           }
         }
-      } else {
-        // path route
-        pathname = name;
+      }
+
+      // path route
+      if (path) {
+        pathname = path;
         queryObj = args;
       }
 
@@ -323,7 +335,7 @@ export function createRoutes(data: Route): Routes {
     check(_) {
       return false;
     },
-    link(_, __) {
+    link(_) {
       return '';
     },
   };

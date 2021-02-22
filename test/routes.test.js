@@ -240,21 +240,35 @@ test('routes.link', async () => {
   const routes = require('./dist/link');
   let r;
 
-  r = routes.link('foo', { bar: 0, foo: 'abc', abc: 'abc' });
+  r = routes.link({
+    name: 'foo',
+    args: { bar: 0, foo: 'abc', abc: 'abc' }
+  });
   expect(r).toEqual('/foo0/bar.fooabc/abc/_tail_');
 
-  r = routes.link('foo', { foo: 'abc', 'banana&': '123=321', abc: 'gr&=eat' });
+  r = routes.link({
+    name: 'foo',
+    args: { foo: 'abc', 'banana&': '123=321', abc: 'gr&=eat' }
+  });
   expect(r).toEqual('/foo/bar.fooabc/gr%26%3Deat/_tail_?banana%26=123%3D321');
 
-  r = routes.link('/foo', { foo: 'abc', 'banana&': '123=321', abc: 'gr&=eat' });
+  r = routes.link({
+    path: '/foo',
+    args: { foo: 'abc', 'banana&': '123=321', abc: 'gr&=eat' }
+  });
   expect(r).toEqual('/foo?foo=abc&banana%26=123%3D321&abc=gr%26%3Deat');
 
   expect(() => {
-    routes.link('foo');
+    routes.link({
+      name: 'foo'
+    });
   }).toThrow(/argument.*required/);
 
   expect(() => {
-    routes.link('foo', { foo: 233 });
+    routes.link({
+      name: 'foo',
+      args: { foo: 233 }
+    });
   }).toThrow(/argument.*invalid/);
 });
 
