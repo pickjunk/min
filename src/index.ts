@@ -47,7 +47,10 @@ export default function app({
   if (isBrowser()) {
     wrapRender().then(function ({ jsx, afterHydrate }) {
       // @ts-ignore
-      ReactDOM.hydrate(jsx, document, afterHydrate);
+      // https://stackoverflow.com/questions/46865880/react-16-warning-expected-server-html-to-contain-a-matching-div-in-div-due
+      const renderMethod = module.hot ? ReactDOM.render : ReactDOM.hydrate;
+      // @ts-ignore
+      renderMethod(jsx, document, afterHydrate);
     });
   }
 

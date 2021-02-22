@@ -1,4 +1,4 @@
-import '~antd/dist/antd.less';
+import './app.less';
 
 import React, { useEffect, useState } from 'react';
 import { Spin } from 'antd';

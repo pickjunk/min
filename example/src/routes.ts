@@ -5,29 +5,30 @@ export default routes({
   children: [
     {
       path: '/',
+      name: 'gate',
       component: './pages/gate',
     },
     {
       component: './layouts/basic',
       children: [
         {
-          name: 'one',
           path: '/one',
+          name: 'one',
           component: './pages/one',
         },
         {
-          name: 'two',
           path: '/two',
+          name: 'two',
           component: './pages/two',
         },
         {
-          name: 'h5',
           path: '/h5',
+          name: 'h5',
           component: './pages/h5',
         },
         {
-          name: 'weapp',
           path: '/weapp',
+          name: 'weapp',
           component: './pages/weapp',
         },
       ],

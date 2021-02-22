@@ -1,4 +1,4 @@
-import react, { useEffect, useState, createElement } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Menu, Layout } from 'antd';
 import { router, useRouter, RouteLocation } from '@pickjunk/min';
 import Icon from '../assets/icon';
@@ -16,7 +16,7 @@ import './basic.less';
 const { Header, Sider, Content } = Layout;
 
 interface MenuItem extends RouteLocation {
-  icon?: react.ReactElement;
+  icon?: React.ReactElement;
   title: string;
   children?: MenuItem[];
 
@@ -145,10 +145,13 @@ export default function Basic() {
       </Sider>
       <Layout>
         <Header className="background" style={{ padding: 0 }}>
-          {createElement(collapsed ? MenuFoldOutlined : MenuUnfoldOutlined, {
-            className: 'trigger',
-            onClick: () => setCollapsed(!collapsed),
-          })}
+          {React.createElement(
+            collapsed ? MenuFoldOutlined : MenuUnfoldOutlined,
+            {
+              className: 'trigger',
+              onClick: () => setCollapsed(!collapsed),
+            },
+          )}
         </Header>
         <Content
           className="background"
