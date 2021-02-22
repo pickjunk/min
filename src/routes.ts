@@ -1,6 +1,7 @@
 import { ComponentType } from 'react';
 import qs from 'qs';
 import { isBrowser } from './utils';
+import NoSSR from './NoSSR';
 
 export type InitialProps = (match: {
   path: string;
@@ -62,11 +63,28 @@ function getComponent(
   path: string,
   node: Route,
 ) {
-  if (node.importComponent && (node.ssr || isBrowser())) {
+  if (!node.importComponent) {
+    return;
+  }
+
+  if (node.ssr) {
     result.push({
       path,
       importComponent: node.importComponent,
     });
+  } else {
+    result.push({
+      path: '__NO_SSR__',
+      importComponent: (async () => {
+        return NoSSR;
+      }) as ImportComponent,
+    });
+    if (isBrowser()) {
+      result.push({
+        path,
+        importComponent: node.importComponent,
+      });
+    }
   }
 }
 

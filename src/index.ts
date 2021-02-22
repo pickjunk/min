@@ -19,6 +19,7 @@ import {
 } from './routes';
 import log from './logger';
 import { isBrowser } from './utils';
+import NoSSR from './NoSSR';
 
 type Render = (
   router: FunctionComponent<{}>,
@@ -47,10 +48,7 @@ export default function app({
   if (isBrowser()) {
     wrapRender().then(function ({ jsx, afterHydrate }) {
       // @ts-ignore
-      // https://stackoverflow.com/questions/46865880/react-16-warning-expected-server-html-to-contain-a-matching-div-in-div-due
-      const renderMethod = module.hot ? ReactDOM.render : ReactDOM.hydrate;
-      // @ts-ignore
-      renderMethod(jsx, document, afterHydrate);
+      ReactDOM.hydrate(jsx, document, afterHydrate);
     });
   }
 
@@ -74,6 +72,7 @@ export {
   routes,
   initialProps,
   Link,
+  NoSSR,
   log,
   RouteLocation,
   RouteParams,
