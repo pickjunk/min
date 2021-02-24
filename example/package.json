@@ -20,6 +20,7 @@
     "@ant-design/icons": "^4.5.0",
     "@pickjunk/min": "github:pickjunk/min#master",
     "antd": "^4.12.3",
+    "clsx": "^1.1.1",
     "css-loader": "^5.0.2",
     "file-loader": "^6.2.0",
     "less": "^4.1.1",

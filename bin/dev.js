@@ -38,6 +38,13 @@ module.exports = function (program) {
           ...c.module.rules[1].use,
         ];
 
+        // https://github.com/webpack/webpack-dev-server/issues/1433#issuecomment-473342612
+        c.optimization = {
+          splitChunks: {
+            chunks: 'all',
+          },
+        };
+
         c.plugins.push(new webpack.HotModuleReplacementPlugin());
         c.plugins.push(new WebpackBar());
 

@@ -22,15 +22,11 @@ export default function Loading({
     setLoading(false);
   }, []);
 
-  return (
-    <div>
-      {loading ? (
-        <Spin>
-          <div style={{ height: '100vh' }}></div>
-        </Spin>
-      ) : (
-        children
-      )}
-    </div>
+  return loading ? (
+    <Spin>
+      <div style={{ height: '100vh' }}></div>
+    </Spin>
+  ) : (
+    children
   );
 }

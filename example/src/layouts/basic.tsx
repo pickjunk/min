@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, Layout } from 'antd';
+import { Menu, Layout, Typography } from 'antd';
 import { router, useRouter, RouteLocation } from '@pickjunk/min';
 import Icon from '../assets/icon';
 import {
@@ -11,9 +11,11 @@ import {
 } from '@ant-design/icons';
 // @ts-ignore
 import logo from '../assets/logo.png';
+import clsx from 'clsx';
 import './basic.less';
 
 const { Header, Sider, Content } = Layout;
+const { Title } = Typography;
 
 interface MenuItem extends RouteLocation {
   icon?: React.ReactElement;
@@ -27,12 +29,12 @@ const items: MenuItem[] = [
   {
     icon: <StepBackwardOutlined />,
     title: '第一页',
-    name: 'first',
+    name: 'one',
   },
   {
     icon: <StepForwardOutlined />,
     title: '第二页',
-    name: 'second',
+    name: 'two',
   },
   {
     icon: <AppleOutlined />,
@@ -100,6 +102,7 @@ function SiderMenu() {
     }
 
     const { openKeys, selectedKey } = walk(items);
+    console.log(openKeys, selectedKey);
     setDef({
       defaultOpenKeys: openKeys,
       defaultSelectedKeys: [selectedKey],
@@ -134,27 +137,36 @@ function SiderMenu() {
 export default function Basic() {
   const [collapsed, setCollapsed] = useState(false);
 
+  function toggleCollapsed() {
+    setCollapsed(!collapsed);
+  }
+
   return (
     <Layout id="basic">
       <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="logo">
+        <div
+          className={clsx({
+            logo: true,
+            collapsed,
+          })}
+        >
           <img src={logo} />
-          <h1>MIN Example</h1>
+          <Title level={5} ellipsis>
+            MIN Example
+          </Title>
         </div>
         <SiderMenu />
       </Sider>
       <Layout>
-        <Header className="background" style={{ padding: 0 }}>
-          {React.createElement(
-            collapsed ? MenuFoldOutlined : MenuUnfoldOutlined,
-            {
-              className: 'trigger',
-              onClick: () => setCollapsed(!collapsed),
-            },
+        <Header className="header" style={{ padding: 0 }}>
+          {collapsed ? (
+            <MenuUnfoldOutlined className="trigger" onClick={toggleCollapsed} />
+          ) : (
+            <MenuFoldOutlined className="trigger" onClick={toggleCollapsed} />
           )}
         </Header>
         <Content
-          className="background"
+          className="content"
           style={{
             margin: '24px 16px',
             padding: 24,

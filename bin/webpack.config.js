@@ -88,7 +88,7 @@ module.exports = function (env, configPath) {
     },
     output: {
       filename: 'index.js',
-      chunkFilename: '[contenthash:5].[chunkhash:5].chunk.js',
+      chunkFilename: '[chunkhash:5].js',
       publicPath: __MIN_PUBLIC_PATH__,
       path: __MIN_OUTPUT_PATH__,
     },

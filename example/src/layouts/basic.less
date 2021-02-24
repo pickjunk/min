@@ -1,3 +1,9 @@
+@import '~antd/dist/antd.less';
+
+#basic {
+  min-height: 100vh;
+}
+
 #basic .trigger {
   padding: 0 24px;
   font-size: 18px;
@@ -11,14 +17,45 @@
 }
 
 #basic .logo {
-  height: 32px;
-  margin: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
   img {
     width: 32px;
     height: 32px;
+    margin-right: 8px;
+  }
+  h5 {
+    color: white;
+    margin: 0;
+    line-height: 32px;
   }
 }
 
-#basic .background {
+#basic .logo.collapsed {
+  width: 80px;
+  justify-content: center;
+  img {
+    margin-right: 0;
+  }
+  h5 {
+    display: none;
+  }
+}
+
+#basic .header {
+  background: #fff;
+  height: 48px;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 4px rgb(0 21 41 / 8%);
+}
+
+#basic .content {
   background: #fff;
 }
