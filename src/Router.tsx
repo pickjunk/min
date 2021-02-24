@@ -31,11 +31,15 @@ let _routes: Routes | null = null;
 const ctx = createContext<RouterContext | null>(null);
 const location$ = new Subject<string>();
 
-async function createRouter(
-  routes: Routes,
-  location: string = windowLocation(),
-  notFound: () => void,
-): Promise<React.FC<{}>> {
+async function createRouter({
+  routes,
+  location = windowLocation(),
+  notFound,
+}: {
+  routes: Routes;
+  location?: string;
+  notFound?: () => void;
+}): Promise<React.FC<{}>> {
   _routes = routes;
 
   const route = await routes.match(location);
@@ -57,7 +61,9 @@ async function createRouter(
             let match = await routes.match(l);
             if (match === false) {
               log.warn({ path: l, status: '404' });
-              notFound();
+              if (notFound) {
+                notFound();
+              }
               return false;
             }
             log.info({ path: l, status: '200' });

@@ -7,7 +7,11 @@ export interface RouterContext extends Match {
     routes: Routes;
     loading: boolean;
 }
-declare function createRouter(routes: Routes, location: string | undefined, notFound: () => void): Promise<React.FC<{}>>;
+declare function createRouter({ routes, location, notFound, }: {
+    routes: Routes;
+    location?: string;
+    notFound?: () => void;
+}): Promise<React.FC<{}>>;
 export default createRouter;
 export declare function push(location: Location): void;
 export declare function replace(location: Location): void;

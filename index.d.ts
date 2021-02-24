@@ -4,19 +4,21 @@ import Link from './Link';
 import { Routes, createRoutes as routes, Location as RouteLocation, Params as RouteParams } from './routes';
 import log from './logger';
 import NoSSR from './NoSSR';
-declare type Render = (router: FunctionComponent<{}>) => {
-    jsx: ReactElement;
-    afterSSR?: (html: string) => string;
-    afterHydrate?: () => void;
-};
-export default function app({ routes, render, notFound, }: {
+export default function app({ routes, ssr, hydrate, notFound, }: {
     routes: Routes;
-    render: Render;
+    ssr: (router: FunctionComponent<{}>) => {
+        jsx: ReactElement;
+        callback?: (html: string) => string;
+    };
+    hydrate: (router: FunctionComponent<{}>) => {
+        jsx: ReactElement;
+        id: string;
+        callback?: () => void;
+    };
     notFound: () => void;
-}): (path?: string | undefined) => Promise<{
-    jsx: ReactElement<any, string | ((props: any) => ReactElement<any, any> | null) | (new (props: any) => import("react").Component<any, any, any>)>;
-    afterSSR?: ((html: string) => string) | undefined;
-    afterHydrate?: (() => void) | undefined;
+}): (location: string) => Promise<{
+    jsx: ReactElement;
+    callback?: ((html: string) => string) | undefined;
 }>;
 declare const router: {
     replace: typeof replace;

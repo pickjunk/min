@@ -21,39 +21,44 @@ import log from './logger';
 import { isBrowser } from './utils';
 import NoSSR from './NoSSR';
 
-type Render = (
-  router: FunctionComponent<{}>,
-) => {
-  jsx: ReactElement;
-  afterSSR?: (html: string) => string;
-  afterHydrate?: () => void;
-};
-
 export default function app({
   routes,
-  render,
+  ssr,
+  hydrate,
   notFound,
 }: {
   routes: Routes;
-  render: Render;
+  ssr: (
+    router: FunctionComponent<{}>,
+  ) => {
+    jsx: ReactElement;
+    callback?: (html: string) => string;
+  };
+  hydrate: (
+    router: FunctionComponent<{}>,
+  ) => {
+    jsx: ReactElement;
+    id: string;
+    callback?: () => void;
+  };
   notFound: () => void;
 }) {
-  // wrap render
-  async function wrapRender(path?: string) {
-    const Router = await createRouter(routes, path, notFound);
-    return render(Router);
-  }
-
-  // browser bootstap
+  // hydrate for browser
   if (isBrowser()) {
-    wrapRender().then(function ({ jsx, afterHydrate }) {
-      // @ts-ignore
-      ReactDOM.hydrate(jsx, document, afterHydrate);
-    });
+    createRouter({ routes, notFound })
+      .then(function (Router) {
+        return hydrate(Router);
+      })
+      .then(function ({ jsx, id, callback }) {
+        ReactDOM.hydrate(jsx, document.getElementById(id), callback);
+      });
   }
 
   // return for ssr
-  return wrapRender;
+  return async function (location: string) {
+    const Router = await createRouter({ routes, location });
+    return ssr(Router);
+  };
 }
 
 const router = {

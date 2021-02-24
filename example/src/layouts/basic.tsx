@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Menu, Layout, Typography } from 'antd';
-import { router, useRouter, RouteLocation } from '@pickjunk/min';
+import React, { useState } from 'react';
+import { Menu, Layout, Typography, PageHeader, Card, Spin } from 'antd';
+import { router, useRouter, RouteLocation, Link } from '@pickjunk/min';
 import Icon from '../assets/icon';
 import {
   MenuFoldOutlined,
@@ -58,59 +58,46 @@ function SiderMenu() {
   const { location } = useRouter();
   const [lPath] = location.split('?');
 
-  const [def, setDef] = useState({
-    defaultOpenKeys: [] as string[],
-    defaultSelectedKeys: [] as string[],
-  });
-  useEffect(function () {
-    function walk(
-      items: MenuItem[],
-    ): {
-      openKeys: string[];
-      selectedKey: string;
-    } {
-      for (let { title, name, path, args, children } of items) {
-        const key = router.link({
-          name,
-          path,
-          args,
-        });
-        const [kPath] = key.split('?');
-        if (kPath == lPath) {
-          return {
-            openKeys: [],
-            selectedKey: title,
-          };
-        }
-
-        if (children) {
-          const { openKeys, selectedKey } = walk(children);
-          if (selectedKey) {
-            openKeys.push(title);
-            return {
-              openKeys,
-              selectedKey,
-            };
-          }
-        }
+  function getKeys(
+    items: MenuItem[],
+  ): {
+    openKeys: string[];
+    selectedKey: string;
+  } {
+    for (let { title, name, path, args, children } of items) {
+      const key = router.link({
+        name,
+        path,
+        args,
+      });
+      const [kPath] = key.split('?');
+      if (kPath == lPath) {
+        return {
+          openKeys: [],
+          selectedKey: title,
+        };
       }
 
-      return {
-        openKeys: [],
-        selectedKey: '',
-      };
+      if (children) {
+        const { openKeys, selectedKey } = getKeys(children);
+        if (selectedKey) {
+          openKeys.push(title);
+          return {
+            openKeys,
+            selectedKey,
+          };
+        }
+      }
     }
 
-    const { openKeys, selectedKey } = walk(items);
-    console.log(openKeys, selectedKey);
-    setDef({
-      defaultOpenKeys: openKeys,
-      defaultSelectedKeys: [selectedKey],
-    });
-  }, []);
+    return {
+      openKeys: [],
+      selectedKey: '',
+    };
+  }
 
   function renderItems(items: MenuItem[]) {
-    return items.map(({ icon, title, children }) => {
+    return items.map(({ icon, title, name, path, args, children }) => {
       if (children) {
         return (
           <Menu.SubMenu key={title} icon={icon} title={title}>
@@ -121,20 +108,31 @@ function SiderMenu() {
 
       return (
         <Menu.Item key={title} icon={icon}>
-          {title}
+          <Link name={name} path={path} args={args}>
+            {title}
+          </Link>
         </Menu.Item>
       );
     });
   }
 
+  const { openKeys, selectedKey } = getKeys(items);
+  const children = renderItems(items);
+
   return (
-    <Menu mode="inline" theme="dark" {...def}>
-      {renderItems(items)}
+    <Menu
+      mode="inline"
+      theme="dark"
+      defaultOpenKeys={openKeys}
+      defaultSelectedKeys={[selectedKey]}
+    >
+      {children}
     </Menu>
   );
 }
 
-export default function Basic() {
+export default function Basic({ children }: { children: React.ReactNode }) {
+  const { loading } = useRouter();
   const [collapsed, setCollapsed] = useState(false);
 
   function toggleCollapsed() {
@@ -165,15 +163,11 @@ export default function Basic() {
             <MenuFoldOutlined className="trigger" onClick={toggleCollapsed} />
           )}
         </Header>
-        <Content
-          className="content"
-          style={{
-            margin: '24px 16px',
-            padding: 24,
-            minHeight: 280,
-          }}
-        >
-          Content
+        <Content className="content">
+          <Spin spinning={loading}>
+            <PageHeader className="page-header"></PageHeader>
+            <Card>{children}</Card>
+          </Spin>
         </Content>
       </Layout>
     </Layout>
