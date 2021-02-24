@@ -34,7 +34,7 @@
     }
 
     &.collapsed {
-      width: 80px;
+      width: 48px;
       justify-content: center;
       img {
         margin-right: 0;
@@ -45,8 +45,16 @@
     }
   }
 
-  .menu svg path {
-    fill: white;
+  .menu {
+    .ant-menu-inline-collapsed {
+      width: 48px;
+      & > .ant-menu-submenu > .ant-menu-submenu-title {
+        padding: 0 16px;
+      }
+      & > .ant-menu-inline-collapsed > .ant-menu-item {
+        padding: 0 16px;
+      }
+    }
   }
 
   .header {

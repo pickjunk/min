@@ -54,7 +54,7 @@ const items: MenuItem[] = [
   },
 ];
 
-function SiderMenu() {
+function SiderMenu({ collapsed }: { collapsed: boolean }) {
   const { location } = useRouter();
   const [lPath] = location.split('?');
 
@@ -121,7 +121,7 @@ function SiderMenu() {
 
   return (
     <Menu
-      mode="inline"
+      mode={collapsed ? 'vertical' : 'inline'}
       theme="dark"
       defaultOpenKeys={openKeys}
       defaultSelectedKeys={[selectedKey]}
@@ -141,7 +141,13 @@ export default function Basic({ children }: { children: React.ReactNode }) {
 
   return (
     <Layout id="basic">
-      <Sider className="menu" trigger={null} collapsible collapsed={collapsed}>
+      <Sider
+        className="menu"
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        collapsedWidth={48}
+      >
         <div
           className={clsx({
             logo: true,
@@ -153,7 +159,7 @@ export default function Basic({ children }: { children: React.ReactNode }) {
             MIN Example
           </Title>
         </div>
-        <SiderMenu />
+        <SiderMenu collapsed={collapsed} />
       </Sider>
       <Layout>
         <Header className="header" style={{ padding: 0 }}>
