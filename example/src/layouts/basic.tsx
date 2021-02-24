@@ -41,12 +41,12 @@ const items: MenuItem[] = [
     title: '子菜单',
     children: [
       {
-        icon: <Icon type="icon-h" />,
+        icon: <Icon type="icon-H" />,
         title: 'H5',
         name: 'h5',
       },
       {
-        icon: <Icon type="icon-xiaochengxu" />,
+        icon: <Icon type="icon-xiaochengxu1" />,
         title: '小程序',
         name: 'weapp',
       },
@@ -132,7 +132,7 @@ function SiderMenu() {
 }
 
 export default function Basic({ children }: { children: React.ReactNode }) {
-  const { loading } = useRouter();
+  const { loading, location } = useRouter();
   const [collapsed, setCollapsed] = useState(false);
 
   function toggleCollapsed() {
@@ -141,7 +141,7 @@ export default function Basic({ children }: { children: React.ReactNode }) {
 
   return (
     <Layout id="basic">
-      <Sider trigger={null} collapsible collapsed={collapsed}>
+      <Sider className="menu" trigger={null} collapsible collapsed={collapsed}>
         <div
           className={clsx({
             logo: true,
@@ -164,10 +164,16 @@ export default function Basic({ children }: { children: React.ReactNode }) {
           )}
         </Header>
         <Content className="content">
-          <Spin spinning={loading}>
-            <PageHeader className="page-header"></PageHeader>
-            <Card>{children}</Card>
-          </Spin>
+          {loading ? (
+            <div className="loading">
+              <Spin size="large" />
+            </div>
+          ) : (
+            <>
+              <PageHeader className="page-header"></PageHeader>
+              <Card>{children}</Card>
+            </>
+          )}
         </Content>
       </Layout>
     </Layout>

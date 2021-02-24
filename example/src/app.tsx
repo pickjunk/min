@@ -6,7 +6,7 @@ import logo from './assets/logo.png';
 
 export default app({
   routes,
-  render(Router) {
+  ssr(Router) {
     return {
       jsx: (
         <html lang="en">
@@ -27,6 +27,12 @@ export default app({
           </body>
         </html>
       ),
+    };
+  },
+  hydrate(Router) {
+    return {
+      jsx: <Router />,
+      id: 'app',
     };
   },
   notFound() {
