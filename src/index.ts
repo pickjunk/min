@@ -9,7 +9,7 @@ import createRouter, {
   forward,
   link,
   useRouter,
-  initialProps,
+  routing,
 } from './Router';
 import Link from './Link';
 import {
@@ -78,7 +78,7 @@ export {
   router,
   useRouter,
   routes,
-  initialProps,
+  routing,
   Link,
   NoSSR,
   log,

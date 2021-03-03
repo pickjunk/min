@@ -3,14 +3,14 @@ import qs from 'qs';
 import { isBrowser } from './utils';
 import NoSSR from './NoSSR';
 
-export type InitialProps = (match: {
+export type Routing = (match: {
   path: string;
   args?: Params;
   name?: string;
 }) => Promise<object>;
 
 export type Component<T> = ComponentType<T> & {
-  initialProps?: InitialProps;
+  routing?: Routing;
   _props?: object;
 };
 
@@ -246,12 +246,12 @@ export default function routes(data: Route, names: Names): Routes {
       // parse query string & merge args
       args = { ...simpleQuery(queryStr), ...args };
 
-      // support initialProps
+      // support routing
       await Promise.all(
         components.map((component) => {
-          if (component.initialProps) {
+          if (component.routing) {
             return component
-              .initialProps({
+              .routing({
                 path,
                 args,
                 name,

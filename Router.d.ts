@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, LoadedRoute, Location, InitialProps, Component } from './routes';
+import { Routes, LoadedRoute, Location, Routing, Component } from './routes';
 export interface Match extends LoadedRoute {
     location: string;
 }
@@ -20,4 +20,4 @@ export declare function back(): void;
 export declare function forward(): void;
 export declare function link(location: Location): string;
 export declare function useRouter(): RouterContext | null;
-export declare function initialProps(init: InitialProps): (component: Component<any>) => Component<any>;
+export declare function routing(init: Routing): (component: Component<any>) => Component<any>;
