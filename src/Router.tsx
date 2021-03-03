@@ -16,7 +16,6 @@ import {
   Component,
 } from './routes';
 import log from './logger';
-import { isBrowser } from './utils';
 
 export interface Match extends LoadedRoute {
   location: string;
@@ -91,16 +90,14 @@ async function createRouter({
     }, []);
 
     useEffect(function () {
-      if (isBrowser()) {
-        const originPopState = window.onpopstate;
-        window.onpopstate = function () {
-          location$.next(windowLocation());
-        };
+      const originPopState = window.onpopstate;
+      window.onpopstate = function () {
+        location$.next(windowLocation());
+      };
 
-        return function () {
-          window.onpopstate = originPopState;
-        };
-      }
+      return function () {
+        window.onpopstate = originPopState;
+      };
     }, []);
 
     const routeElement = reduceRight(

@@ -1,18 +1,15 @@
 import React, { useEffect } from 'react';
-import { useRouter } from '@pickjunk/min';
 import { Table } from 'antd';
 import { breadcrumb$ } from '../hooks/breadcrumb';
+import { useRouter } from '@pickjunk/min';
 
-export default function Weapp() {
+export default function Dashboard() {
   const { name, path, args } = useRouter();
 
   useEffect(function () {
     breadcrumb$.next([
       {
         title: '首页',
-      },
-      {
-        title: '小程序',
       },
     ]);
   }, []);

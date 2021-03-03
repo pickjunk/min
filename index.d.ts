@@ -28,4 +28,5 @@ declare const router: {
     forward: typeof forward;
     link: typeof link;
 };
-export { createRouter, router, useRouter, routes, initialProps, Link, NoSSR, log, RouteLocation, RouteParams, };
+declare const stop: Promise<typeof import("./promise").STOP_VALUE>;
+export { createRouter, router, useRouter, routes, initialProps, Link, NoSSR, log, RouteLocation, RouteParams, stop, };

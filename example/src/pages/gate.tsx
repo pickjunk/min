@@ -7,7 +7,7 @@ export default function Gate() {
   function login() {
     localStorage.setItem('login', '1');
     router.replace({
-      name: 'one',
+      name: 'dashboard',
     });
   }
 

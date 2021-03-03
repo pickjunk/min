@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Menu, Layout, Typography, PageHeader, Card, Spin } from 'antd';
+import {
+  Menu,
+  Layout,
+  Typography,
+  PageHeader,
+  Card,
+  Spin,
+  Avatar,
+  Dropdown,
+  Breadcrumb,
+} from 'antd';
 import { router, useRouter, RouteLocation, Link } from '@pickjunk/min';
 import Icon from '../assets/icon';
 import {
@@ -8,10 +18,16 @@ import {
   AppleOutlined,
   StepBackwardOutlined,
   StepForwardOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 // @ts-ignore
 import logo from '../assets/logo.png';
+// @ts-ignore
+import avatar from '../assets/images/avatar.png';
 import clsx from 'clsx';
+import { useBreadcrumb } from '../hooks/breadcrumb';
+import { collapsed$, useCollapsed } from '../hooks/collapsed';
+import config from '../config';
 import './basic.less';
 
 const { Header, Sider, Content } = Layout;
@@ -54,9 +70,11 @@ const items: MenuItem[] = [
   },
 ];
 
-function SiderMenu({ collapsed }: { collapsed: boolean }) {
+function BasicMenu() {
   const { location } = useRouter();
   const [lPath] = location.split('?');
+
+  const collapsed = useCollapsed();
 
   function getKeys(
     items: MenuItem[],
@@ -120,55 +138,113 @@ function SiderMenu({ collapsed }: { collapsed: boolean }) {
   const children = renderItems(items);
 
   return (
-    <Menu
-      mode={collapsed ? 'vertical' : 'inline'}
-      theme="dark"
-      defaultOpenKeys={openKeys}
-      defaultSelectedKeys={[selectedKey]}
+    <Sider
+      className="menu"
+      trigger={null}
+      collapsible
+      collapsed={collapsed}
+      collapsedWidth={48}
     >
-      {children}
-    </Menu>
+      <div
+        className={clsx({
+          logo: true,
+          collapsed,
+        })}
+      >
+        <img src={logo} />
+        <Title level={5} ellipsis>
+          {config.app}
+        </Title>
+      </div>
+      <Menu
+        mode={collapsed ? 'vertical' : 'inline'}
+        theme="dark"
+        defaultOpenKeys={openKeys}
+        defaultSelectedKeys={[selectedKey]}
+      >
+        {children}
+      </Menu>
+    </Sider>
+  );
+}
+
+function BasicHeader() {
+  const collapsed = useCollapsed();
+
+  function toggleCollapsed() {
+    collapsed$.next(!collapsed);
+  }
+
+  function logout() {
+    localStorage.removeItem('login');
+    router.replace({
+      name: 'gate',
+    });
+  }
+
+  return (
+    <Header className="header">
+      {collapsed ? (
+        <MenuUnfoldOutlined className="trigger" onClick={toggleCollapsed} />
+      ) : (
+        <MenuFoldOutlined className="trigger" onClick={toggleCollapsed} />
+      )}
+      <Dropdown
+        overlay={
+          <Menu>
+            <Menu.Item icon={<LogoutOutlined />} onClick={logout}>
+              退出登录
+            </Menu.Item>
+          </Menu>
+        }
+        placement="bottomCenter"
+        className="profile"
+      >
+        <span>
+          <Avatar size="small" icon={<img src={avatar} />} className="avatar" />
+          <span>管理员</span>
+        </span>
+      </Dropdown>
+    </Header>
+  );
+}
+
+function ContentHeader() {
+  const { breadcrumb, title } = useBreadcrumb();
+
+  return (
+    <PageHeader
+      className="page-header"
+      title={title}
+      breadcrumbRender={() => (
+        <Breadcrumb>
+          {breadcrumb.map(({ title, name, path, args }) => {
+            if (name || path) {
+              return (
+                <Breadcrumb.Item>
+                  <Link name={name} path={path} args={args}>
+                    {title}
+                  </Link>
+                </Breadcrumb.Item>
+              );
+            }
+
+            return <Breadcrumb.Item>{title}</Breadcrumb.Item>;
+          })}
+        </Breadcrumb>
+      )}
+    ></PageHeader>
   );
 }
 
 export default function Basic({ children }: { children: React.ReactNode }) {
-  const { loading, location } = useRouter();
-  const [collapsed, setCollapsed] = useState(false);
-
-  function toggleCollapsed() {
-    setCollapsed(!collapsed);
-  }
+  const { loading } = useRouter();
 
   return (
     <Layout id="basic">
-      <Sider
-        className="menu"
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        collapsedWidth={48}
-      >
-        <div
-          className={clsx({
-            logo: true,
-            collapsed,
-          })}
-        >
-          <img src={logo} />
-          <Title level={5} ellipsis>
-            MIN Example
-          </Title>
-        </div>
-        <SiderMenu collapsed={collapsed} />
-      </Sider>
+      <BasicMenu />
       <Layout>
-        <Header className="header" style={{ padding: 0 }}>
-          {collapsed ? (
-            <MenuUnfoldOutlined className="trigger" onClick={toggleCollapsed} />
-          ) : (
-            <MenuFoldOutlined className="trigger" onClick={toggleCollapsed} />
-          )}
-        </Header>
+        <BasicHeader />
         <Content className="content">
           {loading ? (
             <div className="loading">
@@ -176,7 +252,7 @@ export default function Basic({ children }: { children: React.ReactNode }) {
             </div>
           ) : (
             <>
-              <PageHeader className="page-header"></PageHeader>
+              <ContentHeader />
               <Card>{children}</Card>
             </>
           )}

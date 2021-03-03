@@ -1,18 +1,23 @@
 import React, { useEffect } from 'react';
-import { useRouter } from '@pickjunk/min';
-import { Table } from 'antd';
+import { initialProps } from '@pickjunk/min';
 import { breadcrumb$ } from '../hooks/breadcrumb';
+import { Table } from 'antd';
 
-export default function Weapp() {
-  const { name, path, args } = useRouter();
-
+export default initialProps(function ({ path, args, name }) {
+  return new Promise(function (resolve) {
+    setTimeout(function () {
+      resolve({ path, args, name });
+    }, 2000);
+  });
+})(function Delay({ path, args, name }) {
   useEffect(function () {
     breadcrumb$.next([
       {
         title: '首页',
+        name: 'dashboard',
       },
       {
-        title: '小程序',
+        title: '延迟加载演示',
       },
     ]);
   }, []);
@@ -41,4 +46,4 @@ export default function Weapp() {
   ];
 
   return <Table columns={columns} dataSource={data} />;
-}
+});

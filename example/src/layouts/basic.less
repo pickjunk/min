@@ -1,51 +1,39 @@
-@import '~antd/dist/antd.less';
+@import '~antd/lib/style/themes/default.less';
 
 #basic {
   min-height: 100vh;
 
-  .trigger {
-    padding: 0 24px;
-    font-size: 18px;
-    line-height: 64px;
-    cursor: pointer;
-    transition: color 0.3s;
+  .menu {
+    .logo {
+      padding: 16px;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
 
-    &:hover {
-      color: @primary-color;
-    }
-  }
-
-  .logo {
-    padding: 16px;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-
-    img {
-      width: 32px;
-      height: 32px;
-      margin-right: 8px;
-    }
-    h5 {
-      color: white;
-      margin: 0;
-      line-height: 32px;
-    }
-
-    &.collapsed {
-      width: 48px;
-      justify-content: center;
       img {
-        margin-right: 0;
+        width: 32px;
+        height: 32px;
+        margin-right: 8px;
       }
       h5 {
-        display: none;
+        color: white;
+        margin: 0;
+        line-height: 32px;
+      }
+
+      &.collapsed {
+        width: 48px;
+        justify-content: center;
+        img {
+          margin-right: 0;
+        }
+        h5 {
+          display: none;
+        }
       }
     }
-  }
 
-  .menu {
     .ant-menu-inline-collapsed {
       width: 48px;
       & > .ant-menu-submenu > .ant-menu-submenu-title {
@@ -65,6 +53,34 @@
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 1px 4px rgb(0 21 41 / 8%);
+
+    .trigger {
+      font-size: 18px;
+      line-height: 64px;
+      cursor: pointer;
+      transition: color 0.3s;
+
+      &:hover {
+        color: @primary-color;
+      }
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding: 0 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.025);
+      }
+
+      .avatar {
+        margin-right: 8px;
+      }
+    }
   }
 
   .content {

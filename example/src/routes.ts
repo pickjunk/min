@@ -12,14 +12,14 @@ export default routes({
       component: './layouts/basic',
       children: [
         {
-          path: '/one',
-          name: 'one',
-          component: './pages/one',
+          path: '/dashboard',
+          name: 'dashboard',
+          component: './pages/dashboard',
         },
         {
-          path: '/two',
-          name: 'two',
-          component: './pages/two',
+          path: '/delay',
+          name: 'delay',
+          component: './pages/delay',
         },
         {
           path: '/h5',
@@ -30,6 +30,11 @@ export default routes({
           path: '/weapp',
           name: 'weapp',
           component: './pages/weapp',
+        },
+        {
+          path: '/child',
+          name: 'child',
+          component: './pages/child',
         },
       ],
     },

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useRouter } from '@pickjunk/min';
+import { router, useRouter } from '@pickjunk/min';
 import { Table } from 'antd';
 import { breadcrumb$ } from '../hooks/breadcrumb';
 
@@ -7,6 +7,13 @@ export default function Weapp() {
   const { name, path, args } = useRouter();
 
   useEffect(function () {
+    if (!args.parent) {
+      router.replace({
+        name: '404',
+      });
+      return;
+    }
+
     breadcrumb$.next([
       {
         title: '首页',

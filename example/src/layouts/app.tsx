@@ -13,13 +13,15 @@ export default function Loading({
   const { name } = useRouter();
 
   useEffect(() => {
-    const login = localStorage.getItem('login');
-    if (!login && name != 'gate') {
-      router.replace({
-        name: 'gate',
-      });
-    }
-    setLoading(false);
+    setTimeout(() => {
+      const login = localStorage.getItem('login');
+      if (!login && name != 'gate') {
+        router.replace({
+          name: 'gate',
+        });
+      }
+      setLoading(false);
+    }, 2000);
   }, []);
 
   return loading ? (
