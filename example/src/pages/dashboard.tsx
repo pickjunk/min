@@ -11,21 +11,6 @@ export default routing(async function ({ name, path, args }) {
   ]);
   return { name, path, args };
 })(function Dashboard({ name, path, args }: RouteLocation) {
-  const columns = [
-    {
-      title: 'path',
-      dataIndex: 'path',
-    },
-    {
-      title: 'name',
-      dataIndex: 'name',
-    },
-    {
-      title: 'args',
-      dataIndex: 'args',
-    },
-  ];
-
   const data = [
     {
       path,
@@ -34,5 +19,23 @@ export default routing(async function ({ name, path, args }) {
     },
   ];
 
-  return <Table columns={columns} dataSource={data} />;
+  return (
+    <Table
+      columns={[
+        {
+          title: 'path',
+          dataIndex: 'path',
+        },
+        {
+          title: 'name',
+          dataIndex: 'name',
+        },
+        {
+          title: 'args',
+          dataIndex: 'args',
+        },
+      ]}
+      dataSource={data}
+    />
+  );
 });

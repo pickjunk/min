@@ -3,7 +3,7 @@ export declare type Routing = (match: {
     path: string;
     args?: Params;
     name?: string;
-}) => Promise<object>;
+}) => Promise<any>;
 export declare type Component<T> = ComponentType<T> & {
     routing?: Routing;
     _props?: object;

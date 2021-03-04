@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { routing, RouteLocation } from '@pickjunk/min';
+import React from 'react';
+import { routing, RouteLocation, Link } from '@pickjunk/min';
 import { breadcrumb$ } from '../hooks/breadcrumb';
-import { Table } from 'antd';
+import { Table, Button } from 'antd';
 
 export default routing(async function ({ path, args, name }) {
   breadcrumb$.next([
@@ -15,23 +15,6 @@ export default routing(async function ({ path, args, name }) {
   ]);
   return { path, args, name };
 })(function H5({ name, path, args }: RouteLocation) {
-  useEffect(function () {}, []);
-
-  const columns = [
-    {
-      title: 'path',
-      dataIndex: 'path',
-    },
-    {
-      title: 'name',
-      dataIndex: 'name',
-    },
-    {
-      title: 'args',
-      dataIndex: 'args',
-    },
-  ];
-
   const data = [
     {
       path,
@@ -40,5 +23,33 @@ export default routing(async function ({ path, args, name }) {
     },
   ];
 
-  return <Table columns={columns} dataSource={data} />;
+  return (
+    <Table
+      columns={[
+        {
+          title: 'path',
+          dataIndex: 'path',
+        },
+        {
+          title: 'name',
+          dataIndex: 'name',
+        },
+        {
+          title: 'args',
+          dataIndex: 'args',
+        },
+        {
+          title: '操作',
+          render() {
+            return (
+              <Link name="child" args={{ parent: 'h5' }}>
+                <Button>子页面</Button>
+              </Link>
+            );
+          },
+        },
+      ]}
+      dataSource={data}
+    />
+  );
 });

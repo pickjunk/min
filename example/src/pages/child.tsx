@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { RouteLocation, router, routing, stop } from '@pickjunk/min';
 import { Table } from 'antd';
 import { breadcrumb$ } from '../hooks/breadcrumb';
@@ -30,40 +30,7 @@ export default routing(async function ({ path, args, name }) {
     },
   ]);
   return { path, args, name };
-})(function Weapp({ name, path, args }: RouteLocation) {
-  useEffect(function () {
-    if (!args.parent) {
-      router.replace({
-        name: '404',
-      });
-      return;
-    }
-
-    breadcrumb$.next([
-      {
-        title: '首页',
-      },
-      {
-        title: '小程序',
-      },
-    ]);
-  }, []);
-
-  const columns = [
-    {
-      title: 'path',
-      dataIndex: 'path',
-    },
-    {
-      title: 'name',
-      dataIndex: 'name',
-    },
-    {
-      title: 'args',
-      dataIndex: 'args',
-    },
-  ];
-
+})(function Child({ name, path, args }: RouteLocation) {
   const data = [
     {
       path,
@@ -72,5 +39,23 @@ export default routing(async function ({ path, args, name }) {
     },
   ];
 
-  return <Table columns={columns} dataSource={data} />;
+  return (
+    <Table
+      columns={[
+        {
+          title: 'path',
+          dataIndex: 'path',
+        },
+        {
+          title: 'name',
+          dataIndex: 'name',
+        },
+        {
+          title: 'args',
+          dataIndex: 'args',
+        },
+      ]}
+      dataSource={data}
+    />
+  );
 });

@@ -36,6 +36,11 @@ export default routes({
           name: 'child',
           component: './pages/child',
         },
+        {
+          path: '/404',
+          name: '404',
+          component: './pages/404',
+        },
       ],
     },
   ],

@@ -19,21 +19,6 @@ export default routing(function ({ path, args, name }) {
     }, 2000);
   });
 })(function Delay({ path, args, name }: RouteLocation) {
-  const columns = [
-    {
-      title: 'path',
-      dataIndex: 'path',
-    },
-    {
-      title: 'name',
-      dataIndex: 'name',
-    },
-    {
-      title: 'args',
-      dataIndex: 'args',
-    },
-  ];
-
   const data = [
     {
       path,
@@ -42,5 +27,23 @@ export default routing(function ({ path, args, name }) {
     },
   ];
 
-  return <Table columns={columns} dataSource={data} />;
+  return (
+    <Table
+      columns={[
+        {
+          title: 'path',
+          dataIndex: 'path',
+        },
+        {
+          title: 'name',
+          dataIndex: 'name',
+        },
+        {
+          title: 'args',
+          dataIndex: 'args',
+        },
+      ]}
+      dataSource={data}
+    />
+  );
 });

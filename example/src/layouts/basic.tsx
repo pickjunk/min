@@ -16,8 +16,8 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   AppleOutlined,
-  StepBackwardOutlined,
-  StepForwardOutlined,
+  HomeOutlined,
+  LoadingOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
 // @ts-ignore
@@ -43,14 +43,14 @@ interface MenuItem extends RouteLocation {
 
 const items: MenuItem[] = [
   {
-    icon: <StepBackwardOutlined />,
-    title: '第一页',
-    name: 'one',
+    icon: <HomeOutlined />,
+    title: '首页',
+    name: 'dashboard',
   },
   {
-    icon: <StepForwardOutlined />,
-    title: '第二页',
-    name: 'two',
+    icon: <LoadingOutlined />,
+    title: '延迟加载',
+    name: 'delay',
   },
   {
     icon: <AppleOutlined />,
@@ -213,27 +213,29 @@ function ContentHeader() {
   const { breadcrumb, title } = useBreadcrumb();
 
   return (
-    <PageHeader
-      className="page-header"
-      title={title}
-      breadcrumbRender={() => (
-        <Breadcrumb>
-          {breadcrumb.map(({ title, name, path, args }) => {
-            if (name || path) {
-              return (
-                <Breadcrumb.Item>
-                  <Link name={name} path={path} args={args}>
-                    {title}
-                  </Link>
-                </Breadcrumb.Item>
-              );
-            }
+    title && (
+      <PageHeader
+        className="page-header"
+        title={title}
+        breadcrumbRender={() => (
+          <Breadcrumb>
+            {breadcrumb.map(({ title, name, path, args }) => {
+              if (name || path) {
+                return (
+                  <Breadcrumb.Item>
+                    <Link name={name} path={path} args={args}>
+                      {title}
+                    </Link>
+                  </Breadcrumb.Item>
+                );
+              }
 
-            return <Breadcrumb.Item>{title}</Breadcrumb.Item>;
-          })}
-        </Breadcrumb>
-      )}
-    ></PageHeader>
+              return <Breadcrumb.Item>{title}</Breadcrumb.Item>;
+            })}
+          </Breadcrumb>
+        )}
+      ></PageHeader>
+    )
   );
 }
 
