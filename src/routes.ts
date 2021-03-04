@@ -7,7 +7,7 @@ export type Routing = (match: {
   path: string;
   args?: Params;
   name?: string;
-}) => Promise<any>;
+}) => Promise<object | false>;
 
 export type Component<T> = ComponentType<T> & {
   routing?: Routing;

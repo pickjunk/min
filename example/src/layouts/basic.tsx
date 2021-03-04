@@ -276,7 +276,7 @@ export default function Basic({ children }: { children: React.ReactNode }) {
           ) : (
             <>
               <ContentHeader />
-              <Card className="card">{children}</Card>
+              {children}
             </>
           )}
         </Content>

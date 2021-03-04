@@ -1,19 +1,17 @@
 import React from 'react';
+import { Button, Space, Typography } from 'antd';
+import { Link } from '@pickjunk/min';
 // @ts-ignore
 import i404 from '../assets/images/404.svg';
 
 export default function notFound() {
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
+    <Space direction="vertical" style={{ alignItems: 'center' }}>
       <img src={i404} />
-    </div>
+      <Typography.Title style={{ margin: 0 }}>404</Typography.Title>
+      <Button type="primary">
+        <Link name="dashboard">返回首页</Link>
+      </Button>
+    </Space>
   );
 }
