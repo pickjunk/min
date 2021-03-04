@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
-const collapsed$ = new Subject<boolean>();
+const collapsed$ = new BehaviorSubject<boolean>(false);
 
 function useCollapsed() {
   const [collapsed, setCollapsed] = useState(false);

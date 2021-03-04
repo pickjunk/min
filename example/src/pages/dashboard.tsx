@@ -35,6 +35,7 @@ export default routing(async function ({ name, path, args }) {
           dataIndex: 'args',
         },
       ]}
+      rowKey="name"
       dataSource={data}
     />
   );

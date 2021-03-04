@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { RouteLocation } from '@pickjunk/min';
-import { Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import config from '../config';
 
 export interface Breadcrumb extends RouteLocation {
@@ -8,7 +8,7 @@ export interface Breadcrumb extends RouteLocation {
 }
 
 const def: Breadcrumb[] = [];
-const breadcrumb$ = new Subject<Breadcrumb[]>();
+const breadcrumb$ = new BehaviorSubject<Breadcrumb[]>([]);
 
 function useBreadcrumb() {
   const [breadcrumb, setBreadcrumb] = useState(def);

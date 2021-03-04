@@ -10,7 +10,7 @@ export default routing(function ({ path, args, name }) {
       name: 'dashboard',
     },
     {
-      title: '延迟加载演示',
+      title: '延迟加载',
     },
   ]);
   return new Promise(function (resolve) {
@@ -43,6 +43,7 @@ export default routing(function ({ path, args, name }) {
           dataIndex: 'args',
         },
       ]}
+      rowKey="name"
       dataSource={data}
     />
   );

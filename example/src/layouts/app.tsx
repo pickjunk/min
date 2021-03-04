@@ -25,9 +25,9 @@ export default function Loading({
   }, []);
 
   return loading ? (
-    <Spin>
-      <div style={{ height: '100vh' }}></div>
-    </Spin>
+    <div className="loading">
+      <Spin size="large" />
+    </div>
   ) : (
     children
   );

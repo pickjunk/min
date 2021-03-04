@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, RouteLocation, routing } from '@pickjunk/min';
-import { Button, Table } from 'antd';
+import { Button, Space, Table } from 'antd';
 import { breadcrumb$ } from '../hooks/breadcrumb';
 
 export default routing(async function ({ path, args, name }) {
@@ -40,15 +40,19 @@ export default routing(async function ({ path, args, name }) {
         },
         {
           title: '操作',
+          width: 100,
           render() {
             return (
-              <Link name="child" args={{ parent: 'h5' }}>
-                <Button>子页面</Button>
-              </Link>
+              <Space size="middle">
+                <Link name="child" args={{ parent: 'weapp' }}>
+                  子页面
+                </Link>
+              </Space>
             );
           },
         },
       ]}
+      rowKey="name"
       dataSource={data}
     />
   );

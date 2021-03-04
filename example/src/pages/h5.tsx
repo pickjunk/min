@@ -1,7 +1,7 @@
 import React from 'react';
 import { routing, RouteLocation, Link } from '@pickjunk/min';
 import { breadcrumb$ } from '../hooks/breadcrumb';
-import { Table, Button } from 'antd';
+import { Table, Button, Space } from 'antd';
 
 export default routing(async function ({ path, args, name }) {
   breadcrumb$.next([
@@ -40,15 +40,19 @@ export default routing(async function ({ path, args, name }) {
         },
         {
           title: '操作',
+          width: 100,
           render() {
             return (
-              <Link name="child" args={{ parent: 'h5' }}>
-                <Button>子页面</Button>
-              </Link>
+              <Space size="middle">
+                <Link name="child" args={{ parent: 'h5' }}>
+                  子页面
+                </Link>
+              </Space>
             );
           },
         },
       ]}
+      rowKey="name"
       dataSource={data}
     />
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Menu,
   Layout,
@@ -17,7 +17,7 @@ import {
   MenuUnfoldOutlined,
   AppleOutlined,
   HomeOutlined,
-  LoadingOutlined,
+  ClockCircleOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
 // @ts-ignore
@@ -48,7 +48,7 @@ const items: MenuItem[] = [
     name: 'dashboard',
   },
   {
-    icon: <LoadingOutlined />,
+    icon: <ClockCircleOutlined />,
     title: '延迟加载',
     name: 'delay',
   },
@@ -71,47 +71,68 @@ const items: MenuItem[] = [
 ];
 
 function BasicMenu() {
-  const { location } = useRouter();
-  const [lPath] = location.split('?');
+  const { name, path } = useRouter();
+  const route = name || path;
 
-  const collapsed = useCollapsed();
+  const [keys, setKeys] = useState({
+    openKeys: [] as string[],
+    selectedKeys: [] as string[],
+  });
 
-  function getKeys(
-    items: MenuItem[],
-  ): {
-    openKeys: string[];
-    selectedKey: string;
-  } {
-    for (let { title, name, path, args, children } of items) {
-      const key = router.link({
-        name,
-        path,
-        args,
-      });
-      const [kPath] = key.split('?');
-      if (kPath == lPath) {
+  useEffect(
+    function () {
+      function getKeys(
+        items: MenuItem[],
+      ): {
+        openKeys: string[];
+        selectedKeys: string[];
+      } {
+        for (let { title, name, path, children } of items) {
+          const itemRoute = name || path;
+          if (itemRoute == route) {
+            return {
+              openKeys: keys.openKeys,
+              selectedKeys: [title],
+            };
+          }
+
+          if (children) {
+            const { openKeys, selectedKeys } = getKeys(children);
+            if (selectedKeys.length) {
+              if (openKeys.indexOf(title) == -1) {
+                openKeys.push(title);
+              }
+              return {
+                openKeys,
+                selectedKeys,
+              };
+            }
+          }
+        }
+
         return {
-          openKeys: [],
-          selectedKey: title,
+          openKeys: keys.openKeys,
+          selectedKeys: [],
         };
       }
+      setKeys(getKeys(items));
+    },
+    [route],
+  );
 
-      if (children) {
-        const { openKeys, selectedKey } = getKeys(children);
-        if (selectedKey) {
-          openKeys.push(title);
-          return {
-            openKeys,
-            selectedKey,
-          };
-        }
-      }
+  function select({ selectedKeys }: any) {
+    if (selectedKeys) {
+      setKeys({
+        ...keys,
+        selectedKeys,
+      });
     }
-
-    return {
-      openKeys: [],
-      selectedKey: '',
-    };
+  }
+  function open(openKeys: any) {
+    setKeys({
+      ...keys,
+      openKeys,
+    });
   }
 
   function renderItems(items: MenuItem[]) {
@@ -133,9 +154,9 @@ function BasicMenu() {
       );
     });
   }
-
-  const { openKeys, selectedKey } = getKeys(items);
   const children = renderItems(items);
+
+  const collapsed = useCollapsed();
 
   return (
     <Sider
@@ -159,8 +180,9 @@ function BasicMenu() {
       <Menu
         mode={collapsed ? 'vertical' : 'inline'}
         theme="dark"
-        defaultOpenKeys={openKeys}
-        defaultSelectedKeys={[selectedKey]}
+        {...keys}
+        onSelect={select}
+        onOpenChange={open}
       >
         {children}
       </Menu>
@@ -213,16 +235,15 @@ function ContentHeader() {
   const { breadcrumb, title } = useBreadcrumb();
 
   return (
-    title && (
+    breadcrumb.length > 1 && (
       <PageHeader
         className="page-header"
-        title={title}
         breadcrumbRender={() => (
           <Breadcrumb>
             {breadcrumb.map(({ title, name, path, args }) => {
               if (name || path) {
                 return (
-                  <Breadcrumb.Item>
+                  <Breadcrumb.Item key={title}>
                     <Link name={name} path={path} args={args}>
                       {title}
                     </Link>
@@ -230,7 +251,7 @@ function ContentHeader() {
                 );
               }
 
-              return <Breadcrumb.Item>{title}</Breadcrumb.Item>;
+              return <Breadcrumb.Item key={title}>{title}</Breadcrumb.Item>;
             })}
           </Breadcrumb>
         )}
@@ -255,7 +276,7 @@ export default function Basic({ children }: { children: React.ReactNode }) {
           ) : (
             <>
               <ContentHeader />
-              <Card>{children}</Card>
+              <Card className="card">{children}</Card>
             </>
           )}
         </Content>
