@@ -51,20 +51,25 @@ async function createRouter({
       const match$ = location$
         .pipe(
           switchMap(async function (l): Promise<Match | false> {
-            let match = await routes.match(l);
-            if (match === false) {
-              log.warn({ path: l, status: '404' });
-              if (notFound) {
-                notFound();
+            try {
+              let match = await routes.match(l);
+              if (match === false) {
+                log.warn({ path: l, status: '404' });
+                if (notFound) {
+                  notFound();
+                }
+                return false;
               }
+              log.info({ path: l, status: '200' });
+
+              return {
+                location: l,
+                ...match,
+              };
+            } catch (e) {
+              console.error(e);
               return false;
             }
-            log.info({ path: l, status: '200' });
-
-            return {
-              location: l,
-              ...match,
-            };
           }),
         )
         .pipe(filter((v) => Boolean(v)));

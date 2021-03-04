@@ -1,4 +1,3 @@
-import promise from './promise';
 import { FunctionComponent, ReactElement } from 'react';
 import ReactDOM from 'react-dom';
 import createRouter, {
@@ -71,8 +70,6 @@ const router = {
   link,
 };
 
-const stop = promise.stop;
-
 export {
   createRouter,
   router,
@@ -84,5 +81,4 @@ export {
   log,
   RouteLocation,
   RouteParams,
-  stop,
 };

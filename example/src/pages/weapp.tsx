@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, RouteLocation, routing } from '@pickjunk/min';
-import { Button, Space, Table } from 'antd';
+import { Space, Table } from 'antd';
 import { breadcrumb$ } from '../hooks/breadcrumb';
 
 export default routing(async function ({ path, args, name }) {

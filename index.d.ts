@@ -1,4 +1,3 @@
-import promise from './promise';
 import { FunctionComponent, ReactElement } from 'react';
 import createRouter, { replace, push, go, back, forward, link, useRouter, routing } from './Router';
 import Link from './Link';
@@ -29,5 +28,4 @@ declare const router: {
     forward: typeof forward;
     link: typeof link;
 };
-declare const stop: typeof promise.stop;
-export { createRouter, router, useRouter, routes, routing, Link, NoSSR, log, RouteLocation, RouteParams, stop, };
+export { createRouter, router, useRouter, routes, routing, Link, NoSSR, log, RouteLocation, RouteParams, };

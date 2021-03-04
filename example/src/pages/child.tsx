@@ -8,7 +8,7 @@ export default routing(async function ({ path, args, name }) {
     router.replace({
       name: '404',
     });
-    return stop();
+    throw new Error('parent required');
   }
 
   breadcrumb$.next([
