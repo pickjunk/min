@@ -71,7 +71,7 @@ const router = {
   link,
 };
 
-const stop = promise.stop();
+const stop = promise.stop;
 
 export {
   createRouter,

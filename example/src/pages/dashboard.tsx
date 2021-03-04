@@ -1,19 +1,16 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Table } from 'antd';
 import { breadcrumb$ } from '../hooks/breadcrumb';
-import { useRouter } from '@pickjunk/min';
+import { RouteLocation, routing } from '@pickjunk/min';
 
-export default function Dashboard() {
-  const { name, path, args } = useRouter();
-
-  useEffect(function () {
-    breadcrumb$.next([
-      {
-        title: '首页',
-      },
-    ]);
-  }, []);
-
+export default routing(async function ({ name, path, args }) {
+  breadcrumb$.next([
+    {
+      title: '首页',
+    },
+  ]);
+  return { name, path, args };
+})(function Dashboard({ name, path, args }: RouteLocation) {
   const columns = [
     {
       title: 'path',
@@ -38,4 +35,4 @@ export default function Dashboard() {
   ];
 
   return <Table columns={columns} dataSource={data} />;
-}
+});

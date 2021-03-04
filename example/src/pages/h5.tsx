@@ -1,22 +1,21 @@
 import React, { useEffect } from 'react';
-import { useRouter } from '@pickjunk/min';
+import { routing, RouteLocation } from '@pickjunk/min';
 import { breadcrumb$ } from '../hooks/breadcrumb';
 import { Table } from 'antd';
 
-export default function H5() {
-  const { name, path, args } = useRouter();
-
-  useEffect(function () {
-    breadcrumb$.next([
-      {
-        title: '首页',
-        name: 'dashboard',
-      },
-      {
-        title: 'H5',
-      },
-    ]);
-  }, []);
+export default routing(async function ({ path, args, name }) {
+  breadcrumb$.next([
+    {
+      title: '首页',
+      name: 'dashboard',
+    },
+    {
+      title: 'H5',
+    },
+  ]);
+  return { path, args, name };
+})(function H5({ name, path, args }: RouteLocation) {
+  useEffect(function () {}, []);
 
   const columns = [
     {
@@ -42,4 +41,4 @@ export default function H5() {
   ];
 
   return <Table columns={columns} dataSource={data} />;
-}
+});

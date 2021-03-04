@@ -1,11 +1,36 @@
 import React, { useEffect } from 'react';
-import { router, useRouter } from '@pickjunk/min';
+import { RouteLocation, router, routing, stop } from '@pickjunk/min';
 import { Table } from 'antd';
 import { breadcrumb$ } from '../hooks/breadcrumb';
 
-export default function Weapp() {
-  const { name, path, args } = useRouter();
+export default routing(async function ({ path, args, name }) {
+  if (!args.parent) {
+    router.replace({
+      name: '404',
+    });
+    return stop();
+  }
 
+  breadcrumb$.next([
+    {
+      title: '首页',
+      name: 'dashboard',
+    },
+    args.parent == 'h5'
+      ? {
+          title: 'H5',
+          name: 'h5',
+        }
+      : {
+          title: '小程序',
+          name: 'weapp',
+        },
+    {
+      title: '子页面',
+    },
+  ]);
+  return { path, args, name };
+})(function Weapp({ name, path, args }: RouteLocation) {
   useEffect(function () {
     if (!args.parent) {
       router.replace({
@@ -48,4 +73,4 @@ export default function Weapp() {
   ];
 
   return <Table columns={columns} dataSource={data} />;
-}
+});
