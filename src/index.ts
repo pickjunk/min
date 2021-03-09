@@ -63,7 +63,7 @@ export default async function app({
     return {
       jsx,
       callback,
-      isNotFound: routes.check(location),
+      notFound: routes.check(location) === false,
     };
   };
 }

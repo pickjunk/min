@@ -5,7 +5,7 @@ const log = require('../lib/logger').default;
 
 module.exports = async function (req, res, render, bootstrap) {
   try {
-    let { jsx, afterSSR, isNotFound } = await render(req.originalUrl);
+    let { jsx, afterSSR, notFound } = await render(req.originalUrl);
 
     jsx = traverse(jsx, {
       DOMElement(path) {
@@ -32,9 +32,9 @@ module.exports = async function (req, res, render, bootstrap) {
       html = afterSSR(html);
     }
 
-    if (isNotFound) {
+    if (notFound) {
       log.warn({ path: req.path, status: '404' });
-      res.status(404).end('Not Found');
+      res.status(404).end(html);
     } else {
       log.info({ path: req.path, status: '200' });
       res.end(html);
