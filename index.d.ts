@@ -18,7 +18,7 @@ export default function app({ routes, ssr, hydrate, }: {
 }): Promise<(location: string) => Promise<{
     jsx: ReactElement<any, string | ((props: any) => ReactElement<any, any> | null) | (new (props: any) => import("react").Component<any, any, any>)>;
     callback: ((html: string) => string) | undefined;
-    isNotFound: boolean;
+    notFound: boolean;
 }>>;
 declare const router: {
     replace: typeof replace;

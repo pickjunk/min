@@ -292,11 +292,16 @@ export default function routes({ data, names, notFound }: RouteData): Routes {
       );
 
       // redirect
+      let isRedirect = false;
       for (let p of routeGetProps) {
         if (p instanceof Redirect) {
           target = link(p.location);
-          continue;
+          isRedirect = true;
+          break;
         }
+      }
+      if (isRedirect) {
+        continue;
       }
 
       const route = components.map((component, i) => ({
