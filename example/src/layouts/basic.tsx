@@ -71,7 +71,9 @@ const items: MenuItem[] = [
 ];
 
 function BasicMenu() {
-  const { name, path } = useRouter();
+  const {
+    location: { name, path },
+  } = useRouter();
   const route = name || path;
 
   const [keys, setKeys] = useState({
@@ -232,7 +234,7 @@ function BasicHeader() {
 }
 
 function ContentHeader() {
-  const { breadcrumb, title } = useBreadcrumb();
+  const { breadcrumb } = useBreadcrumb();
 
   return (
     breadcrumb.length > 1 && (

@@ -10,7 +10,9 @@ export default function Loading({
   children: React.ReactElement;
 }) {
   const [loading, setLoading] = useState(true);
-  const { name } = useRouter();
+  const {
+    location: { name },
+  } = useRouter();
 
   useEffect(() => {
     setTimeout(() => {

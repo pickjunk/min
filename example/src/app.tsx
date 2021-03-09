@@ -35,7 +35,4 @@ export default app({
       id: 'app',
     };
   },
-  notFound() {
-    window.alert('404');
-  },
 });

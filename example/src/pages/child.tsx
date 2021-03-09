@@ -3,12 +3,11 @@ import { RouteLocation, router, routing } from '@pickjunk/min';
 import { Table } from 'antd';
 import { breadcrumb$ } from '../hooks/breadcrumb';
 
-export default routing(async function ({ path, args, name }) {
+export default routing(async function ({ path, args, name }, redirect) {
   if (!args.parent) {
-    router.replace({
+    return redirect({
       name: '404',
     });
-    return false;
   }
 
   breadcrumb$.next([

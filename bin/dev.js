@@ -114,7 +114,7 @@ module.exports = function (program) {
         );
         const source = fs.readFileSync(filename).toString('utf8');
 
-        const render = nodeEval(source, filename).default;
+        const render = await nodeEval(source, filename).default;
         await ssr(
           req,
           res,
