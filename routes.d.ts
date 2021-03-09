@@ -1,15 +1,18 @@
 import { ComponentType } from 'react';
-export declare type Routing = (match: {
-    path: string;
+export declare class Redirect {
+    location: Location;
+    constructor(location: Location);
+}
+export declare type Routing = (location: {
+    path?: string;
     args?: Params;
     name?: string;
-}) => Promise<object | false>;
+}, redirect: (location: Location) => Redirect) => Promise<RouteProps | Redirect | undefined>;
 export declare type Component<T> = ComponentType<T> & {
     routing?: Routing;
-    _props?: object;
 };
 export declare type ImportComponent = () => Promise<Component<any>>;
-export declare type Route = {
+export declare type RouteNode = {
     name?: string;
     path?: string;
     directory?: string;
@@ -18,9 +21,9 @@ export declare type Route = {
     _path?: string;
     _params?: string[];
     importComponent?: ImportComponent;
-    children?: Route[];
+    children?: RouteNode[];
 };
-declare type Names = {
+export declare type RouteNames = {
     [key: string]: {
         pathTemplate: string;
         paramsRegex: {
@@ -31,14 +34,32 @@ declare type Names = {
         };
     };
 };
+export declare type RouteData = {
+    data: RouteNode;
+    notFound: Location;
+    names?: RouteNames;
+};
+export declare type MatchedRoute = [
+    {
+        path: string;
+        importComponent: ImportComponent;
+    }[],
+    Params,
+    string?
+];
 export declare type Params = {
     [key: string]: string;
 };
-export interface LoadedRoute extends Location {
+export declare type RouteProps = {
+    [key: string]: any;
+};
+export interface LoadedRoute {
     route: {
         path: string;
         component: Component<any>;
+        props: RouteProps;
     }[];
+    location: Location;
 }
 export interface Location {
     name?: string;
@@ -46,11 +67,9 @@ export interface Location {
     args?: Params;
 }
 export interface Routes {
-    data: Route;
-    match(target: string): Promise<LoadedRoute | false>;
+    data: RouteData;
+    match(target: string): Promise<LoadedRoute>;
     check(target: string): boolean;
     link(location: Location): string;
 }
-export default function routes(data: Route, names: Names): Routes;
-export declare function createRoutes(data: Route): Routes;
-export {};
+export default function routes({ data, names, notFound }: RouteData): Routes;

@@ -9,11 +9,11 @@ import createRouter, {
   link,
   useRouter,
   routing,
+  windowLocation,
 } from './Router';
 import Link from './Link';
-import {
+import routes, {
   Routes,
-  createRoutes as routes,
   Location as RouteLocation,
   Params as RouteParams,
 } from './routes';
@@ -21,11 +21,10 @@ import log from './logger';
 import { isBrowser } from './utils';
 import NoSSR from './NoSSR';
 
-export default function app({
+export default async function app({
   routes,
   ssr,
   hydrate,
-  notFound,
 }: {
   routes: Routes;
   ssr: (
@@ -41,23 +40,31 @@ export default function app({
     id: string;
     callback?: () => void;
   };
-  notFound: () => void;
 }) {
   // hydrate for browser
   if (isBrowser()) {
-    createRouter({ routes, notFound })
-      .then(function (Router) {
-        return hydrate(Router);
-      })
-      .then(function ({ jsx, id, callback }) {
-        ReactDOM.hydrate(jsx, document.getElementById(id), callback);
-      });
+    const initialRoute = await routes.match(windowLocation());
+    const Router = await createRouter({
+      routes,
+      initialRoute,
+    });
+    const { jsx, id, callback } = hydrate(Router);
+    ReactDOM.hydrate(jsx, document.getElementById(id), callback);
   }
 
   // return for ssr
   return async function (location: string) {
-    const Router = await createRouter({ routes, location });
-    return ssr(Router);
+    const initialRoute = await routes.match(location);
+    const Router = await createRouter({
+      routes,
+      initialRoute,
+    });
+    const { jsx, callback } = ssr(Router);
+    return {
+      jsx,
+      callback,
+      isNotFound: routes.check(location),
+    };
   };
 }
 

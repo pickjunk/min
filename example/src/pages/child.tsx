@@ -1,5 +1,5 @@
 import React from 'react';
-import { RouteLocation, router, routing, stop } from '@pickjunk/min';
+import { RouteLocation, router, routing } from '@pickjunk/min';
 import { Table } from 'antd';
 import { breadcrumb$ } from '../hooks/breadcrumb';
 
@@ -8,7 +8,7 @@ export default routing(async function ({ path, args, name }) {
     router.replace({
       name: '404',
     });
-    throw new Error('parent required');
+    return false;
   }
 
   breadcrumb$.next([

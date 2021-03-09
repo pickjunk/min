@@ -75,13 +75,14 @@ async function loader(source, inputSourceMap) {
   );
 
   // eval routes.js so we can traverse routeTree
-  let routeTree = nodeEval(source, filename);
-  routeTree = routeTree.default || routeTree;
+  let routes = nodeEval(source, filename);
+  routes = routes.default || routes;
 
-  if (routeTree.data && routeTree.match && routeTree.check && routeTree.link) {
-    routeTree = routeTree.data;
+  if (!routes.data || !routes.match || !routes.check || !routes.link) {
+    throw new Error(`invalid routes, forget to wrap it with routes()?`)
   }
 
+  let routeTree = routes.data.data;
   if (_.isArray(routeTree)) {
     routeTree = {
       children: routeTree,
@@ -204,10 +205,13 @@ async function loader(source, inputSourceMap) {
   });
 
   // convert to source so we can hack it as string
-  let routeSource = JSON.stringify(routeTree);
+  let routesSource = JSON.stringify(Object.assign({}, routes.data, {
+    data: routeTree,
+    names: namedRoutes,
+  }));
 
   // hack importComponent to be a require.ensure promise
-  routeSource = routeSource.replace(
+  routesSource = routesSource.replace(
     /(["'])importComponent\1\s*?:\s*?(["'])(.*?)\2/g,
     function () {
       return `"importComponent": ${importComponent.replace(
@@ -218,17 +222,13 @@ async function loader(source, inputSourceMap) {
     },
   );
 
-  // convert names map to source
-  const namesMap = JSON.stringify(namedRoutes);
-
   return [
     `
-    var data = ${routeSource};
-    var names = ${namesMap};
+    var data = ${routesSource};
 
     var routes = require('${name}/routes');
     routes = routes.default || routes;
-    module.exports = routes(data, names);
+    module.exports = routes(data);
     `,
     inputSourceMap,
   ];

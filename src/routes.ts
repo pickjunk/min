@@ -3,20 +3,29 @@ import qs from 'qs';
 import { isBrowser } from './utils';
 import NoSSR from './NoSSR';
 
-export type Routing = (match: {
-  path: string;
-  args?: Params;
-  name?: string;
-}) => Promise<object | false>;
+export class Redirect {
+  location: Location;
+  constructor(location: Location) {
+    this.location = location;
+  }
+}
+
+export type Routing = (
+  location: {
+    path?: string;
+    args?: Params;
+    name?: string;
+  },
+  redirect: (location: Location) => Redirect,
+) => Promise<RouteProps | Redirect | undefined>;
 
 export type Component<T> = ComponentType<T> & {
   routing?: Routing;
-  _props?: object;
 };
 
 export type ImportComponent = () => Promise<Component<any>>;
 
-export type Route = {
+export type RouteNode = {
   name?: string;
   path?: string;
   directory?: string;
@@ -27,10 +36,10 @@ export type Route = {
   _params?: string[];
   importComponent?: ImportComponent;
 
-  children?: Route[];
+  children?: RouteNode[];
 };
 
-type Names = {
+export type RouteNames = {
   [key: string]: {
     pathTemplate: string;
     paramsRegex: {
@@ -42,7 +51,13 @@ type Names = {
   };
 };
 
-type MatchedRoute = [
+export type RouteData = {
+  data: RouteNode;
+  notFound: Location;
+  names?: RouteNames;
+};
+
+export type MatchedRoute = [
   {
     path: string;
     importComponent: ImportComponent;
@@ -55,13 +70,32 @@ export type Params = {
   [key: string]: string;
 };
 
+export type RouteProps = {
+  [key: string]: any;
+};
+
+export interface LoadedRoute {
+  route: {
+    path: string;
+    component: Component<any>;
+    props: RouteProps;
+  }[];
+  location: Location;
+}
+
+export interface Location {
+  name?: string;
+  path?: string;
+  args?: Params;
+}
+
 function getComponent(
   result: {
     path: string;
     importComponent: ImportComponent;
   }[],
   path: string,
-  node: Route,
+  node: RouteNode,
 ) {
   if (!node.importComponent) {
     return;
@@ -89,7 +123,7 @@ function getComponent(
 }
 
 function traverse(
-  node: Route,
+  node: RouteNode,
   context: {
     remain: string;
     routeGetComponents: {
@@ -179,22 +213,9 @@ function traverse(
   return false;
 }
 
-export interface LoadedRoute extends Location {
-  route: {
-    path: string;
-    component: Component<any>;
-  }[];
-}
-
-export interface Location {
-  name?: string;
-  path?: string;
-  args?: Params;
-}
-
 export interface Routes {
-  data: Route;
-  match(target: string): Promise<LoadedRoute | false>;
+  data: RouteData;
+  match(target: string): Promise<LoadedRoute>;
   check(target: string): boolean;
   link(location: Location): string;
 }
@@ -211,10 +232,17 @@ function simpleQuery(query: string) {
   return r;
 }
 
-export default function routes(data: Route, names: Names): Routes {
-  return {
-    data,
-    async match(target) {
+function redirect(location: Location) {
+  return new Redirect(location);
+}
+
+export default function routes({ data, names, notFound }: RouteData): Routes {
+  if (!data || !notFound) {
+    throw new Error('invalid routes');
+  }
+
+  async function match(target: string) {
+    while (true) {
       let _tmp = target.split('?');
       let path = _tmp.shift() || '';
       let queryStr = _tmp.shift() || '';
@@ -228,7 +256,13 @@ export default function routes(data: Route, names: Names): Routes {
 
       // not match
       if (result === false) {
-        return false;
+        const href = link(notFound);
+        if (href == target) {
+          throw new Error('notFound page can not be not found!');
+        }
+
+        target = href;
+        continue;
       }
 
       let [routeGetComponents, args, name] = result;
@@ -238,122 +272,123 @@ export default function routes(data: Route, names: Names): Routes {
         routeGetComponents.map(({ importComponent }) => importComponent()),
       );
 
-      const route = components.map((component, i) => ({
-        path: routeGetComponents[i].path,
-        component,
-      }));
-
       // parse query string & merge args
       args = { ...simpleQuery(queryStr), ...args };
 
-      // support routing
-      await Promise.all(
+      // get components props
+      const routeGetProps = await Promise.all(
         components.map((component) => {
           if (component.routing) {
-            return component
-              .routing({
+            return component.routing(
+              {
                 path,
                 args,
                 name,
-              })
-              .then((props) => {
-                component._props = props || {};
-              });
+              },
+              redirect,
+            );
           }
-
-          component._props = {};
         }),
       );
 
+      // redirect
+      for (let p of routeGetProps) {
+        if (p instanceof Redirect) {
+          target = link(p.location);
+          continue;
+        }
+      }
+
+      const route = components.map((component, i) => ({
+        path: routeGetComponents[i].path,
+        component,
+        props: routeGetProps[i] || {},
+      }));
+
       return {
         route,
-        args,
-        name,
-        path,
+        location: { name, path, args },
       };
-    },
-    check(target) {
-      const path = target.split('?').shift() || '';
-      const root = data;
+    }
+  }
 
-      const result = traverse(root, {
-        remain: path,
-        routeGetComponents: [],
-        routeArguments: {},
-      });
+  function check(target: string) {
+    const path = target.split('?').shift() || '';
+    const root = data;
 
-      return Boolean(result);
-    },
-    link({ name, path, args }) {
-      args = args || {};
+    const result = traverse(root, {
+      remain: path,
+      routeGetComponents: [],
+      routeArguments: {},
+    });
 
-      let pathname = '/';
-      let queryObj: Params = {};
+    return Boolean(result);
+  }
 
-      // named route
-      if (name) {
-        if (!names[name]) {
-          throw new Error(`unknown named route [${name}]`);
+  function link({ name, path, args }: Location) {
+    args = args || {};
+
+    let pathname = '/';
+    let queryObj: Params = {};
+
+    // named route
+    if (names && name) {
+      if (!names[name]) {
+        throw new Error(`unknown named route [${name}]`);
+      }
+
+      const named = names[name];
+
+      pathname = named.pathTemplate;
+      for (let key in named.paramsOptional) {
+        const value = args[key];
+
+        if (named.paramsOptional[key] === false && value === undefined) {
+          throw new Error(`argument [${key}] is required`);
         }
 
-        const named = names[name];
-
-        pathname = named.pathTemplate;
-        for (let key in named.paramsOptional) {
-          const value = args[key];
-
-          if (named.paramsOptional[key] === false && value === undefined) {
-            throw new Error(`argument [${key}] is required`);
-          }
-
-          let regex = new RegExp('^' + named.paramsRegex[key] + '$');
-          if (value && regex.test(String(value)) === false) {
-            throw new Error(
-              `argument [${key}] is invalid, must match regexp [${named.paramsRegex[key]}]`,
-            );
-          }
-
-          if (value === undefined) {
-            pathname = pathname.replace(`(${key})`, '');
-          } else {
-            pathname = pathname.replace(
-              `(${key})`,
-              encodeURIComponent(String(value)),
-            );
-          }
+        let regex = new RegExp('^' + named.paramsRegex[key] + '$');
+        if (value && regex.test(String(value)) === false) {
+          throw new Error(
+            `argument [${key}] is invalid, must match regexp [${named.paramsRegex[key]}]`,
+          );
         }
 
-        // get query args (the args exclude route args)
-        for (let key in args) {
-          if (named.paramsOptional[key] === undefined) {
-            queryObj[key] = args[key];
-          }
+        if (value === undefined) {
+          pathname = pathname.replace(`(${key})`, '');
+        } else {
+          pathname = pathname.replace(
+            `(${key})`,
+            encodeURIComponent(String(value)),
+          );
         }
       }
 
-      // path route
-      if (path) {
-        pathname = path;
-        queryObj = args;
+      // get query args (the args exclude route args)
+      for (let key in args) {
+        if (named.paramsOptional[key] === undefined) {
+          queryObj[key] = args[key];
+        }
       }
+    }
 
-      return `${pathname}${qs.stringify(queryObj, { addQueryPrefix: true })}`;
-    },
-  };
-}
+    // path route
+    if (path) {
+      pathname = path;
+      queryObj = args;
+    }
 
-// 用于支持 typescript 提示的 mock 方法
-export function createRoutes(data: Route): Routes {
+    return `${pathname}${qs.stringify(queryObj, { addQueryPrefix: true })}`;
+  }
+
   return {
-    data,
-    async match(_) {
-      return false;
+    data: {
+      data,
+      names,
+      notFound,
     },
-    check(_) {
-      return false;
-    },
-    link(_) {
-      return '';
-    },
+    match,
+    check,
+    link,
   };
 }

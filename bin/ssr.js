@@ -5,7 +5,7 @@ const log = require('../lib/logger').default;
 
 module.exports = async function (req, res, render, bootstrap) {
   try {
-    let { jsx, afterSSR } = await render(req.originalUrl);
+    let { jsx, afterSSR, isNotFound } = await render(req.originalUrl);
 
     jsx = traverse(jsx, {
       DOMElement(path) {
@@ -32,15 +32,15 @@ module.exports = async function (req, res, render, bootstrap) {
       html = afterSSR(html);
     }
 
-    log.info({ path: req.path, status: '200' });
-    res.end(html);
-  } catch (e) {
-    if (/not found/.test(e.message)) {
+    if (isNotFound) {
       log.warn({ path: req.path, status: '404' });
       res.status(404).end('Not Found');
     } else {
-      log.error({ path: req.path, status: '500', msg: e.message });
-      res.status(500).end('Internal Server Error');
+      log.info({ path: req.path, status: '200' });
+      res.end(html);
     }
+  } catch (e) {
+    log.error({ path: req.path, status: '500', msg: e.message });
+    res.status(500).end('Internal Server Error');
   }
 };

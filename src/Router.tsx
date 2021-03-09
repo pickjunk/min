@@ -11,11 +11,7 @@ import reduceRight from 'lodash/reduceRight';
 import { Routes, LoadedRoute, Location, Routing, Component } from './routes';
 import log from './logger';
 
-export interface Match extends LoadedRoute {
-  location: string;
-}
-
-export interface RouterContext extends Match {
+export interface RouterContext extends LoadedRoute {
   routes: Routes;
   loading: boolean;
 }
@@ -26,45 +22,28 @@ const location$ = new Subject<string>();
 
 async function createRouter({
   routes,
-  location = windowLocation(),
-  notFound,
+  initialRoute,
 }: {
   routes: Routes;
-  location?: string;
-  notFound?: () => void;
+  initialRoute: LoadedRoute;
 }): Promise<React.FC<{}>> {
   _routes = routes;
 
-  const route = await routes.match(location);
-  if (route === false) {
-    throw new Error('initial location must not be not found');
-  }
-
   return function Router(): ReactElement {
     const [loading, setLoading] = useState<boolean>(false);
-    const [match, setMatch] = useState<Match>({
-      location,
-      ...route,
-    });
+    const [match, setMatch] = useState<LoadedRoute>(initialRoute);
 
     useEffect(function () {
       const match$ = location$
         .pipe(
-          switchMap(async function (l): Promise<Match | false> {
-            let match = await routes.match(l);
-            if (match === false) {
+          switchMap(async function (l): Promise<LoadedRoute> {
+            if (routes.check(l)) {
+              log.info({ path: l, status: '200' });
+            } else {
               log.warn({ path: l, status: '404' });
-              if (notFound) {
-                notFound();
-              }
-              return false;
             }
-            log.info({ path: l, status: '200' });
 
-            return {
-              location: l,
-              ...match,
-            };
+            return routes.match(l);
           }),
         )
         .pipe(filter((v) => Boolean(v)));
@@ -74,7 +53,7 @@ async function createRouter({
       });
       const m = match$.subscribe(function (match) {
         setLoading(false);
-        setMatch(match as Match);
+        setMatch(match);
       });
 
       return function () {
@@ -96,12 +75,8 @@ async function createRouter({
 
     const routeElement = reduceRight(
       match.route,
-      (child: ReactElement | null, { path, component }) => {
-        return React.createElement(
-          component,
-          { ...component._props, key: path },
-          child,
-        );
+      (child: ReactElement | null, { path, component, props }) => {
+        return React.createElement(component, { ...props, key: path }, child);
       },
       null,
     );
@@ -171,7 +146,7 @@ function routesRequired() {
   }
 }
 
-function windowLocation(): string {
+export function windowLocation(): string {
   return window.location.pathname + window.location.search;
 }
 

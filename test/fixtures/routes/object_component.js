@@ -1,4 +1,11 @@
-module.exports = {
-  path: '/',
-  component: { foo: 'foo' },
-};
+import routes from '../../../lib/routes';
+
+export default routes({
+  notFound: {
+    name: '404'
+  },
+  data: {
+    path: '/',
+    component: { foo: 'foo' },
+  }
+});
