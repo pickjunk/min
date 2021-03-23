@@ -213,11 +213,7 @@ async function createRouter({
 
           return (
             <animated.div key={index} style={props}>
-              <Page
-                key={`${path || name}-${index}`}
-                content={page}
-                layer={index}
-              />
+              <Page content={page} layer={index} />
             </animated.div>
           );
         })}
