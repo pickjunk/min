@@ -90,9 +90,8 @@ function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
   return (
     <div
       style={{
-        width: '100vw',
         height: '100vh',
-        overflow: 'scroll',
+        overflowY: 'scroll',
         zIndex: layer,
       }}
       ref={el}
