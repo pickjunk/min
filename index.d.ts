@@ -1,10 +1,10 @@
 import { FunctionComponent, ReactElement } from 'react';
-import createRouter, { replace, push, go, back, forward, link, useRouter, routing } from './Router';
+import createRouter, { replace, push, back, forward, link, useRouter, routing } from './Router';
 import Link from './Link';
 import routes, { Routes, Location as RouteLocation, Params as RouteParams } from './routes';
 import log from './logger';
 import NoSSR from './NoSSR';
-export default function app({ routes, ssr, hydrate, }: {
+export default function app({ routes, ssr, hydrate, likeApp, }: {
     routes: Routes;
     ssr: (router: FunctionComponent<{}>) => {
         jsx: ReactElement;
@@ -15,6 +15,7 @@ export default function app({ routes, ssr, hydrate, }: {
         id: string;
         callback?: () => void;
     };
+    likeApp: boolean;
 }): Promise<(location: string) => Promise<{
     jsx: ReactElement<any, string | ((props: any) => ReactElement<any, any> | null) | (new (props: any) => import("react").Component<any, any, any>)>;
     callback: ((html: string) => string) | undefined;
@@ -23,7 +24,6 @@ export default function app({ routes, ssr, hydrate, }: {
 declare const router: {
     replace: typeof replace;
     push: typeof push;
-    go: typeof go;
     back: typeof back;
     forward: typeof forward;
     link: typeof link;
