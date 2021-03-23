@@ -89,7 +89,12 @@ function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
 
   return (
     <div
-      style={{ height: '100vh', overflowY: 'scroll', zIndex: layer }}
+      style={{
+        width: '100vw',
+        height: '100vh',
+        overflow: 'scroll',
+        zIndex: layer,
+      }}
       ref={el}
     >
       {reduceRight(
@@ -209,7 +214,6 @@ async function createRouter({
         {transitions.map(({ item, props }) => {
           const index = item;
           const page = pages[index];
-          const { path, name } = page.location;
 
           return (
             <animated.div key={index} style={props}>
