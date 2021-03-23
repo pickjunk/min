@@ -24,13 +24,13 @@ export interface ReachHandler {
 
 let _routes: Routes | null = null;
 const ctx = createContext<RouterContext | null>(null);
-const location$ = new Subject<string>();
+const location$ = new Subject<['push' | 'replace', string]>();
 
 function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
   const el = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
 
-  function reactTop(cb: () => Promise<void>) {
+  function reachTop(cb: () => Promise<void>) {
     let lock = false;
 
     const page = el.current!;
@@ -65,7 +65,7 @@ function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
     [scrollTop],
   );
 
-  function reactBottom(cb: () => Promise<void>) {
+  function reachBottom(cb: () => Promise<void>) {
     let lock = false;
 
     const page = el.current!;
@@ -101,7 +101,7 @@ function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
         (child: ReactElement | null, { path, component, props }) => {
           return React.createElement(
             component,
-            { ...props, key: path, reactTop, reactBottom },
+            { ...props, key: path, reachTop, reachBottom },
             child,
           );
         },
@@ -133,25 +133,28 @@ async function createRouter({
       });
       const end = location$
         .pipe(
-          switchMap(async function (l): Promise<LoadedRoute> {
-            if (routes.check(l)) {
-              log.info({ path: l, status: '200' });
+          switchMap(async function ([action, location]): Promise<void> {
+            if (routes.check(location)) {
+              log.info({ path: location, status: '200' });
             } else {
-              log.warn({ path: l, status: '404' });
+              log.warn({ path: location, status: '404' });
             }
 
-            return routes.match(l);
+            const route = await routes.match(location);
+            if (!likeApp) {
+              setStack([route]);
+            } else {
+              if (action == 'push') {
+                setCurrent(current + 1);
+                setStack([...stack.slice(0, current + 1), route]);
+              } else {
+                setStack([...stack.slice(0, current), route]);
+              }
+            }
           }),
         )
-        .subscribe(function (route) {
+        .subscribe(function () {
           setLoading(false);
-
-          if (!likeApp) {
-            setStack([route]);
-          } else {
-            setCurrent(current + 1);
-            setStack([...stack.slice(0, current), route]);
-          }
         });
 
       return function () {
@@ -164,7 +167,7 @@ async function createRouter({
       const originPopState = window.onpopstate;
       window.onpopstate = function () {
         if (!likeApp) {
-          location$.next(windowLocation());
+          location$.next(['push', windowLocation()]);
         } else {
           // back
           if (stack[current - 1]) {
@@ -190,10 +193,8 @@ async function createRouter({
       };
     }, []);
 
-    const pages = stack.slice(0, current + 1);
-
     const transitions = useTransition(
-      pages.map((_, i) => i),
+      stack.slice(1, current + 1).map((_, i) => i),
       (i) => i,
       {
         from: { transform: 'translate3d(100vw,0,0)' },
@@ -210,13 +211,12 @@ async function createRouter({
           ...stack[current],
         }}
       >
+        <Page content={stack[0]} layer={0} />
         {transitions.map(({ item, props }) => {
-          const index = item;
-          const page = pages[index];
-
+          const layer = item + 1;
           return (
-            <animated.div key={index} style={props}>
-              <Page content={page} layer={index} />
+            <animated.div key={layer} style={props}>
+              <Page content={stack[layer]} layer={layer} />
             </animated.div>
           );
         })}
@@ -232,14 +232,14 @@ export function push(location: Location): void {
 
   const target = _routes!.link(location);
   history.pushState(null, '', target);
-  location$.next(target);
+  location$.next(['push', target]);
 }
 export function replace(location: Location): void {
   routesRequired();
 
   const target = _routes!.link(location);
   history.replaceState(null, '', target);
-  location$.next(target);
+  location$.next(['replace', target]);
 }
 export function back(): void {
   routesRequired();
