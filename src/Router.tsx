@@ -4,37 +4,132 @@ import React, {
   ReactElement,
   createContext,
   useContext,
+  useRef,
 } from 'react';
 import { Subject } from 'rxjs';
-import { switchMap, filter } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import reduceRight from 'lodash/reduceRight';
 import { Routes, LoadedRoute, Location, Routing, Component } from './routes';
 import log from './logger';
+import { useTransition, animated } from 'react-spring';
 
 export interface RouterContext extends LoadedRoute {
   routes: Routes;
   loading: boolean;
 }
 
+export interface ReachHandler {
+  (): Promise<void>;
+}
+
 let _routes: Routes | null = null;
 const ctx = createContext<RouterContext | null>(null);
 const location$ = new Subject<string>();
 
+function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
+  const el = useRef<HTMLDivElement>(null);
+  const [nextTick, setNextTick] = useState<() => void>(() => {});
+
+  function reactTop(cb: () => Promise<void>) {
+    let lock = false;
+
+    const page = el.current!;
+    async function listener() {
+      if (!lock && page.scrollTop == 0) {
+        console.log('reach top');
+
+        lock = true;
+        try {
+          const preScrollHeight = page.scrollHeight;
+          await cb();
+          setNextTick(() => {
+            page.scrollTop = page.scrollHeight - preScrollHeight;
+          });
+        } catch (_) {}
+        lock = false;
+      }
+    }
+
+    setNextTick(() => {
+      page.scrollTop = page.scrollHeight - page.clientHeight;
+    });
+
+    page.addEventListener('scroll', listener);
+    return function unmount() {
+      page.removeEventListener('scroll', listener);
+    };
+  }
+
+  useEffect(
+    function () {
+      nextTick();
+    },
+    [nextTick],
+  );
+
+  function reactBottom(cb: () => Promise<void>) {
+    let lock = false;
+
+    const page = el.current!;
+    async function listener() {
+      if (!lock && page.scrollHeight - page.scrollTop - page.clientHeight < 3) {
+        console.log('reach top');
+
+        lock = true;
+        try {
+          await cb();
+        } catch (_) {}
+        lock = false;
+      }
+    }
+
+    page.addEventListener('scroll', listener);
+    return function unmount() {
+      page.removeEventListener('scroll', listener);
+    };
+  }
+
+  return (
+    <div
+      style={{ height: '100vh', overflowY: 'scroll', zIndex: layer }}
+      ref={el}
+    >
+      {reduceRight(
+        content.route,
+        (child: ReactElement | null, { path, component, props }) => {
+          return React.createElement(
+            component,
+            { ...props, key: path, reactTop, reactBottom },
+            child,
+          );
+        },
+        null,
+      )}
+    </div>
+  );
+}
+
 async function createRouter({
   routes,
   initialRoute,
+  likeApp,
 }: {
   routes: Routes;
   initialRoute: LoadedRoute;
+  likeApp: boolean;
 }): Promise<React.FC<{}>> {
   _routes = routes;
 
   return function Router(): ReactElement {
     const [loading, setLoading] = useState<boolean>(false);
-    const [match, setMatch] = useState<LoadedRoute>(initialRoute);
+    const [current, setCurrent] = useState<number>(0);
+    const [stack, setStack] = useState<LoadedRoute[]>([initialRoute]);
 
     useEffect(function () {
-      const match$ = location$
+      const start = location$.subscribe(function () {
+        setLoading(true);
+      });
+      const end = location$
         .pipe(
           switchMap(async function (l): Promise<LoadedRoute> {
             if (routes.check(l)) {
@@ -46,26 +141,46 @@ async function createRouter({
             return routes.match(l);
           }),
         )
-        .pipe(filter((v) => Boolean(v)));
+        .subscribe(function (route) {
+          setLoading(false);
 
-      const l = location$.subscribe(function () {
-        setLoading(true);
-      });
-      const m = match$.subscribe(function (match) {
-        setLoading(false);
-        setMatch(match);
-      });
+          if (!likeApp) {
+            setStack([route]);
+          } else {
+            setCurrent(current + 1);
+            setStack([...stack.slice(0, current), route]);
+          }
+        });
 
       return function () {
-        l.unsubscribe();
-        m.unsubscribe();
+        start.unsubscribe();
+        end.unsubscribe();
       };
     }, []);
 
     useEffect(function () {
       const originPopState = window.onpopstate;
       window.onpopstate = function () {
-        location$.next(windowLocation());
+        if (!likeApp) {
+          location$.next(windowLocation());
+        } else {
+          // back
+          if (stack[current - 1]) {
+            const back = link(stack[current - 1].location);
+            if (back == windowLocation()) {
+              setCurrent(current - 1);
+              return;
+            }
+          }
+          // forward
+          if (stack[current + 1]) {
+            const forward = link(stack[current + 1].location);
+            if (forward == windowLocation()) {
+              setCurrent(current + 1);
+              return;
+            }
+          }
+        }
       };
 
       return function () {
@@ -73,12 +188,16 @@ async function createRouter({
       };
     }, []);
 
-    const routeElement = reduceRight(
-      match.route,
-      (child: ReactElement | null, { path, component, props }) => {
-        return React.createElement(component, { ...props, key: path }, child);
+    const pages = stack.slice(0, current + 1);
+
+    const transitions = useTransition(
+      pages.map((_, i) => i),
+      (i) => i,
+      {
+        from: { transform: 'translate3d(100vw,0,0)' },
+        enter: { transform: 'translate3d(0,0,0)' },
+        leave: { transform: 'translate3d(100vw,0,0)' },
       },
-      null,
     );
 
     return (
@@ -86,10 +205,24 @@ async function createRouter({
         value={{
           routes,
           loading,
-          ...match,
+          ...stack[current],
         }}
       >
-        {routeElement}
+        {transitions.map(({ item, props }) => {
+          const index = item;
+          const page = pages[index];
+          const { path, name } = page.location;
+
+          return (
+            <animated.div key={index} style={props}>
+              <Page
+                key={`${path || name}-${index}`}
+                content={page}
+                layer={index}
+              />
+            </animated.div>
+          );
+        })}
       </ctx.Provider>
     );
   };
@@ -104,18 +237,12 @@ export function push(location: Location): void {
   history.pushState(null, '', target);
   location$.next(target);
 }
-
 export function replace(location: Location): void {
   routesRequired();
 
   const target = _routes!.link(location);
   history.replaceState(null, '', target);
   location$.next(target);
-}
-export function go(delta?: number): void {
-  routesRequired();
-
-  history.go(delta);
 }
 export function back(): void {
   routesRequired();

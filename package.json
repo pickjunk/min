@@ -82,6 +82,7 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-hot-loader": "^4.13.0",
+    "react-spring": "^8.0.27",
     "react-traverse": "^1.0.0",
     "register-module": "^0.0.2",
     "rxjs": "^6.6.3",

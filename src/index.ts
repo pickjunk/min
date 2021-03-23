@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import createRouter, {
   replace,
   push,
-  go,
   back,
   forward,
   link,
@@ -25,6 +24,7 @@ export default async function app({
   routes,
   ssr,
   hydrate,
+  likeApp = false,
 }: {
   routes: Routes;
   ssr: (
@@ -40,6 +40,7 @@ export default async function app({
     id: string;
     callback?: () => void;
   };
+  likeApp: boolean;
 }) {
   // hydrate for browser
   if (isBrowser()) {
@@ -47,6 +48,7 @@ export default async function app({
     const Router = await createRouter({
       routes,
       initialRoute,
+      likeApp,
     });
     const { jsx, id, callback } = hydrate(Router);
     ReactDOM.hydrate(jsx, document.getElementById(id), callback);
@@ -58,6 +60,7 @@ export default async function app({
     const Router = await createRouter({
       routes,
       initialRoute,
+      likeApp,
     });
     const { jsx, callback } = ssr(Router);
     return {
@@ -71,7 +74,6 @@ export default async function app({
 const router = {
   replace,
   push,
-  go,
   back,
   forward,
   link,
