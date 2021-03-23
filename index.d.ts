@@ -15,7 +15,7 @@ export default function app({ routes, ssr, hydrate, likeApp, }: {
         id: string;
         callback?: () => void;
     };
-    likeApp: boolean;
+    likeApp?: boolean;
 }): Promise<(location: string) => Promise<{
     jsx: ReactElement<any, string | ((props: any) => ReactElement<any, any> | null) | (new (props: any) => import("react").Component<any, any, any>)>;
     callback: ((html: string) => string) | undefined;

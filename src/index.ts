@@ -40,7 +40,7 @@ export default async function app({
     id: string;
     callback?: () => void;
   };
-  likeApp: boolean;
+  likeApp?: boolean;
 }) {
   // hydrate for browser
   if (isBrowser()) {
