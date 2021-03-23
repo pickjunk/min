@@ -91,7 +91,7 @@ function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
     <div
       style={{
         height: '100vh',
-        overflowY: 'scroll',
+        overflowY: 'auto',
         zIndex: layer,
       }}
       ref={el}
