@@ -28,7 +28,7 @@ const location$ = new Subject<string>();
 
 function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
   const el = useRef<HTMLDivElement>(null);
-  const [nextTick, setNextTick] = useState<() => void>(() => {});
+  const [scrollTop, setScrollTop] = useState(0);
 
   function reactTop(cb: () => Promise<void>) {
     let lock = false;
@@ -42,17 +42,13 @@ function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
         try {
           const preScrollHeight = page.scrollHeight;
           await cb();
-          setNextTick(() => {
-            page.scrollTop = page.scrollHeight - preScrollHeight;
-          });
+          setScrollTop(page.scrollHeight - preScrollHeight);
         } catch (_) {}
         lock = false;
       }
     }
 
-    setNextTick(() => {
-      page.scrollTop = page.scrollHeight - page.clientHeight;
-    });
+    setScrollTop(page.scrollHeight - page.clientHeight);
 
     page.addEventListener('scroll', listener);
     return function unmount() {
@@ -62,9 +58,11 @@ function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
 
   useEffect(
     function () {
-      nextTick();
+      if (el.current) {
+        el.current.scrollTop = scrollTop;
+      }
     },
-    [nextTick],
+    [scrollTop],
   );
 
   function reactBottom(cb: () => Promise<void>) {
