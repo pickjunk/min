@@ -133,7 +133,9 @@ async function createRouter({
       });
       const end = location$
         .pipe(
-          switchMap(async function ([action, location]): Promise<void> {
+          switchMap(async function ([action, location]): Promise<
+            [string, LoadedRoute]
+          > {
             if (routes.check(location)) {
               log.info({ path: location, status: '200' });
             } else {
@@ -141,20 +143,23 @@ async function createRouter({
             }
 
             const route = await routes.match(location);
-            if (!likeApp) {
-              setStack([route]);
-            } else {
-              if (action == 'push') {
-                setCurrent(current + 1);
-                setStack([...stack.slice(0, current + 1), route]);
-              } else {
-                setStack([...stack.slice(0, current), route]);
-              }
-            }
+
+            return [action, route];
           }),
         )
-        .subscribe(function () {
+        .subscribe(function ([action, route]) {
           setLoading(false);
+
+          if (!likeApp) {
+            setStack([route]);
+          } else {
+            if (action == 'push') {
+              setCurrent(current + 1);
+              setStack([...stack.slice(0, current + 1), route]);
+            } else {
+              setStack([...stack.slice(0, current), route]);
+            }
+          }
         });
 
       return function () {
