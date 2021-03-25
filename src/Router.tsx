@@ -5,6 +5,7 @@ import React, {
   createContext,
   useContext,
   useRef,
+  useCallback,
 } from 'react';
 import { Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -27,65 +28,35 @@ const ctx = createContext<RouterContext | null>(null);
 const location$ = new Subject<['push' | 'replace', string]>();
 
 function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
-  const el = useRef<HTMLDivElement>(null);
-  const [scrollTop, setScrollTop] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
 
-  function reachTop(cb: () => Promise<void>) {
-    let lock = false;
+  const reachBottom = useCallback(
+    function (cb: () => Promise<void>) {
+      let lock = false;
 
-    const page = el.current!;
-    async function listener() {
-      if (!lock && page.scrollTop == 0) {
-        console.log('reach top');
+      const page = ref.current!;
+      async function listener() {
+        if (
+          !lock &&
+          page.scrollHeight - page.scrollTop - page.clientHeight < 3
+        ) {
+          console.log('reach bottom');
 
-        lock = true;
-        try {
-          const preScrollHeight = page.scrollHeight;
-          await cb();
-          setScrollTop(page.scrollHeight - preScrollHeight);
-        } catch (_) {}
-        lock = false;
+          lock = true;
+          try {
+            await cb();
+          } catch (_) {}
+          lock = false;
+        }
       }
-    }
 
-    setScrollTop(page.scrollHeight - page.clientHeight);
-
-    page.addEventListener('scroll', listener);
-    return function unmount() {
-      page.removeEventListener('scroll', listener);
-    };
-  }
-
-  useEffect(
-    function () {
-      if (el.current) {
-        el.current.scrollTop = scrollTop;
-      }
+      page.addEventListener('scroll', listener);
+      return function unmount() {
+        page.removeEventListener('scroll', listener);
+      };
     },
-    [scrollTop],
+    [ref],
   );
-
-  function reachBottom(cb: () => Promise<void>) {
-    let lock = false;
-
-    const page = el.current!;
-    async function listener() {
-      if (!lock && page.scrollHeight - page.scrollTop - page.clientHeight < 3) {
-        console.log('reach top');
-
-        lock = true;
-        try {
-          await cb();
-        } catch (_) {}
-        lock = false;
-      }
-    }
-
-    page.addEventListener('scroll', listener);
-    return function unmount() {
-      page.removeEventListener('scroll', listener);
-    };
-  }
 
   return (
     <div
@@ -94,14 +65,14 @@ function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
         overflowY: 'auto',
         zIndex: layer,
       }}
-      ref={el}
+      ref={ref}
     >
       {reduceRight(
         content.route,
         (child: ReactElement | null, { path, component, props }) => {
           return React.createElement(
             component,
-            { ...props, key: path, reachTop, reachBottom },
+            { ...props, key: path, reachBottom },
             child,
           );
         },
