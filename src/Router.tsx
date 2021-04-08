@@ -27,7 +27,15 @@ let _routes: Routes | null = null;
 const ctx = createContext<RouterContext | null>(null);
 const location$ = new Subject<['push' | 'replace', string]>();
 
-function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
+function Page({
+  content,
+  layer,
+  style = {},
+}: {
+  content: LoadedRoute;
+  layer: number;
+  style?: React.CSSProperties;
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   const reachBottom = useCallback(
@@ -61,9 +69,14 @@ function Page({ content, layer }: { content: LoadedRoute; layer: number }) {
   return (
     <div
       style={{
-        height: '100vh',
+        position: 'fixed',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
         overflowY: 'auto',
         zIndex: layer,
+        ...style,
       }}
       ref={ref}
     >
@@ -189,11 +202,13 @@ async function createRouter({
       stack.slice(1, current + 1).map((_, i) => i),
       (i) => i,
       {
-        from: { transform: 'translate3d(100vw,0,0)' },
-        enter: { transform: 'translate3d(0,0,0)' },
-        leave: { transform: 'translate3d(100vw,0,0)' },
+        from: { left: '100vw' },
+        enter: { left: '0' },
+        leave: { left: '100vw' },
       },
     );
+
+    const AnimatedPage = animated(Page);
 
     return (
       <ctx.Provider
@@ -207,9 +222,12 @@ async function createRouter({
         {transitions.map(({ item, props }) => {
           const layer = item + 1;
           return (
-            <animated.div key={layer} style={props}>
-              <Page content={stack[layer]} layer={layer} />
-            </animated.div>
+            <AnimatedPage
+              key={layer}
+              content={stack[layer]}
+              layer={layer}
+              style={props}
+            />
           );
         })}
       </ctx.Provider>
