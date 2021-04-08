@@ -173,9 +173,9 @@ async function createRouter({
       stack.slice(1, current + 1).map((_, i) => i),
       (i) => i,
       {
-        from: { left: '100vw' },
-        enter: { left: '0vw' },
-        leave: { left: '100vw' },
+        from: { transform: 'translate(100vw, 0)' },
+        enter: { transform: 'translate(0vw, 0)' },
+        leave: { transform: 'translate(100vw, 0)' },
       },
     );
 
