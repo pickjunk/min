@@ -13,6 +13,7 @@ import reduceRight from 'lodash/reduceRight';
 import { Routes, LoadedRoute, Location, Routing, Component } from './routes';
 import log from './logger';
 import { useTransition, animated } from 'react-spring';
+import useForceUpdate from 'use-force-update';
 
 export interface RouterContext extends LoadedRoute {
   routes: Routes;
@@ -76,6 +77,7 @@ function Page({
         right: 0,
         overflowY: 'auto',
         zIndex: layer,
+        background: '#f5f5f9',
         ...style,
       }}
       ref={ref}
@@ -108,10 +110,12 @@ async function createRouter({
 
   return function Router(): ReactElement {
     const [loading, setLoading] = useState<boolean>(false);
-    const [{ stack, current }, setState] = useState({
+    const state = useRef({
       stack: [initialRoute] as LoadedRoute[],
       current: 0,
     });
+
+    const forceUpdate = useForceUpdate();
 
     useEffect(function () {
       const start = location$.subscribe(function () {
@@ -137,23 +141,26 @@ async function createRouter({
           setLoading(false);
 
           if (!likeApp) {
-            setState({
+            state.current = {
               stack: [route],
               current: 0,
-            });
+            };
           } else {
+            const { stack, current } = state.current;
             if (action == 'push') {
-              setState({
+              state.current = {
                 stack: [...stack.slice(0, current + 1), route],
                 current: current + 1,
-              });
+              };
             } else {
-              setState({
+              state.current = {
                 stack: [...stack.slice(0, current), route],
                 current,
-              });
+              };
             }
           }
+
+          forceUpdate();
         });
 
       return function () {
@@ -168,14 +175,13 @@ async function createRouter({
         if (!likeApp) {
           location$.next(['push', windowLocation()]);
         } else {
+          const { stack, current } = state.current;
           // back
           if (stack[current - 1]) {
             const back = link(stack[current - 1].location);
             if (back == windowLocation()) {
-              setState({
-                stack,
-                current: current - 1,
-              });
+              state.current.current--;
+              forceUpdate();
               return;
             }
           }
@@ -183,10 +189,8 @@ async function createRouter({
           if (stack[current + 1]) {
             const forward = link(stack[current + 1].location);
             if (forward == windowLocation()) {
-              setState({
-                stack,
-                current: current + 1,
-              });
+              state.current.current++;
+              forceUpdate();
               return;
             }
           }
@@ -197,6 +201,8 @@ async function createRouter({
         window.onpopstate = originPopState;
       };
     }, []);
+
+    const { stack, current } = state.current;
 
     const transitions = useTransition(
       stack.slice(1, current + 1).map((_, i) => i),
