@@ -5,7 +5,6 @@ import React, {
   createContext,
   useContext,
   useRef,
-  useCallback,
 } from 'react';
 import { Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -179,6 +178,8 @@ async function createRouter({
       },
     );
 
+    const AnimatedPage = animated(Page);
+
     return (
       <ctx.Provider
         value={{
@@ -191,32 +192,12 @@ async function createRouter({
         {transitions.map(({ item, props }) => {
           const layer = item + 1;
           return (
-            <animated.div
+            <AnimatedPage
               key={layer}
-              style={{
-                position: 'fixed',
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0,
-                overflowY: 'auto',
-                zIndex: layer,
-                background: '#f5f5f9',
-                ...props,
-              }}
-            >
-              {reduceRight(
-                stack[layer].route,
-                (child: ReactElement | null, { path, component, props }) => {
-                  return React.createElement(
-                    component,
-                    { ...props, key: path },
-                    child,
-                  );
-                },
-                null,
-              )}
-            </animated.div>
+              content={stack[layer]}
+              layer={layer}
+              style={props}
+            />
           );
         })}
       </ctx.Provider>
