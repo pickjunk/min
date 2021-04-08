@@ -204,7 +204,7 @@ async function createRouter({
       {
         from: { transform: 'translate(100vw, 0)' },
         enter: { transform: 'translate(0vw, 0)' },
-        leave: { transform: 'translate(1000vw, 0)' },
+        leave: { transform: 'translate(100vw, 0)' },
       },
     );
     console.log(stack, current);
