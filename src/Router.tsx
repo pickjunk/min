@@ -95,8 +95,10 @@ async function createRouter({
 
   return function Router(): ReactElement {
     const [loading, setLoading] = useState<boolean>(false);
-    const [current, setCurrent] = useState<number>(0);
-    const [stack, setStack] = useState<LoadedRoute[]>([initialRoute]);
+    const [{ stack, current }, setState] = useState({
+      stack: [initialRoute] as LoadedRoute[],
+      current: 0,
+    });
 
     useEffect(function () {
       const start = location$.subscribe(function () {
@@ -122,13 +124,21 @@ async function createRouter({
           setLoading(false);
 
           if (!likeApp) {
-            setStack([route]);
+            setState({
+              stack: [route],
+              current: 0,
+            });
           } else {
             if (action == 'push') {
-              setCurrent(current + 1);
-              setStack([...stack.slice(0, current + 1), route]);
+              setState({
+                stack: [...stack.slice(0, current + 1), route],
+                current: current + 1,
+              });
             } else {
-              setStack([...stack.slice(0, current), route]);
+              setState({
+                stack: [...stack.slice(0, current), route],
+                current,
+              });
             }
           }
         });
@@ -149,7 +159,10 @@ async function createRouter({
           if (stack[current - 1]) {
             const back = link(stack[current - 1].location);
             if (back == windowLocation()) {
-              setCurrent(current - 1);
+              setState({
+                stack,
+                current: current - 1,
+              });
               return;
             }
           }
@@ -157,7 +170,10 @@ async function createRouter({
           if (stack[current + 1]) {
             const forward = link(stack[current + 1].location);
             if (forward == windowLocation()) {
-              setCurrent(current + 1);
+              setState({
+                stack,
+                current: current + 1,
+              });
               return;
             }
           }
