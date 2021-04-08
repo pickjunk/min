@@ -37,36 +37,6 @@ function Page({
   layer: number;
   style?: React.CSSProperties;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const reachBottom = useCallback(
-    function (cb: () => Promise<void>) {
-      let lock = false;
-
-      const page = ref.current!;
-      async function listener() {
-        if (
-          !lock &&
-          page.scrollHeight - page.scrollTop - page.clientHeight < 3
-        ) {
-          console.log('reach bottom');
-
-          lock = true;
-          try {
-            await cb();
-          } catch (_) {}
-          lock = false;
-        }
-      }
-
-      page.addEventListener('scroll', listener);
-      return function unmount() {
-        page.removeEventListener('scroll', listener);
-      };
-    },
-    [ref],
-  );
-
   return (
     <div
       style={{
@@ -80,16 +50,11 @@ function Page({
         background: '#f5f5f9',
         ...style,
       }}
-      ref={ref}
     >
       {reduceRight(
         content.route,
         (child: ReactElement | null, { path, component, props }) => {
-          return React.createElement(
-            component,
-            { ...props, key: path, reachBottom },
-            child,
-          );
+          return React.createElement(component, { ...props, key: path }, child);
         },
         null,
       )}
@@ -208,14 +173,11 @@ async function createRouter({
       stack.slice(1, current + 1).map((_, i) => i),
       (i) => i,
       {
-        from: { transform: 'translate(100vw, 0)' },
-        enter: { transform: 'translate(0vw, 0)' },
-        leave: { transform: 'translate(100vw, 0)' },
+        from: { left: '100vw' },
+        enter: { left: '0vw' },
+        leave: { left: '100vw' },
       },
     );
-    console.log(stack, current);
-
-    const AnimatedPage = animated(Page);
 
     return (
       <ctx.Provider
@@ -229,12 +191,32 @@ async function createRouter({
         {transitions.map(({ item, props }) => {
           const layer = item + 1;
           return (
-            <AnimatedPage
+            <animated.div
               key={layer}
-              content={stack[layer]}
-              layer={layer}
-              style={props}
-            />
+              style={{
+                position: 'fixed',
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                overflowY: 'auto',
+                zIndex: layer,
+                background: '#f5f5f9',
+                ...props,
+              }}
+            >
+              {reduceRight(
+                stack[layer].route,
+                (child: ReactElement | null, { path, component, props }) => {
+                  return React.createElement(
+                    component,
+                    { ...props, key: path },
+                    child,
+                  );
+                },
+                null,
+              )}
+            </animated.div>
           );
         })}
       </ctx.Provider>
