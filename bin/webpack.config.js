@@ -56,7 +56,7 @@ module.exports = function (env, configPath) {
   }
 
   // for SSR
-  const nodeConfig = merge(config, {
+  const nodeConfig = merge({
     name: 'node',
     target: 'node',
     externals: {
@@ -76,10 +76,10 @@ module.exports = function (env, configPath) {
         maxChunks: 1,
       }),
     ],
-  });
+  }, config);
 
   // for browser
-  const browserConfig = merge(config, {
+  const browserConfig = merge({
     name: 'browser',
     resolve: {
       alias: {
@@ -88,7 +88,7 @@ module.exports = function (env, configPath) {
     },
     output: {
       filename: 'index.js',
-      chunkFilename: '[chunkhash:5].js',
+      chunkFilename: 'chunk.[chunkhash:5].js',
       publicPath: __MIN_PUBLIC_PATH__,
       path: __MIN_OUTPUT_PATH__,
     },
@@ -98,7 +98,7 @@ module.exports = function (env, configPath) {
         __LOG_ENDPOINT__: `"${__LOG_ENDPOINT__}"`,
       }),
     ],
-  });
+  }, config);
 
   return [nodeConfig, browserConfig];
 };
