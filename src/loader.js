@@ -16,8 +16,8 @@ module.exports = function (source, inputSourceMap) {
   // fork from babel-loader@8
   const callback = this.async();
   loader.call(this, source, inputSourceMap).then(
-    args => callback(null, ...args),
-    err => callback(err),
+    (args) => callback(null, ...args),
+    (err) => callback(err),
   );
 };
 
@@ -79,7 +79,7 @@ async function loader(source, inputSourceMap) {
   routes = routes.default || routes;
 
   if (!routes.data || !routes.match || !routes.check || !routes.link) {
-    throw new Error(`invalid routes, forget to wrap it with routes()?`)
+    throw new Error(`invalid routes, forget to wrap it with routes()?`);
   }
 
   let routeTree = routes.data.data;
@@ -88,6 +88,9 @@ async function loader(source, inputSourceMap) {
       children: routeTree,
     };
   }
+
+  // base url
+  routeTree.path = __BASE__ + routeTree.path;
 
   // for named routes
   let namedRoutes = {};
@@ -114,7 +117,8 @@ async function loader(source, inputSourceMap) {
       // two ways to declare route arg:
       // 1. (name:regex) or (name?:regex)
       // 2. :name
-      let regexMatch = /\(([a-zA-Z_][a-zA-Z_0-9]*\??)\:(.*?)\)|\:([a-zA-Z_][a-zA-Z_0-9]*)/g;
+      let regexMatch =
+        /\(([a-zA-Z_][a-zA-Z_0-9]*\??)\:(.*?)\)|\:([a-zA-Z_][a-zA-Z_0-9]*)/g;
       let lastIndex = 0;
       let compiled = '';
       let params = [];
@@ -205,10 +209,12 @@ async function loader(source, inputSourceMap) {
   });
 
   // convert to source so we can hack it as string
-  let routesSource = JSON.stringify(Object.assign({}, routes.data, {
-    data: routeTree,
-    names: namedRoutes,
-  }));
+  let routesSource = JSON.stringify(
+    Object.assign({}, routes.data, {
+      data: routeTree,
+      names: namedRoutes,
+    }),
+  );
 
   // hack importComponent to be a require.ensure promise
   routesSource = routesSource.replace(
@@ -217,7 +223,7 @@ async function loader(source, inputSourceMap) {
       return `"importComponent": ${importComponent.replace(
         /__component__/g,
         (process.env.NODE_ENV === 'development' ? `${name}/hot-loader!` : '') +
-        arguments[3],
+          arguments[3],
       )}`;
     },
   );

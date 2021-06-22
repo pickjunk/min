@@ -8,172 +8,17 @@ A Tiny React Framework. Routing, SSR, out-of-box webpack & babel configuration, 
 
 ### Quick Start
 
-```bash
-$ mkdir [your-project-name]
-$ cd [your-project-name]
-$ npm init
-$ npm i -S @pickjunk/min
-
-$ vim .babelrc # see below
-$ vim routes.js # see below
-$ vim Layout.tsx # see below
-$ vim World.tsx # see below
-$ vim Who.tsx # see below
-$ vim app.js # see below
-$ vim package.json # see below
-```
-
-```javascript
-// .babelrc
-// This file is not required but peferred.
-// All dependencies showed in this example is not necessary
-// to be added to your project's package.json. MIN has
-// included them already, as a popular recommandation.
-{
-  "presets": [
-    "@babel/preset-env",
-    "@babel/preset-typescript",
-    "@babel/preset-react"
-  ],
-  "plugins": [
-    "@babel/plugin-transform-runtime",
-    "@babel/proposal-class-properties",
-    "@babel/plugin-proposal-object-rest-spread"
-  ]
-}
-```
-
-```javascript
-// routes.js
-// Define the routes tree.
-export default [
-  {
-    path: '/',
-    component: './Layout',
-    children: [
-      {
-        component: './World',
-      },
-      {
-        path: ':who',
-        name: 'who',
-        component: './Who',
-      },
-    ],
-  },
-];
-```
-
-```javascript
-// Layout.tsx
-// Layout Component.
-import React from 'react';
-import { router, Link } from '@pickjunk/min';
-
-export default function Layout({ children }) {
-  return (
-    <div>
-      <p>hello, {children}</p>
-      <ul>
-        <li>
-          <Link to="/">world</Link>
-        </li>
-        <li>
-          <Link to="/min">min</Link>
-        </li>
-        <li>
-          <a
-            href={router.link('who', { who: 'there' })}
-            onClick={function(e) {
-              e.preventDefault();
-              router.push('who', { who: 'there' });
-            }}
-          >
-            there
-          </a>
-        </li>
-      </ul>
-    </div>
-  );
-}
-```
-
-```javascript
-// World.tsx
-// World Component.
-import React from 'react';
-
-export default function World() {
-  return <span>world</span>;
-}
-```
-
-```javascript
-// World.tsx
-// World Component.
-import React from 'react';
-import { useRouter } from '@pickjunk/min';
-
-export default function World() {
-  const {
-    args: { who },
-    name,
-    location,
-  } = useRouter();
-
-  return (
-    <span>
-      {who} [name: {name}] [location: {location}]
-    </span>
-  );
-}
-```
-
-```javascript
-// app.js
-// App Entry.
-import React from 'react';
-import app from '@pickjunk/min';
-import routes from './routes';
-
-export default app({
-  routes,
-  render(Router) {
-    return (
-      <html lang="en">
-        <head>
-          <meta charSet="UTF-8" />
-          <title>demo</title>
-        </head>
-        <body>
-          <div id="app">
-            <Router />
-          </div>
-        </body>
-      </html>
-    );
-  },
-  notFound() {
-    alert('browser 404 alert, usually should be redirected');
-  },
-});
-```
-
-```javascript
-// package.json
-// Add dev script.
-"scripts": {
-  "dev": "min dev"
-},
-```
-
-That's all you need. A tiny app is ready. Run:
+A mobile example with zarm:
 
 ```bash
-$ npm run dev
+$ npm init @pickjunk/min create mobile min-mobile
 ```
 
-Dev Server is running on port `8000` as default.
+An admin example with antd:
+
+```bash
+$ npm init @pickjunk/min create mobile min-admin
+```
 
 ### Routes.js
 
@@ -250,43 +95,6 @@ router.go(2);
 // generate url to render, very useful for named routes
 router.link('name or path', { args: 'args for named routes' });
 ```
-
-### Custom webpack.config.js
-
-You can custom a webpack.config.js file under your project root directory. MIN will load it and merge it with the internal webpack.config.js. A popular example is:
-
-```javascript
-// webpack.config.js
-module.exports = {
-  module: {
-    rules: [
-      {
-        test: /\.(png|jpg|gif|svg)$/,
-        loader: 'file-loader',
-        options: {
-          publicPath: path.join(__MIN_PUBLIC_PATH__, 'images'),
-          outputPath: 'images',
-        },
-      },
-    ],
-  },
-  devtool: 'cheap-eval-source-map',
-  devServer: {
-    proxy: [
-      '/api/',
-      {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        pathRewrite: {
-          '^/api/': '/',
-        },
-      },
-    ],
-  },
-};
-```
-
-> Noticed that `__MIN_PUBLIC_PATH__` is a special global variable provided by MIN. It's necessary when you want to release static resources. Without it, the SSR server will not find the static resources.
 
 ### Production
 

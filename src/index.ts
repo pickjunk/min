@@ -27,15 +27,11 @@ export default async function app({
   likeApp = false,
 }: {
   routes: Routes;
-  ssr: (
-    router: FunctionComponent<{}>,
-  ) => {
+  ssr: (router: FunctionComponent<{}>) => {
     jsx: ReactElement;
     callback?: (html: string) => string;
   };
-  hydrate: (
-    router: FunctionComponent<{}>,
-  ) => {
+  hydrate: (router: FunctionComponent<{}>) => {
     jsx: ReactElement;
     id: string;
     callback?: () => void;

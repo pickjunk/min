@@ -7,6 +7,7 @@ const { name } = require('../package');
 
 module.exports = function (env, configPath) {
   let config = env({
+    stats: 'errors-only',
     entry: path.resolve('./app.tsx'),
     resolveLoader: {
       alias: {
@@ -31,14 +32,55 @@ module.exports = function (env, configPath) {
           exclude: /node_modules/,
           use: ['babel-loader'],
         },
+        {
+          test: /\.(png|jpg|gif|svg)$/,
+          loader: 'file-loader',
+          options: {
+            publicPath: __PUBLIC_PATH__ + 'images',
+            outputPath: 'images',
+          },
+        },
+        {
+          test: /\.less$/,
+          use: [
+            {
+              loader: 'style-loader',
+            },
+            {
+              loader: 'css-loader',
+            },
+            {
+              loader: 'less-loader',
+            },
+          ],
+        },
+        {
+          test: /\.css$/,
+          use: [
+            {
+              loader: 'style-loader',
+            },
+            {
+              loader: 'css-loader',
+            },
+          ],
+        },
+        {
+          test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: '[name].[ext]',
+                outputPath: 'fonts',
+              },
+            },
+          ],
+        },
       ],
     },
     plugins: [],
   });
-
-  // export useful global variable for project webpack.config.js
-  global.__MIN_PUBLIC_PATH__ = '/__min-static__/';
-  global.__MIN_OUTPUT_PATH__ = path.resolve('./dist/__min-static__');
 
   // merge project config
   let projectConfig = {};
@@ -56,49 +98,55 @@ module.exports = function (env, configPath) {
   }
 
   // for SSR
-  const nodeConfig = merge({
-    name: 'node',
-    target: 'node',
-    externals: {
-      react: 'react',
-      'react-dom': 'react-dom',
-      __LOG_STUB__: '__LOG_STUB__',
+  const nodeConfig = merge(
+    {
+      name: 'node',
+      target: 'node',
+      externals: {
+        react: 'react',
+        'react-dom': 'react-dom',
+        __LOG_STUB__: '__LOG_STUB__',
+      },
+      output: {
+        filename: 'ssr.js',
+        path: path.resolve('./dist'),
+        libraryTarget: 'umd',
+      },
+      plugins: [
+        // disable code splitting
+        // https://medium.com/@glennreyes/how-to-disable-code-splitting-in-webpack-1c0b1754a3c5
+        new webpack.optimize.LimitChunkCountPlugin({
+          maxChunks: 1,
+        }),
+      ],
     },
-    output: {
-      filename: 'ssr.js',
-      path: path.resolve('./dist'),
-      libraryTarget: 'umd',
-    },
-    plugins: [
-      // disable code splitting
-      // https://medium.com/@glennreyes/how-to-disable-code-splitting-in-webpack-1c0b1754a3c5
-      new webpack.optimize.LimitChunkCountPlugin({
-        maxChunks: 1,
-      }),
-    ],
-  }, config);
+    config,
+  );
 
   // for browser
-  const browserConfig = merge({
-    name: 'browser',
-    resolve: {
-      alias: {
-        __LOG_STUB__: path.resolve(__dirname, '../lib/log/browser'),
+  const browserConfig = merge(
+    {
+      name: 'browser',
+      resolve: {
+        alias: {
+          __LOG_STUB__: path.resolve(__dirname, '../lib/log/browser'),
+        },
       },
+      output: {
+        filename: 'index.js',
+        chunkFilename: 'chunk.[chunkhash:5].js',
+        publicPath: __PUBLIC_PATH__,
+        path: __OUTPUT_PATH__,
+      },
+      plugins: [
+        new webpack.DefinePlugin({
+          __LOG__,
+          __LOG_ENDPOINT__: `"${__LOG_ENDPOINT__}"`,
+        }),
+      ],
     },
-    output: {
-      filename: 'index.js',
-      chunkFilename: 'chunk.[chunkhash:5].js',
-      publicPath: __MIN_PUBLIC_PATH__,
-      path: __MIN_OUTPUT_PATH__,
-    },
-    plugins: [
-      new webpack.DefinePlugin({
-        __LOG__,
-        __LOG_ENDPOINT__: `"${__LOG_ENDPOINT__}"`,
-      }),
-    ],
-  }, config);
+    config,
+  );
 
   return [nodeConfig, browserConfig];
 };

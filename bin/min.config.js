@@ -14,6 +14,12 @@ module.exports = function (minPath) {
     }
   }
 
+  // global variables
+  let baseURL = minConfig.base;
+  global.__BASE__ = baseURL || '';
+  global.__PUBLIC_PATH__ = __BASE__ + '/__min__/';
+  global.__OUTPUT_PATH__ = path.resolve('./dist/__min__');
+
   // log config, generate log constants
   let logConfig = minConfig.log;
   global.__LOG__ = false;
