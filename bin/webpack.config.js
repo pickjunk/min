@@ -26,6 +26,9 @@ module.exports = function (env, configPath) {
           test: /[\\/]routes\.(j|t)s$/,
           exclude: /node_modules|min[\\/]lib/,
           use: `${name}/loader`,
+          options: {
+            base: __BASE__,
+          },
         },
         {
           test: /\.(ts|js)x?$/,

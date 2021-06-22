@@ -67,6 +67,7 @@ async function babelLoader(source, inputSourceMap) {
 
 async function loader(source, inputSourceMap) {
   const filename = this.resourcePath;
+  const options = this.getOptions();
 
   [source, inputSourceMap] = await babelLoader.call(
     this,
@@ -90,7 +91,10 @@ async function loader(source, inputSourceMap) {
   }
 
   // base url
-  routeTree.path = __BASE__ + routeTree.path;
+  if (options.base) {
+    routeTree.path = routeTree.path || '';
+    routeTree.path = options.base + routeTree.path;
+  }
 
   // for named routes
   let namedRoutes = {};
