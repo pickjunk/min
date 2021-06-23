@@ -3,8 +3,15 @@ const fs = require('fs');
 const log = require('./log');
 
 module.exports = function (minPath) {
+  // default
+  let minConfig = {
+    base: '',
+    lessOptions: {},
+    devServer: {},
+    log: true,
+  };
+
   // load min config
-  let minConfig = {};
   const m = path.resolve(process.cwd(), minPath);
   if (fs.existsSync(m)) {
     log.info(`found min config: ${m}`);
@@ -14,29 +21,33 @@ module.exports = function (minPath) {
     }
   }
 
-  // global variables
-  let baseURL = minConfig.base;
-  global.__BASE__ = baseURL || '';
-  global.__PUBLIC_PATH__ = __BASE__ + '/__min__/';
-  global.__OUTPUT_PATH__ = path.resolve('./dist/__min__');
+  global.__BASE__ = minConfig.base;
+  global.__LESS_OPTIONS__ = minConfig.lessOptions;
+  global.__DEV_SERVER__ = minConfig.devServer;
 
-  // log config, generate log constants
-  let logConfig = minConfig.log;
+  // log
+  let log = minConfig.log;
   global.__LOG__ = false;
-  global.__LOG_ENDPOINT__ = null;
+  global.__LOG_ENDPOINT__ = '/__log__';
   global.__LOG_FILE__ = null;
-  if (logConfig !== false) {
-    if (typeof logConfig != 'object') {
-      logConfig = {};
-    }
+  if (log) {
     global.__LOG__ = true;
-    global.__LOG_ENDPOINT__ = logConfig.endpoint || '/__log__';
-    global.__LOG_FILE__ = logConfig.file;
-
-    const endpoint = global.__LOG_ENDPOINT__;
-    const file = global.__LOG_FILE__;
+    // log to file
+    if (typeof log === 'string') {
+      global.__LOG_FILE__ = log;
+      log.info(
+        `log enabled: ${log}`,
+      );
+    }
+    // log to console
+    else {
+      log.info(
+        `log enabled: console`,
+      );
+    }
+  } else {
     log.info(
-      `log enabled: endpoint=${endpoint}, ${file ? 'file=' + file : 'console'}`,
+      `log disabled`,
     );
   }
 

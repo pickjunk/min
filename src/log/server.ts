@@ -3,7 +3,7 @@ import { Fields } from '../logger';
 
 const isProd = process.env.NODE_ENV === 'production';
 // @ts-ignore
-const pretty = !isProd && !__LOG_FILE__;
+const pretty = !isProd;
 const logger = pino(
   {
     base: null,

@@ -38,6 +38,10 @@ module.exports = function (program) {
           ...c.module.rules[1].use,
         ];
 
+        if (__DEV_SERVER__) {
+          c.devServer = __DEV_SERVER__;
+        }
+
         c.plugins.push(new webpack.HotModuleReplacementPlugin());
         c.plugins.push(new WebpackBar());
 

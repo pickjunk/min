@@ -5,7 +5,9 @@ const fs = require('fs');
 const log = require('./log');
 const { name } = require('../package');
 
-module.exports = function (env, configPath) {
+module.exports = function (env) {
+  const publicPath = __BASE__ + '/__min__/';
+
   let config = env({
     stats: 'errors-only',
     entry: path.resolve('./app.tsx'),
@@ -43,7 +45,7 @@ module.exports = function (env, configPath) {
           test: /\.(png|jpg|gif|svg)$/,
           loader: 'file-loader',
           options: {
-            publicPath: __PUBLIC_PATH__ + 'images',
+            publicPath: publicPath + 'images',
             outputPath: 'images',
           },
         },
@@ -58,6 +60,9 @@ module.exports = function (env, configPath) {
             },
             {
               loader: 'less-loader',
+              options: {
+                lessOptions: __LESS_OPTIONS__,
+              },
             },
           ],
         },
@@ -88,21 +93,6 @@ module.exports = function (env, configPath) {
     },
     plugins: [],
   });
-
-  // merge project config
-  let projectConfig = {};
-  const p = path.resolve(process.cwd(), configPath);
-  if (fs.existsSync(p)) {
-    log.info(`found webpack config: ${p}`);
-    projectConfig = require(p);
-    if (typeof projectConfig === 'object') {
-      config = merge(config, projectConfig);
-    } else {
-      throw new Error(
-        'invalid webpack.config.js, forget to export your config?',
-      );
-    }
-  }
 
   // for SSR
   const nodeConfig = merge(
@@ -142,8 +132,8 @@ module.exports = function (env, configPath) {
       output: {
         filename: 'index.js',
         chunkFilename: 'chunk.[chunkhash:5].js',
-        publicPath: __PUBLIC_PATH__,
-        path: __OUTPUT_PATH__,
+        publicPath,
+        path: path.resolve('./dist/__min__'),
       },
       plugins: [
         new webpack.DefinePlugin({
