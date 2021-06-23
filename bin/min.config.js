@@ -28,15 +28,15 @@ module.exports = function (minPath) {
   global.__DEV_SERVER__ = minConfig.devServer;
 
   // log
-  let log = minConfig.log;
-  global.__LOG__ = false;
+  global.__LOG__ = true;
   global.__LOG_ENDPOINT__ = '/__log__';
   global.__LOG_FILE__ = null;
-  if (log) {
+  if (minConfig.log) {
     global.__LOG__ = true;
+
     // log to file
     if (typeof log === 'string') {
-      global.__LOG_FILE__ = log;
+      global.__LOG_FILE__ = minConfig.log;
       log.info(`log enabled: ${log}`);
     }
     // log to console
@@ -44,6 +44,7 @@ module.exports = function (minPath) {
       log.info(`log enabled: console`);
     }
   } else {
+    global.__LOG__ = false;
     log.info(`log disabled`);
   }
 
