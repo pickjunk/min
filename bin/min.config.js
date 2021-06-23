@@ -16,7 +16,10 @@ module.exports = function (minPath) {
   const m = path.resolve(process.cwd(), minPath);
   if (fs.existsSync(m)) {
     log.info(`found min config: ${m}`);
-    minConfig = require(m);
+    minConfig = {
+      ...minConfig,
+      ...require(m),
+    };
     if (typeof minConfig !== 'object') {
       throw new Error('invalid min.config.js, forget to export your config?');
     }
