@@ -139,10 +139,32 @@ function traverse(
   let routeGetComponents = [...context.routeGetComponents];
   let routeArguments = { ...context.routeArguments };
 
-  let regex = new RegExp('^' + node._path, 'g');
+  // a route without path (default route)
+  // regarded as always matched
+  if (!node._path) {
+    getComponent(routeGetComponents, '__default__', node);
 
-  if (node._path) {
+    if (node.children) {
+      for (let child of node.children) {
+        const result = traverse(child, {
+          remain,
+
+          routeGetComponents,
+          routeArguments,
+        });
+
+        if (result) {
+          return result;
+        }
+      }
+    }
+  }
+  // a route with path (normal route)
+  // try to match by Regexp
+  else {
+    let regex = new RegExp('^' + node._path, 'g');
     let match = null;
+
     if ((match = regex.exec(remain))) {
       getComponent(routeGetComponents, match[0], node);
 
@@ -180,32 +202,29 @@ function traverse(
 
           // if having children but a default one can't be found
           // match will be fail.
-          if (!defaultChild) return false;
+          if (!defaultChild) {
+            return false;
+          }
 
           iterator = defaultChild;
         }
 
         return [routeGetComponents, routeArguments, iterator.name];
       }
-    }
-  } else {
-    // a route without path (default route)
-    // regarded as always matched
-    // Note: This will perform as a deep-first tree search
-    getComponent(routeGetComponents, '__default__', node);
-  }
 
-  if (node.children) {
-    for (let child of node.children) {
-      const result = traverse(child, {
-        remain: remain.substr(regex.lastIndex),
+      if (node.children) {
+        for (let child of node.children) {
+          const result = traverse(child, {
+            remain: remain.substr(regex.lastIndex),
 
-        routeGetComponents,
-        routeArguments,
-      });
+            routeGetComponents,
+            routeArguments,
+          });
 
-      if (result) {
-        return result;
+          if (result) {
+            return result;
+          }
+        }
       }
     }
   }

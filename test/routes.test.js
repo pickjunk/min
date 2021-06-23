@@ -348,3 +348,14 @@ test('routes.ts', async () => {
   expect(args).toEqual({});
   expect(name).toEqual('default');
 });
+
+test('fix the corner case in 404', async () => {
+  let stats = await compiler('404.js');
+  expect(stats.errors[0]).toBe(undefined);
+
+  const routes = require('./dist/404');
+  let r;
+
+  r = await routes.check('/');
+  expect(r).toEqual(false);
+});
