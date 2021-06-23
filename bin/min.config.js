@@ -5,6 +5,7 @@ const log = require('./log');
 module.exports = function (minPath) {
   // default
   let minConfig = {
+    entry: './app.tsx',
     base: '',
     lessOptions: {},
     devServer: {},
@@ -21,6 +22,7 @@ module.exports = function (minPath) {
     }
   }
 
+  global.__ENTRY__ = minConfig.entry;
   global.__BASE__ = minConfig.base;
   global.__LESS_OPTIONS__ = minConfig.lessOptions;
   global.__DEV_SERVER__ = minConfig.devServer;
@@ -35,20 +37,14 @@ module.exports = function (minPath) {
     // log to file
     if (typeof log === 'string') {
       global.__LOG_FILE__ = log;
-      log.info(
-        `log enabled: ${log}`,
-      );
+      log.info(`log enabled: ${log}`);
     }
     // log to console
     else {
-      log.info(
-        `log enabled: console`,
-      );
+      log.info(`log enabled: console`);
     }
   } else {
-    log.info(
-      `log disabled`,
-    );
+    log.info(`log disabled`);
   }
 
   // hack __LOG_STUB__ for server

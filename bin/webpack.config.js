@@ -10,7 +10,7 @@ module.exports = function (env) {
 
   let config = env({
     stats: 'errors-only',
-    entry: path.resolve('./app.tsx'),
+    entry: __ENTRY__,
     resolveLoader: {
       alias: {
         [name]: path.resolve(__dirname, '../lib'),
