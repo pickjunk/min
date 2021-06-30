@@ -32,7 +32,7 @@ module.exports = function (minPath) {
 
   // log
   global.__LOG__ = true;
-  global.__LOG_ENDPOINT__ = '/__log__';
+  global.__LOG_ENDPOINT__ = config.base + '/__log__';
   global.__LOG_FILE__ = null;
   if (config.log) {
     global.__LOG__ = true;

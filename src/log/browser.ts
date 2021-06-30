@@ -6,9 +6,7 @@ export default function log(level: string, fields: Fields) {
   if (__LOG__) {
     fetch(
       // @ts-ignore
-      __BASE__ +
-        // @ts-ignore
-        __LOG_ENDPOINT__ +
+      __LOG_ENDPOINT__ +
         qs.stringify(
           {
             level,
