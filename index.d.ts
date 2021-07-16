@@ -17,7 +17,7 @@ export default function app({ routes, ssr, hydrate, likeApp, }: {
     };
     likeApp?: boolean;
 }): Promise<(location: string) => Promise<{
-    jsx: ReactElement<any, string | ((props: any) => ReactElement<any, any> | null) | (new (props: any) => import("react").Component<any, any, any>)>;
+    jsx: ReactElement<any, string | import("react").JSXElementConstructor<any>>;
     callback: ((html: string) => string) | undefined;
     notFound: boolean;
 }>>;
