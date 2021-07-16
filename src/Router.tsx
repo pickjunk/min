@@ -29,11 +29,9 @@ const location$ = new Subject<['push' | 'replace', string]>();
 
 function Page({
   content,
-  layer,
   style = {},
 }: {
   content: LoadedRoute;
-  layer: number;
   style?: React.CSSProperties;
 }) {
   return (
@@ -45,7 +43,6 @@ function Page({
         left: 0,
         right: 0,
         overflowY: 'auto',
-        zIndex: layer,
         background: '#f5f5f9',
         ...style,
       }}
@@ -60,6 +57,7 @@ function Page({
     </div>
   );
 }
+const AnimatedPage = animated(Page);
 
 async function createRouter({
   routes,
@@ -168,17 +166,12 @@ async function createRouter({
 
     const { stack, current } = state.current;
 
-    const transitions = useTransition(
-      stack.slice(1, current + 1).map((_, i) => i),
-      (i) => i,
-      {
-        from: { transform: 'translate(100vw, 0)' },
-        enter: { transform: 'translate(0vw, 0)' },
-        leave: { transform: 'translate(100vw, 0)' },
-      },
-    );
-
-    const AnimatedPage = animated(Page);
+    const animatedPages = stack.slice(1, current + 1);
+    const transitions = useTransition(animatedPages, {
+      from: { x: 100 },
+      enter: { x: 0 },
+      leave: { x: 100 },
+    });
 
     return (
       <ctx.Provider
@@ -188,15 +181,15 @@ async function createRouter({
           ...stack[current],
         }}
       >
-        <Page content={stack[0]} layer={0} />
-        {transitions.map(({ item, props }) => {
-          const layer = item + 1;
+        <Page content={stack[0]} />
+        {transitions(({ x }, item, _, i) => {
           return (
             <AnimatedPage
-              key={layer}
-              content={stack[layer]}
-              layer={layer}
-              style={props}
+              content={item}
+              style={{
+                translateX: x.to((x) => `${x}vw`),
+                zIndex: i + 1,
+              }}
             />
           );
         })}
