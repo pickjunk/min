@@ -1,6 +1,6 @@
 {
   "name": "@pickjunk/min",
-  "version": "1.8.2",
+  "version": "1.9.0",
   "description": "A Tiny React Framework",
   "main": "lib/index.js",
   "scripts": {
