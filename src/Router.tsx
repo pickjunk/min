@@ -27,7 +27,6 @@ export interface RouterLoadedRoute extends LoadedRoute {
 }
 
 export interface RouterContext extends RouterLoadedRoute {
-  routes: Routes;
   loading: boolean;
 }
 
@@ -40,33 +39,46 @@ const ctx = createContext<RouterContext | null>(null);
 const location$ = new Subject<['push' | 'replace', RouterLocation]>();
 
 function Page({
-  content,
+  route,
+  loading,
   style = {},
 }: {
-  content: LoadedRoute;
+  route: LoadedRoute;
+  loading: boolean;
   style?: React.CSSProperties;
 }) {
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        overflowY: 'auto',
-        background: '#f5f5f9',
-        ...style,
+    <ctx.Provider
+      value={{
+        ...route,
+        loading,
       }}
     >
-      {reduceRight(
-        content.route,
-        (child: ReactElement | null, { path, component, props }) => {
-          return React.createElement(component, { ...props, key: path }, child);
-        },
-        null,
-      )}
-    </div>
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          overflowY: 'auto',
+          background: '#f5f5f9',
+          ...style,
+        }}
+      >
+        {reduceRight(
+          route.route,
+          (child: ReactElement | null, { path, component, props }) => {
+            return React.createElement(
+              component,
+              { ...props, key: path },
+              child,
+            );
+          },
+          null,
+        )}
+      </div>
+    </ctx.Provider>
   );
 }
 const AnimatedPage = animated(Page);
@@ -198,19 +210,18 @@ async function createRouter({
       leave: { x: 100 },
     });
 
+    function isLoading(i: number) {
+      return stack.length - 1 == i && loading;
+    }
+
     return (
-      <ctx.Provider
-        value={{
-          ...stack[current],
-          routes,
-          loading,
-        }}
-      >
-        <Page content={stack[0]} />
+      <>
+        <Page route={stack[0]} loading={isLoading(0)} />
         {transitions(({ x }, item, _, i) => {
           return (
             <AnimatedPage
-              content={item}
+              route={item}
+              loading={isLoading(i)}
               style={{
                 translateX: x.to((x) => `${x}vw`),
                 zIndex: i + 1,
@@ -218,7 +229,7 @@ async function createRouter({
             />
           );
         })}
-      </ctx.Provider>
+      </>
     );
   };
 }

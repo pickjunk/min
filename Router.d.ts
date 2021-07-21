@@ -10,7 +10,6 @@ export interface RouterLoadedRoute extends LoadedRoute {
     context?: Context;
 }
 export interface RouterContext extends RouterLoadedRoute {
-    routes: Routes;
     loading: boolean;
 }
 export interface ReachHandler {
