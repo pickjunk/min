@@ -110,7 +110,13 @@ async function createRouter({
 
             const route = await routes.match(path);
 
-            return [action, route];
+            return [
+              action,
+              {
+                ...route,
+                context: location.context,
+              },
+            ];
           }),
         )
         .subscribe(function ([action, route]) {
