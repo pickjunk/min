@@ -14,7 +14,19 @@ import log from './logger';
 import { useTransition, animated } from 'react-spring';
 import useForceUpdate from 'use-force-update';
 
-export interface RouterContext extends LoadedRoute {
+export interface Context {
+  [key: string]: any;
+}
+
+export interface RouterLocation extends Location {
+  context?: Context;
+}
+
+export interface RouterLoadedRoute extends LoadedRoute {
+  context?: Context;
+}
+
+export interface RouterContext extends RouterLoadedRoute {
   routes: Routes;
   loading: boolean;
 }
@@ -25,7 +37,7 @@ export interface ReachHandler {
 
 let _routes: Routes | null = null;
 const ctx = createContext<RouterContext | null>(null);
-const location$ = new Subject<['push' | 'replace', string]>();
+const location$ = new Subject<['push' | 'replace', RouterLocation]>();
 
 function Page({
   content,
@@ -65,7 +77,7 @@ async function createRouter({
   likeApp,
 }: {
   routes: Routes;
-  initialRoute: LoadedRoute;
+  initialRoute: RouterLoadedRoute;
   likeApp: boolean;
 }): Promise<React.FC<{}>> {
   _routes = routes;
@@ -73,7 +85,7 @@ async function createRouter({
   return function Router(): ReactElement {
     const [loading, setLoading] = useState<boolean>(false);
     const state = useRef({
-      stack: [initialRoute] as LoadedRoute[],
+      stack: [initialRoute] as RouterLoadedRoute[],
       current: 0,
     });
 
@@ -86,15 +98,17 @@ async function createRouter({
       const end = location$
         .pipe(
           switchMap(async function ([action, location]): Promise<
-            [string, LoadedRoute]
+            [string, RouterLoadedRoute]
           > {
-            if (routes.check(location)) {
-              log.info({ path: location, status: '200' });
+            const path = routes.link(location);
+
+            if (routes.check(path)) {
+              log.info({ path, status: '200' });
             } else {
-              log.warn({ path: location, status: '404' });
+              log.warn({ path, status: '404' });
             }
 
-            const route = await routes.match(location);
+            const route = await routes.match(path);
 
             return [action, route];
           }),
@@ -135,7 +149,12 @@ async function createRouter({
       const originPopState = window.onpopstate;
       window.onpopstate = function () {
         if (!likeApp) {
-          location$.next(['push', windowLocation()]);
+          location$.next([
+            'push',
+            {
+              path: windowLocation(),
+            },
+          ]);
         } else {
           const { stack, current } = state.current;
           // back
@@ -176,9 +195,9 @@ async function createRouter({
     return (
       <ctx.Provider
         value={{
+          ...stack[current],
           routes,
           loading,
-          ...stack[current],
         }}
       >
         <Page content={stack[0]} />
@@ -200,19 +219,19 @@ async function createRouter({
 
 export default createRouter;
 
-export function push(location: Location): void {
+export function push(location: RouterLocation): void {
   routesRequired();
 
   const target = _routes!.link(location);
   history.pushState(null, '', target);
-  location$.next(['push', target]);
+  location$.next(['push', location]);
 }
-export function replace(location: Location): void {
+export function replace(location: RouterLocation): void {
   routesRequired();
 
   const target = _routes!.link(location);
   history.replaceState(null, '', target);
-  location$.next(['replace', target]);
+  location$.next(['replace', location]);
 }
 export function back(): void {
   routesRequired();
