@@ -1,16 +1,23 @@
 import React, { ReactElement } from 'react';
-import { Location } from './routes';
-import { push, link } from './Router';
+import { push, link, RouterLocation } from './Router';
 
-interface Props extends Location {
+interface Props extends RouterLocation {
   children: ReactElement | string;
 }
 
-export default function Link({ name, path, args, children, ...props }: Props) {
+export default function Link({
+  name,
+  path,
+  args,
+  context,
+  children,
+  ...props
+}: Props) {
   const location = {
     name,
     path,
     args,
+    context,
   };
 
   return (
