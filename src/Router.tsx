@@ -28,6 +28,7 @@ export interface RouterLoadedRoute extends LoadedRoute {
 
 export interface RouterContext extends RouterLoadedRoute {
   loading: boolean;
+  onShow: (cb: () => Promise<void> | void) => void;
 }
 
 export interface ReachHandler {
@@ -47,11 +48,23 @@ function Page({
   loading: boolean;
   style?: React.CSSProperties;
 }) {
+  function onShow(cb: () => Promise<void> | void) {
+    useEffect(
+      function () {
+        if (loading == false) {
+          cb();
+        }
+      },
+      [loading],
+    );
+  }
+
   return (
     <ctx.Provider
       value={{
         ...route,
         loading,
+        onShow,
       }}
     >
       <div
