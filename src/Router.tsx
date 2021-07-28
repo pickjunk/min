@@ -225,19 +225,15 @@ async function createRouter({
       leave: { x: 100 },
     });
 
-    function active(i: number) {
-      return stack.length - 1 == i;
-    }
-
     return (
       <>
-        <Page route={stack[0]} loading={loading} active={active(0)} />
+        <Page route={stack[0]} loading={loading} active={current == 0} />
         {transitions(({ x }, item, _, i) => {
           return (
             <AnimatedPage
               route={item}
               loading={loading}
-              active={active(i)}
+              active={current == i}
               style={{
                 translateX: x.to((x) => `${x}vw`),
                 zIndex: i + 1,
