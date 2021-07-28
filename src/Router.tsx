@@ -42,20 +42,22 @@ const location$ = new Subject<['push' | 'replace', RouterLocation]>();
 function Page({
   route,
   loading,
+  active,
   style = {},
 }: {
   route: LoadedRoute;
   loading: boolean;
+  active: boolean;
   style?: React.CSSProperties;
 }) {
   function onShow(cb: () => Promise<void> | void) {
     useEffect(
       function () {
-        if (loading == false) {
+        if (active == true) {
           cb();
         }
       },
-      [loading],
+      [active],
     );
   }
 
@@ -223,18 +225,19 @@ async function createRouter({
       leave: { x: 100 },
     });
 
-    function isLoading(i: number) {
-      return stack.length - 1 == i && loading;
+    function active(i: number) {
+      return stack.length - 1 == i;
     }
 
     return (
       <>
-        <Page route={stack[0]} loading={isLoading(0)} />
+        <Page route={stack[0]} loading={loading} active={active(0)} />
         {transitions(({ x }, item, _, i) => {
           return (
             <AnimatedPage
               route={item}
-              loading={isLoading(i)}
+              loading={loading}
+              active={active(i)}
               style={{
                 translateX: x.to((x) => `${x}vw`),
                 zIndex: i + 1,
