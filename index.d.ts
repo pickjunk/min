@@ -1,5 +1,5 @@
 import { FunctionComponent, ReactElement } from 'react';
-import createRouter, { replace, push, back, forward, link, useRouter, routing } from './Router';
+import createRouter, { replace, push, back, forward, link, onChange, useRouter, routing } from './Router';
 import Link from './Link';
 import routes, { Routes, Location as RouteLocation, Params as RouteParams } from './routes';
 import log from './logger';
@@ -27,5 +27,6 @@ declare const router: {
     back: typeof back;
     forward: typeof forward;
     link: typeof link;
+    onChange: typeof onChange;
 };
 export { createRouter, router, useRouter, routes, routing, Link, NoSSR, log, RouteLocation, RouteParams, };

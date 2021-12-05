@@ -6,6 +6,7 @@ import createRouter, {
   back,
   forward,
   link,
+  onChange,
   useRouter,
   routing,
   windowLocation,
@@ -73,6 +74,7 @@ const router = {
   back,
   forward,
   link,
+  onChange,
 };
 
 export {

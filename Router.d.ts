@@ -27,6 +27,7 @@ export declare function replace(location: RouterLocation): void;
 export declare function back(): void;
 export declare function forward(): void;
 export declare function link(location: Location): string;
+export declare function onChange(listener: () => any): () => void;
 export declare function useRouter(): RouterContext | null;
 export declare function windowLocation(): string;
 export declare function routing(init: Routing): (component: Component<any>) => Component<any>;

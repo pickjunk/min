@@ -278,6 +278,11 @@ export function link(location: Location): string {
   return _routes!.link(location);
 }
 
+export function onChange(listener: () => any) {
+  const sub = location$.subscribe(listener);
+  return sub.unsubscribe;
+}
+
 export function useRouter() {
   return useContext(ctx);
 }
