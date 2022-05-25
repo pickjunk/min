@@ -68,7 +68,7 @@
     "estraverse": "^4.3.0",
     "express": "^4.17.1",
     "file-loader": "^6.2.0",
-    "fs-extra": "^7.0.1",
+    "fs-extra": "^8.0.0",
     "http-proxy-middleware": "^0.19.2",
     "js-object-pretty-print": "^0.3.0",
     "less-loader": "^10.0.1",
